@@ -6,7 +6,7 @@ fetch('movies.json')
     movies = data;
   });
 
-function searchMovie() {
+function searchMovie(keyword) {
   let keyword = document.getElementById("search").value.trim();
   let resultsDiv = document.getElementById("results");
 

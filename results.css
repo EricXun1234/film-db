@@ -1,0 +1,127 @@
+body {
+  margin: 0;
+  background: #1e1e1e;
+  font-family: Arial, sans-serif;
+  color: white;
+}
+
+/* ⭐ 核心：限制整體寬度 */
+.container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+/* ⭐ 卡片排列 */
+#results {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* ⭐ 卡片 */
+.card {
+  background: #2a2b32;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* ⭐ 圖片（關鍵修正） */
+.poster {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* ⭐ 標題 */
+.card h2 {
+  font-size: 22px;
+  margin: 8px 0;
+}
+
+/* ⭐ meta */
+.meta {
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* ⭐ 說明縮小 */
+.reason {
+  font-size: 14px;
+  padding: 8px;
+  margin: 8px 0;
+  background: #1f2025;
+  border-radius: 8px;
+}
+
+/* ⭐ info區塊縮小 */
+.info-box {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.info-box div {
+  background: #1f2025;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* ⭐ 進度條 */
+.score-bar {
+  background: #374151;
+  height: 6px;
+  border-radius: 10px;
+  margin: 6px 0;
+}
+
+.score-bar div {
+  background: linear-gradient(90deg, #6366F1, #8B5CF6);
+  height: 100%;
+  border-radius: 10px;
+}
+
+/* ⭐ 按鈕 */
+button {
+  background: #6366f1;
+  color: white;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+/* ⭐ 手機 */
+@media (max-width: 900px) {
+  #results {
+    grid-template-columns: 1fr;
+  }
+}
+
+.search-area {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+#search {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+.search-area button {
+  background: #6366F1;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+}
