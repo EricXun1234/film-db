@@ -42,13 +42,6 @@ h1 {
     font-weight: bold;
 }
 
-.card {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    margin: 18px 0;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-}
 
 .title {
     font-size: 24px;
@@ -76,7 +69,7 @@ h1 {
     background: #2a2b32;
     color: white;
     border-radius: 12px;
-    padding: 20px;
+    padding: 16px;
     margin-bottom: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
@@ -86,6 +79,8 @@ h1 {
     width: 100%;
     border-radius: 10px;
     margin-bottom: 10px;
+    height: 220px;
+    object-fit: cover;
 }
 
 /* 標題 */
@@ -104,11 +99,13 @@ h2 {
     margin: 10px 0;
     line-height: 1.6;
     color: #ddd;
+    font-size: 14px;
 }
 
 /* 三格資訊 */
 .info-box {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 10px;
     margin: 15px 0;
 }
@@ -162,4 +159,14 @@ button {
   background: linear-gradient(90deg, #6366F1, #8B5CF6);
   height: 100%;
   border-radius: 10px;
+}
+
+#results {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.card h2 {
+  font-size: 22px;
 }
