@@ -73,9 +73,9 @@ function searchMovie(keyword) {
             </div>
           </div>
 
-          <button onclick="window.location.href='player.html?video=${movie.ytId}&title=${encodeURIComponent(movie.title)}'">
-            ▶ 播放
-          </button>
+          <button onclick='goPlayer(${JSON.stringify(movie)})'>
+  ▶ 播放
+</button>
         </div>
       `;
     });
@@ -85,4 +85,8 @@ function searchMovie(keyword) {
 function searchAgain() {
   const keyword = document.getElementById("search").value.trim();
   window.location.href = `results.html?keyword=${encodeURIComponent(keyword)}`;
+}
+function goPlayer(movie) {
+  window.location.href =
+    `player.html?video=${movie.ytId}&title=${encodeURIComponent(movie.title)}&genre=${encodeURIComponent(movie.genres.join('/'))}&reason=${encodeURIComponent('符合你的搜尋偏好')}`;
 }
