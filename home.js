@@ -1,3 +1,44 @@
+let movies = [];
+
+// 讀取電影資料庫，產生首頁可查詢關鍵字
+fetch("movies.json")
+  .then(res => res.json())
+  .then(data => {
+    movies = data;
+   renderDatabaseKeywords();
+   renderDatabaseRecommend();
+   renderTrendingMovies();
+  });
+
+function renderDatabaseKeywords() {
+  const quickTags = document.querySelector(".quick-tags");
+  if (!quickTags) return;
+
+  const keywordSet = new Set();
+
+  movies.forEach(movie => {
+    if (movie.genres) movie.genres.forEach(g => keywordSet.add(g));
+    if (movie.scenes) movie.scenes.forEach(s => keywordSet.add(s));
+    if (movie.moods) movie.moods.forEach(m => keywordSet.add(m));
+    if (movie.keywords) movie.keywords.forEach(k => keywordSet.add(k));
+  });
+
+  quickTags.innerHTML = "";
+
+  [...keywordSet].slice(0, 20).forEach(keyword => {
+    const button = document.createElement("button");
+    button.textContent = keyword;
+    button.dataset.keyword = keyword;
+
+    button.addEventListener("click", () => {
+      document.getElementById("search").value = keyword;
+      goSearch();
+    });
+
+    quickTags.appendChild(button);
+  });
+}
+
 function goSearch() {
   const keyword = document.getElementById("search").value.trim();
 
@@ -76,3 +117,80 @@ document.addEventListener("keydown", function (e) {
     closeMovieModal();
   }
 });
+
+// ===== 依照資料庫生成推薦分類 =====
+function renderDatabaseRecommend() {
+  const container = document.getElementById("dbRecommend");
+  if (!container) return;
+
+  const keywordSet = new Set();
+
+  movies.forEach(movie => {
+    if (movie.genres) movie.genres.forEach(g => keywordSet.add(g));
+    if (movie.moods) movie.moods.forEach(m => keywordSet.add(m));
+    if (movie.scenes) movie.scenes.forEach(s => keywordSet.add(s));
+  });
+
+  container.innerHTML = "";
+
+  [...keywordSet].slice(0, 6).forEach(keyword => {
+    const card = document.createElement("article");
+    card.className = "small-card";
+    card.textContent = keyword;
+
+    card.addEventListener("click", () => {
+      document.getElementById("search").value = keyword;
+      goSearch();
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function renderTrendingMovies() {
+  const container = document.getElementById("trendingMovies");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  movies.slice(0, 4).forEach((movie, index) => {
+    const card = document.createElement("article");
+
+    const poster =
+      movie.poster ||
+      movie.img ||
+      movie.image ||
+      movie.thumbnail ||
+      movie.cover ||
+      "";
+
+    card.className = "movie-card movie-clickable trending-card";
+
+    if (poster) {
+      card.style.backgroundImage = `url("${poster}")`;
+    }
+
+    card.dataset.title = movie.title || "電影名稱";
+    card.dataset.genre = movie.genres ? movie.genres.join(" · ") : "類型";
+    card.dataset.year = movie.year || "年份";
+    card.dataset.duration = movie.duration || "片長";
+    card.dataset.rating = movie.match_score ? `${movie.match_score}% Match` : "推薦";
+    card.dataset.desc = movie.desc || "暫無簡介";
+
+    card.innerHTML = `
+      <div class="movie-rank">${index + 1}</div>
+
+      <div class="movie-info">
+        <span class="trend-badge">熱門推薦</span>
+        <h3>${movie.title}</h3>
+        <p>${movie.genres ? movie.genres.join(" · ") : ""}</p>
+      </div>
+    `;
+
+    card.addEventListener("click", () => {
+      openMovieModal(card);
+    });
+
+    container.appendChild(card);
+  });
+}

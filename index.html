@@ -25,7 +25,7 @@
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <p class="eyebrow">AI Trailer Recommendation</p>
-        <h1>找到今晚最適合你的電影預告片</h1>
+        <h1>用感覺找電影</h1>
         <p class="hero-text">
           輸入情緒、場景或類型，系統會依照你的關鍵字推薦相似風格的預告片。
         </p>
@@ -39,13 +39,8 @@
           <button class="search-btn" onclick="goSearch()">搜尋</button>
         </div>
 
-        <div class="quick-tags" id="genres">
-          <button data-keyword="恐怖">恐怖</button>
-          <button data-keyword="感人">感人</button>
-          <button data-keyword="犯罪">犯罪</button>
-          <button data-keyword="科幻">科幻</button>
-          <button data-keyword="校園">校園</button>
-        </div>
+        <div class="quick-tags"></div>
+
       </div>
     </section>
 
@@ -55,80 +50,17 @@
         <span>Trending Now</span>
       </div>
 
-      <div class="movie-row">
-        <article class="movie-card poster-1 movie-clickable"
-          data-title="Midnight Signal"
-          data-genre="懸疑 · 科幻"
-          data-year="2026"
-          data-duration="1 小時 58 分"
-          data-rating="98% Match"
-          data-desc="一名工程系學生在深夜接收到來自禁區基地的神秘訊號，卻發現這段訊號會改變人的記憶。為了找出真相，他必須在訊號再次擴散前進入封鎖區。">
-          <div class="movie-rank">1</div>
-          <div class="movie-info">
-            <h3>Midnight Signal</h3>
-            <p>懸疑 · 科幻</p>
-          </div>
-        </article>
-
-        <article class="movie-card poster-2 movie-clickable"
-          data-title="Blue Harbor"
-          data-genre="劇情 · 療癒"
-          data-year="2025"
-          data-duration="2 小時 04 分"
-          data-rating="95% Match"
-          data-desc="失去方向的女孩回到海港小鎮，重新面對家庭、傷口與未完成的告別。她在燈塔與海浪之間，學會把遺憾轉化成繼續前進的力量。">
-          <div class="movie-rank">2</div>
-          <div class="movie-info">
-            <h3>Blue Harbor</h3>
-            <p>劇情 · 療癒</p>
-          </div>
-        </article>
-
-        <article class="movie-card poster-3 movie-clickable"
-          data-title="Dark Roast"
-          data-genre="犯罪 · 驚悚"
-          data-year="2026"
-          data-duration="1 小時 46 分"
-          data-rating="92% Match"
-          data-desc="一間深夜咖啡館牽扯出連續失蹤案。每一杯咖啡背後都有交易，每一位客人都可能是兇手。退休刑警必須在真相被掩埋前找出幕後主使。">
-          <div class="movie-rank">3</div>
-          <div class="movie-info">
-            <h3>Dark Roast</h3>
-            <p>犯罪 · 驚悚</p>
-          </div>
-        </article>
-
-        <article class="movie-card poster-4 movie-clickable"
-          data-title="Last Semester"
-          data-genre="校園 · 成長"
-          data-year="2025"
-          data-duration="1 小時 52 分"
-          data-rating="94% Match"
-          data-desc="大學最後一學期，一群學生面對畢業、夢想與分離。他們在最後一次專題、最後一次比賽與最後一次告白中，找到屬於自己的未來方向。">
-          <div class="movie-rank">4</div>
-          <div class="movie-info">
-            <h3>Last Semester</h3>
-            <p>校園 · 成長</p>
-          </div>
-        </article>
-      </div>
+      <div class="movie-row" id="trendingMovies"></div>
     </section>
 
     <section class="movie-section" id="recommended">
-      <div class="section-title">
-        <h2>依照你的喜好推薦</h2>
-        <span>Because you searched movies</span>
-      </div>
+  <div class="section-title">
+    <h2>依照你的喜好推薦</h2>
+    <span>Because you searched movies</span>
+  </div>
 
-      <div class="movie-row compact">
-        <article class="small-card">驚悚片</article>
-        <article class="small-card">AI 科幻</article>
-        <article class="small-card">台灣電影</article>
-        <article class="small-card">浪漫喜劇</article>
-        <article class="small-card">心理懸疑</article>
-        <article class="small-card">暖心劇情</article>
-      </div>
-    </section>
+  <div class="movie-row compact" id="dbRecommend"></div>
+</section>
   </main>
 
 

@@ -22,13 +22,16 @@ function searchMovie(keyword) {
   let resultsDiv = document.getElementById("results");
   resultsDiv.innerHTML = "";
 
-  let filtered = movies.filter(movie =>
-    movie.title.includes(keyword) ||
-    movie.desc.includes(keyword) ||
-    movie.genres.some(c => c.includes(keyword)) ||
-    movie.scenes.some(s => s.includes(keyword)) ||
-    movie.moods.some(m => m.includes(keyword))
+  let filtered = movies.filter(movie => {
+  return (
+    (movie.title && movie.title.includes(keyword)) ||
+    (movie.desc && movie.desc.includes(keyword)) ||
+    (movie.genres && movie.genres.some(g => g.includes(keyword))) ||
+    (movie.scenes && movie.scenes.some(s => s.includes(keyword))) ||
+    (movie.moods && movie.moods.some(m => m.includes(keyword))) ||
+    (movie.keywords && movie.keywords.some(k => k.includes(keyword)))
   );
+});
 
   if (filtered.length === 0) {
     resultsDiv.innerHTML = "<p style='color:#aaa;'>找不到相關電影 😢</p>";
