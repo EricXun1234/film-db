@@ -1,26 +1,29 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
-    <meta charset="UTF-8">
-    <title>搜尋結果</title>
-    <link rel="stylesheet" href="results.css">
-    <link rel="icon" type="image/png" href="favicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>搜尋結果｜AI 電影預告片推薦</title>
+  <link rel="stylesheet" href="results.css">
+  <link rel="icon" type="image/png" href="favicon.png">
 </head>
 
 <body>
-    <div class="container">
-        <h1>最佳搜尋結果</h1>
+  <main class="results-page">
+    <header class="results-header">
+      <h1>搜尋結果</h1>
 
-        <div class="search-area">
-            <input type="text" id="search" placeholder="輸入關鍵字（類型 / 情緒 / 場景）">
-            <button class="search-btn" onclick="searchAgain()">搜尋</button>
-        </div>
+      <div class="search-bar">
+        <input id="resultSearchInput" type="text" placeholder="輸入關鍵字，例如：奇幻、戀愛、恐怖">
+        <button id="resultSearchBtn">搜尋</button>
+      </div>
 
-        <div id="results"></div>
-    </div>
+      <p id="keywordText"></p>
+    </header>
 
-    <script src="results.js"></script>
+    <section id="resultsList" class="results-grid"></section>
+  </main>
+
+  <script src="results.js"></script>
 </body>
-
 </html>

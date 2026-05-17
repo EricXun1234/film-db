@@ -4,91 +4,215 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 電影推薦系統</title>
-  <link rel="stylesheet" href="home.css" />
+  <title>用感覺找電影｜FeelMovie</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/png" href="favicon.png">
 </head>
 
 <body>
-  <header class="navbar">
-    <div class="brand">CineMood</div>
-    <nav class="nav-links">
-      <a href="#">首頁</a>
-      <a href="#trending">熱門</a>
-      <a href="#genres">類型</a>
-      <a href="#recommended">推薦</a>
-    </nav>
-    <button class="profile-btn">WH</button>
-  </header>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🎥</div>
+        <div>
+          <h1>FeelMovie</h1>
+          <p>用感覺，找到你的電影</p>
+        </div>
+      </div>
 
-  <main>
-    <section class="hero">
-      <div class="hero-overlay"></div>
-      <div class="hero-content">
-        <p class="eyebrow">AI Trailer Recommendation</p>
-        <h1>用感覺找電影</h1>
-        <p class="hero-text">
-          輸入情緒、場景或類型，系統會依照你的關鍵字推薦相似風格的預告片。
-        </p>
+      <nav class="side-nav">
+        <button class="active">⌂ <span>首頁</span></button>
+        <button>⌕ <span>探索</span></button>
+        <button>♡ <span>收藏</span></button>
+        <button>♟ <span>聚會模式</span></button>
+        <button>⚙ <span>設定</span></button>
+      </nav>
+    </aside>
 
-        <div class="search-area">
-          <input
-            type="text"
-            id="search"
-            placeholder="例如：恐怖、感人、校園、犯罪、科幻、療癒"
-          />
-          <button class="search-btn" onclick="goSearch()">搜尋</button>
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Mood-based Movie Discovery</p>
+          <h2>用感覺找電影</h2>
+          <p>先搜尋一個關鍵字，再把感覺圓圈拖到中心，找出同時符合多種氛圍的電影。</p>
         </div>
 
-        <div class="quick-tags"></div>
+        <div class="top-actions">
+          <button id="historyBtn">↺ 歷史紀錄</button>
+          <button class="user-btn">○</button>
+        </div>
+      </header>
 
-      </div>
-    </section>
+      <section class="search-panel">
+        <div class="search-box">
+          <input id="searchInput" type="text" placeholder="搜尋關鍵字，例如：孤獨、療癒、雨夜、戀愛感、恐怖片" />
+          <button id="searchBtn">搜尋</button>
+        </div>
+        <p id="dbStatus" class="db-status">資料庫連線中...</p>
+      </section>
 
-    <section class="movie-section" id="trending">
-      <div class="section-title">
-        <h2>今日熱門</h2>
-        <span>Trending Now</span>
-      </div>
+      <section class="group-panel">
+        <div class="group-head">
+          <div>
+            <p class="eyebrow">Group Movie Night</p>
+            <h3>多人一起選電影</h3>
+            <p>建立聚會成員後，每個人可以帶入不同感覺，系統會整合大家的偏好做共同推薦。</p>
+          </div>
 
-      <div class="movie-row" id="trendingMovies"></div>
-    </section>
+          <div class="room-box">
+            <span>房間代碼</span>
+            <strong id="roomCode">ROOM-4821</strong>
+          </div>
+        </div>
 
-    <section class="movie-section" id="recommended">
-  <div class="section-title">
-    <h2>依照你的喜好推薦</h2>
-    <span>Because you searched movies</span>
+        <div class="group-controls">
+          <input id="memberNameInput" type="text" placeholder="輸入成員名稱，例如：小明" />
+          <button id="addMemberBtn">＋ 加入成員</button>
+          <button id="groupModeBtn">開啟多人模式</button>
+        </div>
+
+        <div id="memberList" class="member-list"></div>
+
+        <div class="group-summary">
+          <div>
+            <h4>共同感覺</h4>
+            <p>系統會把每位成員選到的標籤加總，越多人選到的感覺權重越高。</p>
+          </div>
+          <div id="groupTags" class="group-tags"></div>
+        </div>
+      </section>
+
+      <section class="hero-layout">
+        <section class="mood-stage-card">
+          <div class="stage-head">
+            <div>
+              <h3>今天想看什麼感覺的電影？</h3>
+              <p>圓圈由資料庫中的「類型關鍵字」與「情感／氛圍」欄位統計產生，並混合場景標籤。</p>
+            </div>
+            <button id="shuffleBtn">⟳ 換個排列</button>
+          </div>
+
+          <div class="mood-stage" id="moodStage">
+            <div class="orbit orbit-1"></div>
+            <div class="orbit orbit-2"></div>
+            <div class="orbit orbit-3"></div>
+
+            <div class="drop-zone" id="dropZone">
+              <span>將感覺</span>
+              <strong>拖曳到這裡</strong>
+              <small>越靠近中心，權重越高</small>
+            </div>
+          </div>
+
+          <div class="selected-row">
+            <span>目前選擇的感覺：</span>
+            <div id="selectedTags" class="selected-tags"></div>
+            <button id="resetBtn">重設</button>
+          </div>
+        </section>
+
+        <aside class="recommend-card">
+          <div class="recommend-head">
+            <div>
+              <h3>為你推薦</h3>
+              <p>根據搜尋與圓圈距離即時推薦</p>
+            </div>
+            <button id="viewAllBtn">查看全部 ›</button>
+          </div>
+
+          <div id="recommendList" class="recommend-list"></div>
+
+          <button id="rerollBtn" class="wide-btn">⌘ 換個感覺試試</button>
+        </aside>
+      </section>
+
+      <section class="info-row">
+        <article class="how-card wide">
+          <h3>使用方式</h3>
+          <div class="steps">
+            <div>
+              <b>1</b>
+              <h4>搜尋關鍵字</h4>
+              <p>先輸入情緒、場景或類型，例如孤獨、療癒、雨夜。</p>
+            </div>
+            <div>
+              <b>2</b>
+              <h4>拖曳圓圈</h4>
+              <p>把越符合此刻心情的感覺拖到中心，距離越近權重越高。</p>
+            </div>
+            <div>
+              <b>3</b>
+              <h4>獲得推薦</h4>
+              <p>系統會同時比對關鍵字與多個標籤，推薦最接近的電影。</p>
+            </div>
+            <div>
+              <b>4</b>
+              <h4>看預告</h4>
+              <p>點擊推薦電影後，可以開啟預告片，先確認是否符合想看的感覺。</p>
+            </div>
+            <div>
+              <b>5</b>
+              <h4>給好評 / 差評</h4>
+              <p>看完預告後可以按好評或差評，系統會記住你的回饋並調整推薦排序。</p>
+            </div>
+            <div>
+              <b>6</b>
+              <h4>多人共選</h4>
+              <p>加入多位成員後，大家可以一起選感覺與投票，系統會整合成共同推薦。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="hint-card">
+          <h3>小提醒</h3>
+          <p>這個版本的圓圈不是固定寫死，而是從資料庫電影資料中整理常出現的標籤。</p>
+          <p>情緒、氛圍、心理感受會優先顯示，傳統電影類型只保留少數。</p>
+        </article>
+      </section>
+    </main>
   </div>
 
-  <div class="movie-row compact" id="dbRecommend"></div>
-</section>
-  </main>
-
-
   <div class="movie-modal" id="movieModal" aria-hidden="true">
-    <div class="modal-backdrop" onclick="closeMovieModal()"></div>
+    <div class="modal-backdrop" id="modalBackdrop"></div>
     <div class="modal-panel">
-      <button class="modal-close" onclick="closeMovieModal()" aria-label="關閉">×</button>
-      <div class="modal-poster" id="modalPoster"></div>
+      <button class="modal-close" id="modalClose">×</button>
+      <div class="modal-cover" id="modalCover"></div>
       <div class="modal-content">
-        <p class="modal-label">Movie Preview</p>
+        <p class="modal-label">Movie Detail</p>
         <h2 id="modalTitle">電影名稱</h2>
-        <div class="modal-meta">
-          <span id="modalRating">98% Match</span>
-          <span id="modalYear">2026</span>
-          <span id="modalDuration">1 小時 58 分</span>
-          <span id="modalGenre">科幻</span>
-        </div>
+        <div id="modalMeta" class="modal-meta"></div>
         <p id="modalDesc">電影簡介</p>
         <div class="modal-actions">
-          <button class="play-btn">▶ 播放預告</button>
-          <button class="detail-btn">＋ 加入片單</button>
+          <a id="trailerLink" class="play-btn" target="_blank" rel="noopener">▶ 開啟預告片</a>
+          <button class="detail-btn" id="modalViewCount">👁 0 次瀏覽</button>
+        </div>
+
+        <div class="feedback-box">
+          <div>
+            <h3>看完預告後，你覺得？</h3>
+            <p>你的回饋會影響之後的推薦排序。</p>
+          </div>
+          <div class="feedback-actions">
+            <button id="likeBtn" class="feedback-btn like">👍 好評</button>
+            <button id="dislikeBtn" class="feedback-btn dislike">👎 差評</button>
+          </div>
+          <p id="feedbackStatus" class="feedback-status">尚未評分</p>
+
+          <div class="group-vote-box">
+            <h3>多人投票</h3>
+            <p>目前選取的成員可以對這部電影投票。</p>
+            <div class="group-vote-actions">
+              <button id="groupWantBtn" class="feedback-btn like">🙋 想看</button>
+              <button id="groupNopeBtn" class="feedback-btn dislike">🙅 不想看</button>
+            </div>
+            <p id="groupVoteStatus" class="feedback-status">尚未投票</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-
-  <script src="home.js"></script>
+  <script src="app.js"></script>
 </body>
 
 </html>

@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>播放頁</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>播放頁｜FeelMovie</title>
 
     <link rel="stylesheet" href="player.css">
     <link rel="icon" type="image/png" href="favicon.png">
@@ -11,80 +12,125 @@
 
 <body>
 
-    <div class="container">
+    <main class="player-page">
 
-        <button class="back-btn" onclick="history.back()">
-            ← 返回結果
-        </button>
+        <header class="player-header">
 
-        <h1 id="title"></h1>
+            <button class="back-btn" onclick="history.back()">
+                ← 返回結果
+            </button>
 
-        <div class="video-box">
-            <iframe id="player"
-                width="100%"
-                height="500"
-                frameborder="0"
-                allowfullscreen>
-            </iframe>
-        </div>
+            <div>
+                <p class="eyebrow">Movie Trailer</p>
+                <h1 id="title">電影名稱</h1>
+            </div>
 
-        <div class="movie-info">
+        </header>
 
-            <div class="poster"></div>
+        <section class="video-section">
 
-            <div class="info-text">
+            <div class="video-box">
+                <iframe id="player"
+                    width="100%"
+                    height="100%"
+                    frameborder="0"
+                    allowfullscreen>
+                </iframe>
+            </div>
 
-                <p><strong>類型：</strong><span id="genre"></span></p>
+        </section>
 
-                <p><strong>推薦理由：</strong></p>
+        <section class="movie-panel">
 
-                <div class="reason-box" id="reason"></div>
+            <div class="poster-box">
+                <img id="poster" src="" alt="">
+            </div>
+
+            <div class="info-panel">
+
+                <div class="info-card">
+                    <small>電影類型</small>
+                    <p id="genre">未知</p>
+                </div>
+
+                <div class="info-card">
+                    <small>推薦理由</small>
+                    <p id="reason">符合你的搜尋偏好</p>
+
+                    <a id="youtubeLink" class="youtube-link" target="_blank" rel="noopener">
+                        在 YouTube 上觀看
+                    </a>
+                </div>
 
             </div>
 
-        </div>
+        </section>
 
-        <h2>⭐ 相似推薦</h2>
+        <section class="similar-section">
 
-        <div class="similar-list">
-
-            <div class="similar-card">
-                <p>加勒比海盜</p>
-                <button>播放</button>
+            <div class="section-head">
+                <h2>⭐ 相似推薦</h2>
             </div>
 
-            <div class="similar-card">
-                <p>太空超人</p>
-                <button>播放</button>
+            <div class="similar-list">
+
+                <div class="similar-card">
+                    <p>加勒比海盜</p>
+                    <button>播放</button>
+                </div>
+
+                <div class="similar-card">
+                    <p>太空超人</p>
+                    <button>播放</button>
+                </div>
+
+                <div class="similar-card">
+                    <p>功夫</p>
+                    <button>播放</button>
+                </div>
+
             </div>
 
-            <div class="similar-card">
-                <p>功夫</p>
-                <button>播放</button>
-            </div>
+        </section>
 
-        </div>
-
-    </div>
+    </main>
 
     <script>
-
         const params = new URLSearchParams(window.location.search);
 
         const videoId = params.get("video");
         const title = params.get("title");
+        const genre = params.get("genre");
+        const reason = params.get("reason");
+        const poster = params.get("poster");
 
-        document.getElementById("player").src =
-            `https://www.youtube.com/embed/${videoId}`;
+        document.getElementById("title").innerText = title || "未知電影";
+        document.getElementById("genre").innerText = genre || "未知";
+        document.getElementById("reason").innerText = reason || "符合你的搜尋偏好";
 
-        document.getElementById("title").innerText = title;
+        const videoBox = document.querySelector(".video-box");
+        const player = document.getElementById("player");
+        const youtubeLink = document.getElementById("youtubeLink");
 
-        document.getElementById("genre").innerText =
-            params.get("genre") || "未知";
+        if (videoId && videoId !== "null" && videoId !== "undefined") {
+            player.src = `https://www.youtube.com/embed/${videoId}`;
+            youtubeLink.href = `https://www.youtube.com/watch?v=${videoId}`;
+        } else {
+            videoBox.innerHTML = `
+                <div class="no-video">
+                    找不到這部電影的預告片連結
+                </div>
+            `;
+            youtubeLink.style.display = "none";
+        }
 
-        document.getElementById("reason").innerText =
-            params.get("reason") || "符合你的搜尋偏好";
+        const posterEl = document.getElementById("poster");
 
+        if (poster && poster !== "null" && poster !== "undefined") {
+            posterEl.src = poster;
+        } else {
+            posterEl.style.display = "none";
+        }
     </script>
 
 </body>
