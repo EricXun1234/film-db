@@ -1,4 +1,4 @@
-const FILMDB_BASE = "https://filmdb-3nha.onrender.com";
+const FILMDB_BASE = "https://filmdb-68z4.onrender.com";
 
 const API_CANDIDATES = [
   `${FILMDB_BASE}/db`,
