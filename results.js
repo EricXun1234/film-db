@@ -141,13 +141,29 @@ function normalizeMovie(raw, index = 0) {
     "情感／氛圍", "情感/氛圍", "情感", "氛圍", "情緒"
   ]) || "";
 
-  const poster = getField(raw, [
-    "poster", "posterUrl", "poster_url",
-    "thumbnail", "thumbnailUrl", "thumbnail_url",
-    "image", "imageUrl", "image_url",
-    "cover", "coverUrl", "cover_url",
-    "海報", "圖片", "圖片網址", "封面", "封面圖片"
-  ]) || "";
+  const rawPoster = getField(raw, [
+  "poster", "posterUrl", "poster_url",
+  "thumbnail", "thumbnailUrl", "thumbnail_url",
+  "image", "imageUrl", "image_url",
+  "cover", "coverUrl", "cover_url",
+  "poster_path",
+  "backdrop_path",
+  "海報", "圖片", "圖片網址", "封面", "封面圖片"
+]) || "";
+
+const ytId = getField(raw, [
+  "ytId", "youtubeId", "youtube_id", "videoId", "video_id"
+]) || "";
+
+const poster = rawPoster
+  ? (
+      rawPoster.startsWith("/")
+        ? `https://image.tmdb.org/t/p/w500${rawPoster}`
+        : rawPoster
+    )
+  : ytId
+    ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`
+    : "assets/default-poster.png";
 
   const trailer = getField(raw, [
     "youtubeUrl", "youtube_url", "trailer", "trailerUrl", "trailer_url",
@@ -155,14 +171,15 @@ function normalizeMovie(raw, index = 0) {
   ]) || "";
 
   return {
-    id: raw.id || raw._id || index,
-    title: String(title).trim(),
-    desc: String(desc).trim(),
-    genre: String(genre).trim(),
-    mood: String(mood).trim(),
-    poster: String(poster).trim(),
-    trailer: String(trailer).trim()
-  };
+  id: raw.id || raw._id || index,
+  title: String(title).trim(),
+  desc: String(desc).trim(),
+  genre: String(genre).trim(),
+  mood: String(mood).trim(),
+  poster: String(poster || "").trim() || "assets/default-poster.png",
+  trailer: String(trailer).trim(),
+  actors: String(raw.actors || "").trim()
+};
 }
 
 function getField(obj, keys) {
@@ -260,6 +277,12 @@ function renderSearchResults(keyword) {
           <small>類型</small>
           <p>${escapeHtml(movie.genre || "未分類")}</p>
         </div>
+
+        <div class="info-box">
+  <small>演員名單</small>
+  <p>${escapeHtml(movie.actors || "暫無演員資料")}</p>
+</div>
+        
 
         <button class="play-btn" onclick="goPlayer(
           '${encodeURIComponent(movie.title)}',
