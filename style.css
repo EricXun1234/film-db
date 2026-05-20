@@ -1169,3 +1169,16 @@ button {
 .member-actions {
   flex-wrap: wrap;
 }
+
+.movie-actors{
+  margin-top:10px;
+  font-size:13px;
+  color:#cfcfe8;
+  line-height:1.5;
+}
+.modal-actors{
+  margin-top: 14px;
+  color: #d8d4f5;
+  font-size: 15px;
+  line-height: 1.7;
+}

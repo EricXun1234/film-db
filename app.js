@@ -48,6 +48,7 @@ const FIELD_MAP = {
   year: ["year", "releaseYear", "release_year", "年份", "上映年份"],
   duration: ["duration", "runtime", "length", "片長", "時長"],
   views: ["views", "viewCount", "view_count", "clicks", "clickCount", "瀏覽次數", "點擊次數", "觀看次數"],
+  actors: ["actors", "actor", "cast", "casts","演員", "演員名單", "主演", "卡司"],
 };
 
 const FALLBACK_MOVIES = [
@@ -519,6 +520,7 @@ function normalizeMovie(raw, idx = 0) {
     year: String(get("year") || ""),
     duration: String(get("duration") || ""),
     views: Number(get("views") || 0),
+    actors: String(get("actors") || ""),
     genre: toArray(get("genre")),
     mood: toArray(get("mood")),
     mainScene: toArray(get("mainScene")),
@@ -864,6 +866,7 @@ function renderRecommendations(showAll = false) {
           ${renderGroupMovieBadge(movie)}
         </div>
         <p class="movie-desc">${escapeHtml(movie.desc).slice(0, 72)}${movie.desc.length > 72 ? "..." : ""}</p>
+        <p class="movie-actors">演員：${escapeHtml(movie.actors || "暫無演員資料")}</p>
       </div>
       <div class="movie-score">
         ${Math.round(Math.max(score, 0.05) * 100)}%
@@ -938,6 +941,17 @@ function openModal(movie, score = 0) {
   incrementView(movie);
   $("modalTitle").textContent = movie.title;
   $("modalDesc").textContent = movie.desc;
+  $("modalDesc").textContent = movie.desc;
+
+const oldActors = document.getElementById("modalActors");
+if (oldActors) oldActors.remove();
+
+const actorsBox = document.createElement("p");
+actorsBox.id = "modalActors";
+actorsBox.className = "modal-actors";
+actorsBox.textContent = `演員：${movie.actors || "暫無演員資料"}`;
+
+$("modalDesc").insertAdjacentElement("afterend", actorsBox);
   $("modalCover").style.backgroundImage = `url('${movie.poster}')`;
 
   const meta = [
