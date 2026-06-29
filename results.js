@@ -1,4 +1,8 @@
 const FILMDB_BASE = "https://filmdb-68z4.onrender.com";
+const CURRENT_USER_KEY = "moodluma-current-user";
+const HISTORY_PREFIX = "moodluma-history";
+const FAVORITE_PREFIX = "moodluma-favorites";
+const GUEST_ID = "guest";
 
 const API_CANDIDATES = [
   `${FILMDB_BASE}/db`,
@@ -10,12 +14,14 @@ const API_CANDIDATES = [
 const $ = (id) => document.getElementById(id);
 
 let allMovies = [];
+let currentKeyword = "";
 
 document.addEventListener("DOMContentLoaded", initResults);
 
 async function initResults() {
   const params = new URLSearchParams(location.search);
   const keyword = params.get("keyword") || "";
+  currentKeyword = keyword;
 
   $("resultSearchInput").value = keyword;
   $("keywordText").textContent = keyword ? `你搜尋的是：「${keyword}」` : "";
@@ -36,10 +42,16 @@ function searchAgain() {
   location.href = `results.html?keyword=${encodeURIComponent(kw)}`;
 }
 
+function fetchWithTimeout(url, options = {}, timeoutMs = 3500) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
 async function loadMoviesFromFilmDB() {
   for (const url of API_CANDIDATES) {
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         cache: "no-store",
         mode: "cors"
       });
@@ -284,15 +296,20 @@ function renderSearchResults(keyword) {
 </div>
         
 
-        <button class="play-btn" onclick="goPlayer(
-          '${encodeURIComponent(movie.title)}',
-          '${encodeURIComponent(movie.trailer)}',
-          '${encodeURIComponent(movie.genre)}',
-          '${encodeURIComponent(movie.poster)}',
-          '${encodeURIComponent(reason)}'
-        )">
-          ▶ 播放
-        </button>
+        <div class="result-actions">
+          <button class="play-btn" onclick="goPlayer(
+            '${encodeURIComponent(movie.title)}',
+            '${encodeURIComponent(movie.trailer)}',
+            '${encodeURIComponent(movie.genre)}',
+            '${encodeURIComponent(movie.poster)}',
+            '${encodeURIComponent(reason)}'
+          )">
+            ▶ 播放
+          </button>
+          <button class="fav-result-btn ${isFavorite(movie) ? "active" : ""}" onclick="toggleFavoriteFromResults('${safeJs(movie.id)}')">
+            ${isFavorite(movie) ? "♥ 已收藏" : "♡ 收藏"}
+          </button>
+        </div>
       </article>
     `;
   }).join("");
@@ -324,7 +341,21 @@ function getMatchScore(movie, keyword) {
 
 function goPlayer(title, trailer, genre, poster, reason) {
   const trailerUrl = decodeURIComponent(trailer);
+  const decodedTitle = decodeURIComponent(title);
+  const decodedGenre = decodeURIComponent(genre);
+  const decodedPoster = decodeURIComponent(poster);
+  const decodedReason = decodeURIComponent(reason);
   const videoId = getYoutubeId(trailerUrl);
+
+  saveHistory({
+    id: decodedTitle,
+    title: decodedTitle,
+    trailer: trailerUrl,
+    poster: decodedPoster,
+    genre: decodedGenre,
+    mood: "",
+    desc: decodedReason
+  }, 0.7);
 
   location.href =
     `player.html?title=${title}` +
@@ -350,6 +381,89 @@ function getYoutubeId(url) {
   }
 
   return "";
+}
+
+function getCurrentUser() {
+  try {
+    const user = JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || "null");
+    return user && user.username ? user : null;
+  } catch {
+    return null;
+  }
+}
+
+function storageOwnerId() {
+  return getCurrentUser()?.username || GUEST_ID;
+}
+
+function storageKey(type) {
+  return `${type === "history" ? HISTORY_PREFIX : FAVORITE_PREFIX}-${storageOwnerId()}`;
+}
+
+function loadJson(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+  } catch {
+    return fallback;
+  }
+}
+
+function saveJson(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function toList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  return String(value).split(/[,，、|\/／\n;；]+/).map(s => s.trim()).filter(Boolean);
+}
+
+function snapshot(movie, score = 0) {
+  return {
+    id: movie.id,
+    title: movie.title,
+    desc: movie.desc || "",
+    poster: movie.poster || "",
+    trailer: movie.trailer || "",
+    genre: toList(movie.genre),
+    mood: toList(movie.mood),
+    mainScene: [],
+    subScene: [],
+    score,
+    savedAt: new Date().toISOString()
+  };
+}
+
+function saveHistory(movie, score = 0) {
+  const items = loadJson(storageKey("history"), []);
+  const next = [snapshot(movie, score), ...items.filter(item => String(item.id) !== String(movie.id))].slice(0, 30);
+  saveJson(storageKey("history"), next);
+}
+
+function loadFavorites() {
+  const items = loadJson(storageKey("favorites"), []);
+  return Array.isArray(items) ? items : [];
+}
+
+function isFavorite(movie) {
+  return loadFavorites().some(item => String(item.id) === String(movie.id));
+}
+
+function toggleFavoriteFromResults(id) {
+  event?.stopPropagation?.();
+  const movie = allMovies.find(item => String(item.id) === String(id));
+  if (!movie) return;
+  const items = loadFavorites();
+  const exists = items.some(item => String(item.id) === String(movie.id));
+  const next = exists
+    ? items.filter(item => String(item.id) !== String(movie.id))
+    : [snapshot(movie), ...items];
+  saveJson(storageKey("favorites"), next);
+  renderSearchResults(currentKeyword);
+}
+
+function safeJs(text) {
+  return String(text).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
 function escapeHtml(text) {

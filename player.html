@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>播放頁｜FeelMovie</title>
+    <title>播放頁｜Moodluma</title>
 
     <link rel="stylesheet" href="player.css">
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="moodluma-icon.png">
 </head>
 
 <body>
@@ -23,6 +23,10 @@
             <div>
                 <p class="eyebrow">Movie Trailer</p>
                 <h1 id="title">電影名稱</h1>
+            </div>
+
+            <div class="player-actions">
+                <button id="favPlayerBtn" type="button">♡ 收藏此電影</button>
             </div>
 
         </header>
@@ -96,6 +100,10 @@
     </main>
 
     <script>
+        const CURRENT_USER_KEY = "moodluma-current-user";
+        const HISTORY_PREFIX = "moodluma-history";
+        const FAVORITE_PREFIX = "moodluma-favorites";
+        const GUEST_ID = "guest";
         const params = new URLSearchParams(window.location.search);
 
         const videoId = params.get("video");
@@ -131,6 +139,86 @@
         } else {
             posterEl.style.display = "none";
         }
+
+        const currentMovie = {
+            id: title || videoId || "unknown-movie",
+            title: title || "未知電影",
+            desc: reason || "符合你的搜尋偏好",
+            poster: poster || "",
+            trailer: videoId ? `https://www.youtube.com/watch?v=${videoId}` : "",
+            genre: genre ? [genre] : [],
+            mood: [],
+            mainScene: [],
+            subScene: [],
+            score: 0.7,
+            savedAt: new Date().toISOString()
+        };
+
+        function getCurrentUser() {
+            try {
+                const user = JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || "null");
+                return user && user.username ? user : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function storageOwnerId() {
+            return getCurrentUser()?.username || GUEST_ID;
+        }
+
+        function storageKey(type) {
+            return `${type === "history" ? HISTORY_PREFIX : FAVORITE_PREFIX}-${storageOwnerId()}`;
+        }
+
+        function loadJson(key, fallback) {
+            try {
+                return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+            } catch {
+                return fallback;
+            }
+        }
+
+        function saveJson(key, value) {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+
+        function saveHistory(movie) {
+            const items = loadJson(storageKey("history"), []);
+            const next = [movie, ...items.filter(item => String(item.id) !== String(movie.id))].slice(0, 30);
+            saveJson(storageKey("history"), next);
+        }
+
+        function loadFavorites() {
+            const items = loadJson(storageKey("favorites"), []);
+            return Array.isArray(items) ? items : [];
+        }
+
+        function isFavorite(movie) {
+            return loadFavorites().some(item => String(item.id) === String(movie.id));
+        }
+
+        function updateFavoriteButton() {
+            const btn = document.getElementById("favPlayerBtn");
+            const active = isFavorite(currentMovie);
+            btn.classList.toggle("active", active);
+            btn.textContent = active ? "♥ 已收藏" : "♡ 收藏此電影";
+        }
+
+        function toggleFavorite() {
+            const items = loadFavorites();
+            const exists = items.some(item => String(item.id) === String(currentMovie.id));
+            const next = exists
+                ? items.filter(item => String(item.id) !== String(currentMovie.id))
+                : [{ ...currentMovie, savedAt: new Date().toISOString() }, ...items];
+            saveJson(storageKey("favorites"), next);
+            updateFavoriteButton();
+        }
+
+        saveHistory(currentMovie);
+        updateFavoriteButton();
+        document.getElementById("favPlayerBtn").addEventListener("click", toggleFavorite);
+
     </script>
 
 </body>

@@ -245,3 +245,27 @@ body {
     font-weight: 800;
     font-size: 20px;
 }
+/* ===== Moodluma player favorite update ===== */
+.player-actions {
+    margin-left: auto;
+}
+
+.player-actions button {
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 999px;
+    padding: 13px 18px;
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+    background: rgba(255,255,255,.08);
+}
+
+.player-actions button.active {
+    background: linear-gradient(135deg, #8e63ff, #f06ba7);
+}
+
+@media (max-width: 960px) {
+    .player-actions {
+        margin-left: 0;
+    }
+}

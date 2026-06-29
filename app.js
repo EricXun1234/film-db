@@ -22,9 +22,15 @@ const API_CANDIDATES = [
   `${FILMDB_BASE}/`
 ];
 
+const AUTH_USERS_KEY = "moodluma-users";
+const CURRENT_USER_KEY = "moodluma-current-user";
+const HISTORY_PREFIX = "moodluma-history";
+const FAVORITE_PREFIX = "moodluma-favorites";
+const GUEST_ID = "guest";
+
 /*
   支援中英文欄位名稱。
-  你的資料庫若有「主要場景、次要場景、類型關鍵字、情感／氛圍」，
+  資料庫若有「主要場景、次要場景、類型關鍵字、情感／氛圍」，
   這裡會自動抓來統整成圓圈標籤。
 */
 const FIELD_MAP = {
@@ -171,6 +177,23 @@ let groupMode = false;
 let groupMembers = loadGroupMembers();
 let activeMemberId = groupMembers[0]?.id || null;
 let groupVotes = loadGroupVotes();
+let authMode = "login";
+let libraryMode = "favorites";
+let pendingMovie = null;
+let currentTab = "全部收藏";
+let appSettings = loadJson("moodluma_settings", {
+  themeDark: true,
+  anim: true,
+  cardSize: "中",
+  prefPop: false,
+  prefNiche: false,
+  noHorror: false,
+  noSad: false
+});
+
+function saveAppSettings() {
+  saveJson("moodluma_settings", appSettings);
+}
 
 const $ = (id) => document.getElementById(id);
 
@@ -185,6 +208,10 @@ async function init() {
   renderGroupTags();
   renderSelectedTags();
   renderRecommendations();
+  renderExploreResults();
+  renderCollection();
+  updateAuthUI();
+  updateMemberStats();
 }
 
 function bindUI() {
@@ -250,9 +277,64 @@ function bindUI() {
   $("groupWantBtn")?.addEventListener("click", () => setGroupVote("want"));
   $("groupNopeBtn")?.addEventListener("click", () => setGroupVote("nope"));
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeModal();
+  $("favoriteBtn")?.addEventListener("click", () => {
+    if (!currentModalMovie) return;
+    toggleFavorite(currentModalMovie);
+    updateFavoriteUI(currentModalMovie);
+    updateMemberStats();
+    renderCollection();
+    renderExploreResults($("exploreSearchInput")?.value || "");
+    renderRecommendations();
   });
+
+  $("historyBtn")?.addEventListener("click", () => openLibrary("history"));
+  bindPageNavigation();
+  bindExploreUI();
+  bindCollectionUI();
+  bindSettingsUI();
+
+  $("loginBtn")?.addEventListener("click", () => openAuth("login"));
+  $("registerBtn")?.addEventListener("click", () => openAuth("register"));
+  $("memberSpaceBtn")?.addEventListener("click", openMemberSpace);
+  $("memberLoginFromSpace")?.addEventListener("click", () => {
+    closeMemberSpace();
+    openAuth("login");
+  });
+  $("logoutBtn")?.addEventListener("click", logoutUser);
+
+  $("authClose")?.addEventListener("click", closeAuth);
+  $("authBackdrop")?.addEventListener("click", closeAuth);
+  $("authLoginTab")?.addEventListener("click", () => setAuthMode("login"));
+  $("authRegisterTab")?.addEventListener("click", () => setAuthMode("register"));
+  $("authSubmit")?.addEventListener("click", handleAuthSubmit);
+  $("authPassword")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleAuthSubmit();
+  });
+
+  $("libraryClose")?.addEventListener("click", closeLibrary);
+  $("libraryBackdrop")?.addEventListener("click", closeLibrary);
+  $("libraryClearBtn")?.addEventListener("click", clearCurrentLibrary);
+
+  $("memberClose")?.addEventListener("click", closeMemberSpace);
+  $("memberBackdrop")?.addEventListener("click", closeMemberSpace);
+  $("memberHistoryBtn")?.addEventListener("click", () => openLibrary("history"));
+  $("memberFavoriteBtn")?.addEventListener("click", () => openLibrary("favorites"));
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeModal();
+      closeAuth();
+      closeLibrary();
+      closeMemberSpace();
+      closeCollectionChoice();
+    }
+  });
+}
+
+function fetchWithTimeout(url, options = {}, timeoutMs = 3500) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
 }
 
 async function loadMoviesFromFilmDB() {
@@ -260,7 +342,7 @@ async function loadMoviesFromFilmDB() {
 
   for (const url of API_CANDIDATES) {
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         cache: "no-store",
         mode: "cors"
       });
@@ -275,14 +357,11 @@ async function loadMoviesFromFilmDB() {
         list = normalizeMovieList(data);
       } else {
         const text = await res.text();
-
-        // 有些 Render app 首頁雖然是 text/html，但 script 裡可能藏 JSON。
         const jsonData = extractJsonFromText(text);
         if (jsonData) {
           list = normalizeMovieList(jsonData);
         }
 
-        // 如果是 HTML 表格或卡片，就自動解析畫面上的內容。
         if (!list.length) {
           list = parseMoviesFromHtml(text, url);
         }
@@ -344,8 +423,6 @@ function getBackgroundImageUrl(el) {
 function parseMoviesFromHtml(html, sourceUrl) {
   const doc = new DOMParser().parseFromString(html, "text/html");
   const movies = [];
-
-  // 解析 table：thead 欄位 + tbody rows
   const tables = [...doc.querySelectorAll("table")];
   for (const table of tables) {
     const headers = [...table.querySelectorAll("thead th, tr:first-child th, tr:first-child td")]
@@ -379,7 +456,6 @@ function parseMoviesFromHtml(html, sourceUrl) {
     });
   }
 
-  // 如果不是 table，嘗試解析常見卡片結構。
   if (!movies.length) {
     const cards = [...doc.querySelectorAll("[class*='card'], [class*='movie'], [class*='film'], article")];
     cards.forEach((card, idx) => {
@@ -449,7 +525,6 @@ function getYoutubeIdFromUrl(url) {
     if (m) return m[1];
   }
 
-  // 如果欄位本身就是 video id
   if (/^[a-zA-Z0-9_-]{8,}$/.test(s) && !s.includes("/") && !s.includes(".")) return s;
 
   return "";
@@ -461,10 +536,6 @@ function youtubeThumb(videoId, quality = "mqdefault") {
 }
 
 function pickPosterFromMovie(raw, trailer, poster, idx) {
-  // 優先順序：
-  // 1. 資料庫明確提供的 poster / image / thumbnail
-  // 2. YouTube URL 或 YouTube ID 轉成縮圖
-  // 3. 本地備用海報
   if (poster) return poster;
 
   const getRaw = (keys) => {
@@ -869,12 +940,19 @@ function renderRecommendations(showAll = false) {
         <p class="movie-actors">演員：${escapeHtml(movie.actors || "暫無演員資料")}</p>
       </div>
       <div class="movie-score">
+        <button class="movie-fav-btn ${isFavorite(movie) ? "active" : ""}" type="button" aria-label="收藏電影">${isFavorite(movie) ? "♥" : "♡"}</button>
         ${Math.round(Math.max(score, 0.05) * 100)}%
         <small>適合度</small>
         <small>👁 ${getViewCount(movie)} 次</small>
-        <button class="play-circle">▶</button>
+        <button class="play-circle" type="button">▶</button>
       </div>
     `;
+    item.querySelector(".movie-fav-btn")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleFavorite(movie);
+      updateMemberStats();
+      renderRecommendations();
+    });
     item.addEventListener("click", () => openModal(movie, score));
     list.appendChild(item);
   });
@@ -939,8 +1017,9 @@ function topTags(movie) {
 function openModal(movie, score = 0) {
   currentModalMovie = movie;
   incrementView(movie);
+  saveHistory(movie, score);
+  updateMemberStats();
   $("modalTitle").textContent = movie.title;
-  $("modalDesc").textContent = movie.desc;
   $("modalDesc").textContent = movie.desc;
 
 const oldActors = document.getElementById("modalActors");
@@ -965,6 +1044,7 @@ $("modalDesc").insertAdjacentElement("afterend", actorsBox);
   $("modalViewCount").textContent = `👁 ${getViewCount(movie)} 次瀏覽`;
   updateFeedbackUI(movie);
   updateGroupVoteUI(movie);
+  updateFavoriteUI(movie);
 
   const trailer = $("trailerLink");
   if (movie.trailer) {
@@ -988,6 +1068,677 @@ function closeModal() {
 }
 
 
+
+function setActiveNav(id) {
+  document.querySelectorAll(".side-nav button").forEach(btn => {
+    const target = btn.getAttribute("data-target") || "";
+    btn.classList.toggle("active", btn.id === id || target === id);
+  });
+}
+
+function storageOwnerId() {
+  const user = getCurrentUser();
+  return user?.username || null;
+}
+
+function storageKey(type) {
+  const owner = storageOwnerId();
+  if (!owner) return null;
+
+  const prefix = type === "history" ? HISTORY_PREFIX : FAVORITE_PREFIX;
+  return `${prefix}-${owner}`;
+}
+
+function loadJson(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+  } catch {
+    return fallback;
+  }
+}
+
+function saveJson(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function loadUsers() {
+  const users = loadJson(AUTH_USERS_KEY, []);
+  return Array.isArray(users) ? users : [];
+}
+
+function saveUsers(users) {
+  saveJson(AUTH_USERS_KEY, users);
+}
+
+function getCurrentUser() {
+  try {
+    const user = JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || "null");
+    return user && user.username ? user : null;
+  } catch {
+    return null;
+  }
+}
+
+function setCurrentUser(user) {
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({
+    username: user.username,
+    email: user.email || "",
+    createdAt: user.createdAt || new Date().toISOString()
+  }));
+}
+
+function openAuth(mode = "login") {
+  setAuthMode(mode);
+  $("authModal")?.classList.add("active");
+  $("authModal")?.setAttribute("aria-hidden", "false");
+  $("authMessage").textContent = "";
+  $("authPassword").value = "";
+  setTimeout(() => $("authUsername")?.focus(), 50);
+}
+
+function closeAuth() {
+  $("authModal")?.classList.remove("active");
+  $("authModal")?.setAttribute("aria-hidden", "true");
+}
+
+function setAuthMode(mode) {
+  authMode = mode === "register" ? "register" : "login";
+  $("authTitle").textContent = authMode === "register" ? "會員註冊" : "會員登入";
+  $("authSubmit").textContent = authMode === "register" ? "建立帳號" : "登入";
+  $("authEmailWrap").style.display = authMode === "register" ? "grid" : "none";
+  $("authLoginTab").classList.toggle("active", authMode === "login");
+  $("authRegisterTab").classList.toggle("active", authMode === "register");
+  $("authMessage").textContent = "";
+}
+
+function handleAuthSubmit() {
+  const username = $("authUsername").value.trim();
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
+  const msg = $("authMessage");
+
+  if (!username || !password) {
+    msg.textContent = "請輸入帳號與密碼。";
+    msg.className = "auth-message error";
+    return;
+  }
+
+  const users = loadUsers();
+
+  if (authMode === "register") {
+    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+      msg.textContent = "此帳號已被註冊，請改用其他帳號。";
+      msg.className = "auth-message error";
+      return;
+    }
+
+    const user = { username, email, password, createdAt: new Date().toISOString() };
+    users.push(user);
+    saveUsers(users);
+    setCurrentUser(user);
+    msg.textContent = "註冊成功，已自動登入。";
+    msg.className = "auth-message success";
+    updateAuthUI();
+    updateMemberStats();
+    setTimeout(closeAuth, 450);
+    return;
+  }
+
+  const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+  if (!user) {
+    msg.textContent = "帳號或密碼錯誤。";
+    msg.className = "auth-message error";
+    return;
+  }
+
+  setCurrentUser(user);
+  msg.textContent = "登入成功。";
+  msg.className = "auth-message success";
+  updateAuthUI();
+  updateMemberStats();
+  setTimeout(closeAuth, 350);
+}
+
+function logoutUser() {
+  localStorage.removeItem(CURRENT_USER_KEY);
+  localStorage.removeItem(`${HISTORY_PREFIX}-${GUEST_ID}`);
+  localStorage.removeItem(`${FAVORITE_PREFIX}-${GUEST_ID}`);
+
+  closeAuth();
+  closeLibrary();
+  closeCollectionChoice();
+  document.querySelector('[data-target="page-home"]')?.click();
+
+  updateAuthUI();
+  updateMemberStats();
+  renderRecommendations();
+  renderExploreResults($("exploreSearchInput")?.value || "");
+  renderCollection();
+  syncCollectionButtonsUI();
+
+  if (currentModalMovie) {
+    updateFavoriteUI(currentModalMovie);
+  }
+
+  openMemberSpace();
+}
+
+function updateAuthUI() {
+  const user = getCurrentUser();
+  const loginBtn = $("loginBtn");
+  const registerBtn = $("registerBtn");
+  const memberBtn = $("memberSpaceBtn");
+
+  if (!loginBtn || !registerBtn || !memberBtn) return;
+
+  loginBtn.style.display = user ? "none" : "inline-flex";
+  registerBtn.style.display = user ? "none" : "inline-flex";
+  memberBtn.textContent = user ? user.username : "會員空間";
+}
+
+function openMemberSpace() {
+  const user = getCurrentUser();
+  const welcome = $("memberWelcome");
+  if (welcome) {
+    welcome.textContent = user
+      ? `目前登入帳號：${user.username}${user.email ? `（${user.email}）` : ""}`
+      : "目前尚未登入。登入後即可查看你的收藏與歷史紀錄。";
+  }
+
+  $("memberLoginFromSpace").style.display = user ? "none" : "inline-flex";
+  $("logoutBtn").style.display = user ? "inline-flex" : "none";
+  updateMemberStats();
+  $("memberModal")?.classList.add("active");
+  $("memberModal")?.setAttribute("aria-hidden", "false");
+}
+
+function closeMemberSpace() {
+  $("memberModal")?.classList.remove("active");
+  $("memberModal")?.setAttribute("aria-hidden", "true");
+}
+
+function updateMemberStats() {
+  const history = loadCollection("history");
+  const favorites = loadCollection("favorites");
+  if ($("memberHistoryCount")) $("memberHistoryCount").textContent = history.length;
+  if ($("memberFavoriteCount")) $("memberFavoriteCount").textContent = favorites.length;
+}
+
+function movieSnapshot(movie, score = 0) {
+  return {
+    id: movie.id,
+    title: movie.title,
+    desc: movie.desc,
+    poster: movie.poster,
+    trailer: movie.trailer,
+    year: movie.year || "",
+    duration: movie.duration || "",
+    actors: movie.actors || "",
+    genre: Array.isArray(movie.genre) ? movie.genre : toArray(movie.genre),
+    mood: Array.isArray(movie.mood) ? movie.mood : toArray(movie.mood),
+    mainScene: Array.isArray(movie.mainScene) ? movie.mainScene : toArray(movie.mainScene),
+    subScene: Array.isArray(movie.subScene) ? movie.subScene : toArray(movie.subScene),
+    score,
+    savedAt: new Date().toISOString(),
+    collectionType: movie.collectionType || "想看",
+    addDate: movie.addDate || new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" })
+  };
+}
+
+function hydrateMovie(item) {
+  const found = allMovies.find(movie => String(movie.id) === String(item.id) || movie.title === item.title);
+  if (found) return found;
+  return {
+    ...item,
+    genre: Array.isArray(item.genre) ? item.genre : toArray(item.genre),
+    mood: Array.isArray(item.mood) ? item.mood : toArray(item.mood),
+    mainScene: Array.isArray(item.mainScene) ? item.mainScene : toArray(item.mainScene),
+    subScene: Array.isArray(item.subScene) ? item.subScene : toArray(item.subScene),
+    views: item.views || 0,
+    raw: item.raw || {}
+  };
+}
+
+function loadCollection(type) {
+  const key = storageKey(type);
+  if (!key) return [];
+
+  const items = loadJson(key, []);
+  return Array.isArray(items) ? items : [];
+}
+
+function saveCollection(type, items) {
+  const key = storageKey(type);
+  if (!key) return;
+
+  saveJson(key, items);
+}
+
+function saveHistory(movie, score = 0) {
+  if (!getCurrentUser()) return;
+
+  const items = loadCollection("history");
+  const snapshot = movieSnapshot(movie, score);
+  const next = [snapshot, ...items.filter(item => String(item.id) !== String(movie.id))].slice(0, 30);
+  saveCollection("history", next);
+}
+
+function isFavorite(movie) {
+  return loadCollection("favorites").some(item => String(item.id) === String(movie.id));
+}
+
+function toggleFavorite(movie, collectionType = null) {
+  if (!getCurrentUser()) {
+    openAuth("login");
+    return;
+  }
+
+  const items = loadCollection("favorites");
+  const exists = items.some(item => String(item.id) === String(movie.id));
+  const next = exists
+    ? items.filter(item => String(item.id) !== String(movie.id))
+    : [movieSnapshot({ ...movie, collectionType: collectionType || movie.collectionType || "想看" }), ...items];
+
+  saveCollection("favorites", next);
+  renderCollection();
+  syncCollectionButtonsUI();
+}
+
+function updateFavoriteUI(movie) {
+  const btn = $("favoriteBtn");
+  if (!btn || !movie) return;
+  const active = isFavorite(movie);
+  btn.classList.toggle("active", active);
+  btn.textContent = active ? "♥ 已收藏" : "♡ 加入收藏";
+}
+
+function openLibrary(type = "favorites") {
+  libraryMode = type === "history" ? "history" : "favorites";
+  renderLibrary();
+  $("libraryModal")?.classList.add("active");
+  $("libraryModal")?.setAttribute("aria-hidden", "false");
+}
+
+function closeLibrary() {
+  $("libraryModal")?.classList.remove("active");
+  $("libraryModal")?.setAttribute("aria-hidden", "true");
+}
+
+function renderLibrary() {
+  const title = $("libraryTitle");
+  const label = $("libraryLabel");
+  const desc = $("libraryDesc");
+  const clearBtn = $("libraryClearBtn");
+  const list = $("libraryList");
+  if (!list) return;
+
+  const isHistory = libraryMode === "history";
+  const items = loadCollection(libraryMode);
+  if (title) title.textContent = isHistory ? "歷史紀錄" : "收藏電影";
+  if (label) label.textContent = isHistory ? "History" : "Favorites";
+  if (desc) desc.textContent = isHistory ? "點擊歷史紀錄可以重新開啟電影詳細資料。" : "點擊收藏電影可以重新開啟電影詳細資料。";
+  if (clearBtn) clearBtn.textContent = isHistory ? "清空歷史" : "清空收藏";
+
+  if (!items.length) {
+    list.innerHTML = `<div class="empty-state">目前沒有${isHistory ? "歷史紀錄" : "收藏電影"}。</div>`;
+    return;
+  }
+
+  list.innerHTML = "";
+  items.forEach(item => {
+    const movie = hydrateMovie(item);
+    const card = document.createElement("article");
+    card.className = "library-card";
+    const tags = topTags(movie).slice(0, 3).map(t => `<span>${escapeHtml(t)}</span>`).join("");
+    const timeText = item.savedAt ? new Date(item.savedAt).toLocaleString("zh-TW") : "";
+    card.innerHTML = `
+      <div class="library-poster" style="background-image:url('${safeAttr(movie.poster)}')"></div>
+      <div class="library-info">
+        <h3>${escapeHtml(movie.title)}</h3>
+        <p>${escapeHtml(movie.desc || "目前沒有簡介").slice(0, 86)}${movie.desc && movie.desc.length > 86 ? "..." : ""}</p>
+        <div class="movie-meta">${tags}</div>
+        <small>${timeText}</small>
+      </div>
+      ${!isHistory ? `<button class="library-remove" type="button">移除</button>` : ""}
+    `;
+    card.addEventListener("click", () => {
+      closeLibrary();
+      openModal(movie, item.score || 0.1);
+    });
+    card.querySelector(".library-remove")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleFavorite(movie);
+      renderLibrary();
+      updateMemberStats();
+      renderRecommendations();
+    });
+    list.appendChild(card);
+  });
+}
+
+function clearCurrentLibrary() {
+  if (!confirm(`確定要清空${libraryMode === "history" ? "歷史紀錄" : "收藏電影"}嗎？`)) return;
+  saveCollection(libraryMode, []);
+  renderLibrary();
+  updateMemberStats();
+  renderRecommendations();
+}
+
+
+function bindPageNavigation() {
+  const navBtns = document.querySelectorAll(".nav-btn");
+  const pageViews = document.querySelectorAll(".page-view");
+  navBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const targetId = btn.getAttribute("data-target");
+      if (!targetId) return;
+      navBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      pageViews.forEach(page => page.classList.toggle("active", page.id === targetId));
+      if (targetId === "page-explore") renderExploreResults($("exploreSearchInput")?.value.trim() || "");
+      if (targetId === "page-collection") renderCollection();
+      if (targetId === "page-party") {
+        renderMembers();
+        renderGroupTags();
+      }
+    });
+  });
+}
+
+function bindExploreUI() {
+  const exSearchInput = $("exploreSearchInput");
+  const exSearchBtn = $("exploreSearchBtn");
+  if (exSearchBtn && exSearchInput) {
+    exSearchBtn.addEventListener("click", () => renderExploreResults(exSearchInput.value.trim()));
+    exSearchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") renderExploreResults(exSearchInput.value.trim());
+    });
+  }
+
+  document.querySelectorAll(".cat-btn, .tag-pills button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const rawText = btn.textContent || "";
+      const cleanedText = rawText.replace(/[^a-zA-Z\u4e00-\u9fa5]/g, "").trim();
+      const intentMap = {
+        "想放鬆一下": "放鬆",
+        "想哭一場": "感人",
+        "想看刺激的": "動作",
+        "適合下雨天": "雨夜",
+        "適合睡前看": "安靜",
+        "適合跟朋友一起看": "歡樂"
+      };
+      const finalKeyword = intentMap[cleanedText] || cleanedText;
+      if (exSearchInput) exSearchInput.value = finalKeyword;
+      renderExploreResults(finalKeyword);
+    });
+  });
+}
+
+function renderExploreResults(keyword = "") {
+  const list = $("exploreResultList");
+  if (!list) return;
+
+  let targetMovies = [...allMovies];
+  const key = String(keyword || "").trim().toLowerCase();
+  if (key) {
+    targetMovies = targetMovies.filter(movie => {
+      const movieText = [
+        movie.title,
+        movie.desc,
+        movie.actors,
+        ...(movie.genre || []),
+        ...(movie.mood || []),
+        ...(movie.mainScene || []),
+        ...(movie.subScene || [])
+      ].join(" ").toLowerCase();
+      return movieText.includes(key);
+    });
+  }
+
+  if (appSettings.noHorror) {
+    targetMovies = targetMovies.filter(m => !m.genre.includes("恐怖") && !m.genre.includes("驚悚"));
+  }
+  if (appSettings.noSad) {
+    targetMovies = targetMovies.filter(m => !m.genre.includes("悲劇") && !m.mood.includes("悲傷") && !m.mood.includes("心碎"));
+  }
+  if (appSettings.prefPop) {
+    targetMovies.sort((a, b) => getViewCount(b) - getViewCount(a));
+  } else if (appSettings.prefNiche) {
+    targetMovies.sort((a, b) => getViewCount(a) - getViewCount(b));
+  } else {
+    targetMovies.sort(() => Math.random() - 0.5);
+  }
+
+  const displayMovies = targetMovies.slice(0, 18);
+  if (!displayMovies.length) {
+    list.innerHTML = `<div class="empty-state">找不到相關電影，試試其他分類吧！</div>`;
+    return;
+  }
+
+  list.className = "explore-result-grid";
+  list.innerHTML = "";
+  displayMovies.forEach(movie => {
+    const card = document.createElement("article");
+    card.className = "explore-movie-card";
+    const tags = topTags(movie).slice(0, 2).map(t => `<span>${escapeHtml(t)}</span>`).join("");
+    const mockScore = Math.floor(Math.random() * 20 + 80);
+    const collected = isFavorite(movie);
+    card.innerHTML = `
+      <div class="explore-poster" style="background-image:url('${safeAttr(movie.poster)}')">
+        <div class="explore-score-badge">${mockScore}% ♡</div>
+      </div>
+      <div class="explore-info">
+        <h4>${escapeHtml(movie.title)}</h4>
+        <div class="explore-meta">
+          <div class="explore-tags">${tags}</div>
+          <button class="add-col-card-btn ${collected ? "collected" : ""}" data-id="${safeAttr(movie.id)}" type="button" aria-label="收藏">${collected ? "✓ 已收藏" : "＋ 加入收藏"}</button>
+        </div>
+      </div>
+    `;
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".add-col-card-btn")) {
+        e.stopPropagation();
+        if (isFavorite(movie)) {
+          toggleFavorite(movie);
+          updateMemberStats();
+          renderExploreResults($("exploreSearchInput")?.value || "");
+          renderRecommendations();
+        } else {
+          pendingMovie = movie;
+          openCollectionChoice();
+        }
+        return;
+      }
+      openModal(movie, mockScore / 100);
+    });
+    list.appendChild(card);
+  });
+}
+
+function bindCollectionUI() {
+  $("colClose")?.addEventListener("click", closeCollectionChoice);
+  $("colBackdrop")?.addEventListener("click", closeCollectionChoice);
+
+  document.querySelectorAll(".col-opt-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (!pendingMovie) return;
+      const type = btn.getAttribute("data-type") || "想看";
+      toggleFavorite(pendingMovie, type);
+      pendingMovie = null;
+      closeCollectionChoice();
+      renderCollection();
+      renderExploreResults($("exploreSearchInput")?.value || "");
+      renderRecommendations();
+      updateMemberStats();
+    });
+  });
+
+  document.querySelectorAll(".collection-tabs .tab-btn").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".collection-tabs .tab-btn").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      currentTab = tab.textContent.trim();
+      renderCollection();
+    });
+  });
+
+  $("goExploreBtn")?.addEventListener("click", () => {
+    document.querySelector('[data-target="page-explore"]')?.click();
+  });
+}
+
+function openCollectionChoice() {
+  $("collectionModal")?.classList.add("active");
+  $("collectionModal")?.setAttribute("aria-hidden", "false");
+}
+
+function closeCollectionChoice() {
+  $("collectionModal")?.classList.remove("active");
+  $("collectionModal")?.setAttribute("aria-hidden", "true");
+}
+
+function renderCollection() {
+  const list = $("collectionList");
+  const emptyState = $("collectionEmpty");
+  if (!list || !emptyState) return;
+  const favorites = loadCollection("favorites");
+  const filteredCollections = currentTab === "全部收藏"
+    ? favorites
+    : favorites.filter(m => (m.collectionType || "想看") === currentTab);
+
+  if (!filteredCollections.length) {
+    list.style.display = "none";
+    emptyState.style.display = "flex";
+    return;
+  }
+
+  list.style.display = "grid";
+  emptyState.style.display = "none";
+  list.innerHTML = "";
+
+  filteredCollections.forEach(item => {
+    const movie = hydrateMovie(item);
+    const card = document.createElement("article");
+    card.className = "explore-movie-card";
+    const tags = topTags(movie).slice(0, 2).map(t => `<span>${escapeHtml(t)}</span>`).join("");
+    const type = item.collectionType || "想看";
+    const date = item.addDate || (item.savedAt ? new Date(item.savedAt).toLocaleDateString("zh-TW") : "近期");
+    card.innerHTML = `
+      <div class="explore-poster" style="background-image:url('${safeAttr(movie.poster)}')"></div>
+      <div class="explore-info">
+        <div class="col-badge">${escapeHtml(type)}</div>
+        <h4>${escapeHtml(movie.title)}</h4>
+        <div class="explore-tags" style="margin-bottom: 12px;">${tags}</div>
+        <div class="collection-footer">
+          <span>收藏於 ${escapeHtml(date)}</span>
+          <button class="delete-btn" type="button" title="移除收藏">🗑️</button>
+        </div>
+      </div>
+    `;
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".delete-btn")) {
+        e.stopPropagation();
+        toggleFavorite(movie);
+        renderCollection();
+        renderExploreResults($("exploreSearchInput")?.value || "");
+        renderRecommendations();
+        updateMemberStats();
+        return;
+      }
+      openModal(movie, item.score || 0.95);
+    });
+    list.appendChild(card);
+  });
+}
+
+function syncCollectionButtonsUI() {
+  document.querySelectorAll(".add-col-card-btn").forEach(btn => {
+    const movieId = btn.getAttribute("data-id");
+    if (!movieId) return;
+    const collected = loadCollection("favorites").some(m => String(m.id) === String(movieId));
+    btn.textContent = collected ? "✓ 已收藏" : "＋ 加入收藏";
+    btn.classList.toggle("collected", collected);
+  });
+}
+
+function bindSettingsUI() {
+  const applyVisualSettings = () => {
+    if ($("setThemeDark")) $("setThemeDark").checked = appSettings.themeDark;
+    if ($("setAnim")) $("setAnim").checked = appSettings.anim;
+    if ($("setPrefPop")) $("setPrefPop").checked = appSettings.prefPop;
+    if ($("setPrefNiche")) $("setPrefNiche").checked = appSettings.prefNiche;
+    if ($("setNoHorror")) $("setNoHorror").checked = appSettings.noHorror;
+    if ($("setNoSad")) $("setNoSad").checked = appSettings.noSad;
+
+    document.querySelectorAll(".seg-btn").forEach(b => {
+      b.classList.toggle("active", b.getAttribute("data-val") === appSettings.cardSize);
+    });
+
+    document.body.classList.toggle("light-mode", !appSettings.themeDark);
+    document.body.classList.toggle("disable-animations", !appSettings.anim);
+    document.body.classList.remove("card-size-small", "card-size-large");
+    if (appSettings.cardSize === "小") document.body.classList.add("card-size-small");
+    if (appSettings.cardSize === "大") document.body.classList.add("card-size-large");
+  };
+
+  applyVisualSettings();
+
+  const toggleMap = {
+    setThemeDark: "themeDark",
+    setAnim: "anim",
+    setPrefPop: "prefPop",
+    setPrefNiche: "prefNiche",
+    setNoHorror: "noHorror",
+    setNoSad: "noSad"
+  };
+
+  Object.keys(toggleMap).forEach(id => {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener("change", (e) => {
+      appSettings[toggleMap[id]] = e.target.checked;
+      saveAppSettings();
+      applyVisualSettings();
+      renderExploreResults($("exploreSearchInput")?.value || "");
+      renderRecommendations();
+    });
+  });
+
+  document.querySelectorAll(".seg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      appSettings.cardSize = btn.getAttribute("data-val");
+      saveAppSettings();
+      applyVisualSettings();
+    });
+  });
+
+  $("clearCollectionBtn")?.addEventListener("click", () => {
+    if (confirm("確定要清除所有收藏嗎？")) {
+      saveCollection("favorites", []);
+      renderCollection();
+      renderExploreResults($("exploreSearchInput")?.value || "");
+      renderRecommendations();
+      updateMemberStats();
+      alert("收藏已清空！");
+    }
+  });
+
+  $("resetAllDataBtn")?.addEventListener("click", () => {
+    if (confirm("將清除所有記憶、會員登入狀態與設定，確定繼續？")) {
+      localStorage.clear();
+      location.reload();
+    }
+  });
+
+  $("saveSettingsBtn")?.addEventListener("click", (e) => {
+    e.target.textContent = "✓ 設定已儲存";
+    e.target.style.background = "#6ccf91";
+    setTimeout(() => {
+      e.target.textContent = "儲存設定";
+      e.target.style.background = "linear-gradient(90deg, #8e63ff, #f06ba7)";
+    }, 1500);
+  });
+}
 
 function ensureDefaultMembers() {
   if (groupMembers.length) return;
