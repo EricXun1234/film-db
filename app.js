@@ -2126,3 +2126,18 @@ function escapeHtml(s) {
 function safeAttr(s) {
   return String(s || "").replace(/'/g, "%27").replace(/\)/g, "%29");
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const menuToggle = document.getElementById("menuToggle");
+  const sideNav = document.querySelector(".side-nav");
+
+  if (menuToggle && sideNav) {
+    menuToggle.addEventListener("click", () => {
+      sideNav.classList.toggle("show");
+
+      menuToggle.textContent = sideNav.classList.contains("show")
+        ? "✕"
+        : "☰";
+    });
+  }
+});
