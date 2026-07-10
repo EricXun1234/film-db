@@ -8,9 +8,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" type="image/png" href="moodluma-icon.png">
   <link rel="manifest" href="manifest.json">
-
 <meta name="theme-color" content="#17142d">
-
 <link rel="apple-touch-icon" href="moodluma-icon.png">
 </head>
 
@@ -24,7 +22,15 @@
         </div>
         <p>用感覺，找到你的電影</p>
       </div>
-<button id="menuToggle" class="menu-toggle" type="button">☰</button>
+
+<button
+    id="menuToggle"
+    class="menu-toggle"
+    type="button"
+    aria-label="開啟功能選單">
+    ☰
+</button>
+
       <nav class="side-nav">
         <button id="navHome" class="nav-btn active" data-target="page-home" type="button">⌂ <span>首頁</span></button>
         <button id="navExplore" class="nav-btn" data-target="page-explore" type="button">⌕ <span>探索</span></button>
@@ -256,6 +262,40 @@
             <button id="groupModeBtn">開啟多人模式</button>
           </div>
 
+          <div class="role-select-panel">
+            <div class="role-select-head">
+              <h3>選擇角色</h3>
+              <p>先點選成員，再點選想套用的角色。</p>
+            </div>
+
+            <div class="role-list" id="roleList">
+              <button class="role-option" type="button" data-role="role-1">
+                <img src="roles/role-1.png" alt="角色 1">
+                <span>角色 1</span>
+              </button>
+
+              <button class="role-option" type="button" data-role="role-2">
+                <img src="roles/role-2.png" alt="角色 2">
+                <span>角色 2</span>
+              </button>
+
+              <button class="role-option" type="button" data-role="role-3">
+                <img src="roles/role-3.png" alt="角色 3">
+                <span>角色 3</span>
+              </button>
+
+              <button class="role-option" type="button" data-role="role-4">
+                <img src="roles/role-4.png" alt="角色 4">
+                <span>角色 4</span>
+              </button>
+
+              <button class="role-option" type="button" data-role="role-5">
+                <img src="roles/role-5.png" alt="角色 5">
+                <span>角色 5</span>
+              </button>
+            </div>
+          </div>
+
           <div id="memberList" class="member-list"></div>
 
           <div class="group-summary">
@@ -434,22 +474,29 @@
         <div class="feedback-box">
           <div>
             <h3>看完預告後，你覺得？</h3>
-            <p>你的回饋會影響之後的推薦排序。</p>
+            <p>調整溫度計來留下評價，越高溫代表越好評。</p>
           </div>
-          <div class="feedback-actions">
-            <button id="likeBtn" class="feedback-btn like">👍 好評</button>
-            <button id="dislikeBtn" class="feedback-btn dislike">👎 差評</button>
+
+          <div class="feedback-temperature">
+            <div class="temp-meter">
+              <div class="temp-meter-head">
+                <span>低溫</span>
+                <strong id="feedbackTemperatureValue">50°</strong>
+                <span>高溫</span>
+              </div>
+
+              <div class="temp-track">
+                <div id="feedbackTempFill" class="temp-fill"></div>
+              </div>
+
+              <input id="feedbackTemperature" type="range" min="0" max="100" value="50">
+            </div>
+
+            <button id="submitTempFeedback" class="temp-submit-btn" type="button">
+              送出評價
+            </button>
           </div>
           <p id="feedbackStatus" class="feedback-status">尚未評分</p>
-
-          <div class="group-vote-box">
-            <h3>多人投票</h3>
-            <p>目前選取的成員可以對這部電影投票。</p>
-            <div class="group-vote-actions">
-              <button id="groupWantBtn" class="feedback-btn like">🙋 想看</button>
-              <button id="groupNopeBtn" class="feedback-btn dislike">🙅 不想看</button>
-            </div>
-            <p id="groupVoteStatus" class="feedback-status">尚未投票</p>
           </div>
         </div>
       </div>

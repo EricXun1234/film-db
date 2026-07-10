@@ -1,5 +1,6 @@
 {
-  "name": "Moodluma",
+  "id": "./",
+  "name": "Moodluma 用感覺找電影",
   "short_name": "Moodluma",
   "description": "Mood-based Movie Discovery",
   "start_url": "./index.html",
@@ -10,8 +11,8 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "moodluma-icon.png",
-      "sizes": "256x256",
+      "src": "moodluma-pwa.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]

@@ -7,13 +7,19 @@
   --text: #f7f2ff;
   --muted: #bdb6d4;
   --soft: #8c85a8;
-  --pink: #f06ba7;
-  --violet: #8e63ff;
-  --blue: #4f8cff;
-  --teal: #57d3da;
+  --pink: #69ACEA;
+  --violet: #8796E6;
+  --blue: #8796E6;
+  --teal: #69ACEA;
   --gold: #e8b553;
   --orange: #ed7a42;
   --green: #71d37c;
+  --mood-blue: #8796E6;
+  --mood-cyan: #69ACEA;  
+  --accent: #8796E6;
+  --accent-2: #69ACEA;
+  --primary: #8796E6;
+  --secondary: #69ACEA;
 }
 
 * {
@@ -26,8 +32,8 @@ body {
   color: var(--text);
   font-family: Arial, "Noto Sans TC", sans-serif;
   background:
-    radial-gradient(circle at 30% 18%, rgba(142, 99, 255, 0.24), transparent 34%),
-    radial-gradient(circle at 80% 30%, rgba(240, 107, 167, 0.16), transparent 30%),
+    radial-gradient(circle at 30% 18%, rgba(135, 150, 230, 0.24), transparent 34%),
+    radial-gradient(circle at 80% 30%, rgba(105, 172, 234, 0.16), transparent 30%),
     radial-gradient(circle at 50% 88%, rgba(87, 211, 218, 0.12), transparent 30%),
     linear-gradient(135deg, #050711 0%, #0b1024 50%, #080813 100%);
   overflow-x: hidden;
@@ -74,7 +80,7 @@ button {
   margin: 0;
   font-size: 27px;
   letter-spacing: -0.7px;
-  background: linear-gradient(135deg, #ffd1c8, #ff70b7, #9f8dff);
+  background: linear-gradient(135deg, #ffd1c8, #69ACEA, #8796E6);
   -webkit-background-clip: text;
   color: transparent;
 }
@@ -104,10 +110,10 @@ button {
 
 .side-nav button.active,
 .side-nav button:hover {
-  background: linear-gradient(135deg, rgba(240, 107, 167, 0.18), rgba(255, 209, 200, 0.08));
+  background: linear-gradient(135deg, rgba(105, 172, 234, 0.18), rgba(255, 209, 200, 0.08));
   border-color: rgba(255, 209, 200, 0.16);
   color: var(--text);
-  box-shadow: 0 18px 44px rgba(240, 107, 167, 0.12);
+  box-shadow: 0 18px 44px rgba(105, 172, 234, 0.12);
 }
 
 .main {
@@ -124,7 +130,7 @@ button {
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #9c8cff;
+  color: #B7C3FF;
   letter-spacing: 1.8px;
   text-transform: uppercase;
   font-size: 12px;
@@ -215,7 +221,7 @@ button {
 #viewAllBtn {
   border: none;
   border-radius: 14px;
-  background: linear-gradient(135deg, #8e63ff, #f06ba7);
+  background: linear-gradient(135deg, #8796E6, #69ACEA);
   color: white;
   padding: 13px 18px;
   font-weight: 800;
@@ -290,8 +296,8 @@ button {
   border-radius: 28px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 50% 50%, rgba(142, 99, 255, 0.2), transparent 18%),
-    radial-gradient(circle at 50% 50%, rgba(142, 99, 255, 0.08), transparent 48%);
+    radial-gradient(circle at 50% 50%, rgba(135, 150, 230, 0.2), transparent 18%),
+    radial-gradient(circle at 50% 50%, rgba(135, 150, 230, 0.08), transparent 48%);
 }
 
 .orbit {
@@ -333,8 +339,8 @@ button {
   text-align: center;
   color: rgba(247, 242, 255, 0.86);
   border: 1px solid rgba(247, 242, 255, 0.14);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(142, 99, 255, 0.08));
-  box-shadow: inset 0 0 42px rgba(142, 99, 255, 0.2);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(135, 150, 230, 0.08));
+  box-shadow: inset 0 0 42px rgba(135, 150, 230, 0.2);
 }
 
 .drop-zone span,
@@ -433,7 +439,7 @@ button {
   align-items: center;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(142, 99, 255, 0.24);
+  background: rgba(135, 150, 230, 0.24);
   color: var(--text);
 }
 
@@ -475,7 +481,7 @@ button {
 }
 
 .movie-item:hover {
-  border-color: rgba(240, 107, 167, 0.28);
+  border-color: rgba(105, 172, 234, 0.28);
   transform: translateY(-2px);
 }
 
@@ -517,7 +523,7 @@ button {
 
 .movie-score {
   text-align: right;
-  color: #a994ff;
+  color: #B7C3FF;
   font-weight: 900;
   white-space: nowrap;
 }
@@ -534,7 +540,7 @@ button {
   height: 48px;
   border: none;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff7cb6, #8e63ff);
+  background: linear-gradient(135deg, #69ACEA, #8796E6);
   color: white;
   font-size: 18px;
   margin-top: 10px;
@@ -544,7 +550,7 @@ button {
   width: 100%;
   border-radius: 18px;
   padding: 16px;
-  background: linear-gradient(135deg, rgba(240, 107, 167, 0.5), rgba(255, 209, 200, 0.18));
+  background: linear-gradient(135deg, rgba(105, 172, 234, 0.5), rgba(255, 209, 200, 0.18));
 }
 
 .info-row {
@@ -582,7 +588,7 @@ button {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: linear-gradient(135deg, #9f8dff, #6d5bff);
+  background: linear-gradient(135deg, #8796E6, #8796E6);
   margin-bottom: 10px;
 }
 
@@ -889,7 +895,7 @@ button {
 }
 
 .feedback-btn.dislike {
-  background: linear-gradient(135deg, rgba(237, 122, 66, 0.32), rgba(240, 107, 167, 0.18));
+  background: linear-gradient(135deg, rgba(237, 122, 66, 0.32), rgba(105, 172, 234, 0.18));
 }
 
 .feedback-btn:hover {
@@ -957,7 +963,7 @@ button {
   border: 1px solid var(--line);
   border-radius: 26px;
   background:
-    radial-gradient(circle at 0% 0%, rgba(240, 107, 167, 0.18), transparent 34%),
+    radial-gradient(circle at 0% 0%, rgba(105, 172, 234, 0.18), transparent 34%),
     linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
   box-shadow: 0 26px 70px rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(18px);
@@ -1023,13 +1029,13 @@ button {
   border: none;
   border-radius: 14px;
   padding: 13px 16px;
-  background: linear-gradient(135deg, #8e63ff, #f06ba7);
+  background: linear-gradient(135deg, #8796E6, #69ACEA);
   color: white;
   font-weight: 900;
 }
 
 #groupModeBtn.active {
-  background: linear-gradient(135deg, #71d37c, #57d3da);
+  background: linear-gradient(135deg, #71d37c, #69ACEA);
   color: #07101c;
 }
 
@@ -1052,8 +1058,8 @@ button {
 }
 
 .member-card.active {
-  border-color: rgba(240, 107, 167, 0.52);
-  box-shadow: 0 14px 34px rgba(240, 107, 167, 0.16);
+  border-color: rgba(105, 172, 234, 0.52);
+  box-shadow: 0 14px 34px rgba(105, 172, 234, 0.16);
 }
 
 .member-card h4 {
@@ -1083,7 +1089,7 @@ button {
 }
 
 .member-actions button:hover {
-  border-color: rgba(240, 107, 167, 0.5);
+  border-color: rgba(105, 172, 234, 0.5);
 }
 
 .group-summary {
@@ -1116,7 +1122,7 @@ button {
 .group-tag {
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(142, 99, 255, 0.24);
+  background: rgba(135, 150, 230, 0.24);
   color: var(--text);
   font-weight: 800;
 }
@@ -1146,7 +1152,7 @@ button {
   padding: 5px 8px;
   border-radius: 999px;
   color: #d9d1ff;
-  background: rgba(142, 99, 255, 0.18);
+  background: rgba(135, 150, 230, 0.18);
   font-size: 12px;
   font-weight: 800;
 }
@@ -1275,18 +1281,25 @@ button {
 }
 
 .brand-logo {
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  display: block;
-  filter: drop-shadow(0 0 10px rgba(142, 99, 255, 0.28));
+  width: 38px !important;
+  height: 38px !important;
+  object-fit: contain !important;
+  filter:
+    brightness(0)
+    invert(82%)
+    sepia(18%)
+    saturate(1150%)
+    hue-rotate(185deg)
+    brightness(105%)
+    contrast(98%)
+    drop-shadow(0 0 10px rgba(105, 172, 234, 0.35)) !important;
 }
 
 .brand h1 {
   margin: 0;
   font-size: 20px;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #ffd1c8, #ff70b7, #9f8dff);
+  background: linear-gradient(135deg, #ffd1c8, #69ACEA, #8796E6);
   -webkit-background-clip: text;
   color: transparent;
 }
@@ -1735,7 +1748,7 @@ button {
 }
 
 .explore-movie-card:hover {
-  border-color: rgba(142, 99, 255, 0.5);
+  border-color: rgba(135, 150, 230, 0.5);
   transform: translateY(-4px);
   box-shadow: 0 12px 30px rgba(0,0,0,0.3);
 }
@@ -1950,8 +1963,8 @@ button {
 
 .col-badge {
   display: inline-block;
-  background: rgba(142, 99, 255, 0.2);
-  color: #b59aff;
+  background: rgba(135, 150, 230, 0.2);
+  color: #B7C3FF;
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 11px;
@@ -1997,13 +2010,13 @@ button {
   background: var(--pink);
   border-color: var(--pink);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(240, 107, 167, 0.3);
+  box-shadow: 0 4px 12px rgba(105, 172, 234, 0.3);
 }
 
 .add-col-card-btn.collected {
-  background: rgba(240, 107, 167, 0.15);
+  background: rgba(105, 172, 234, 0.15);
   color: var(--pink);
-  border-color: rgba(240, 107, 167, 0.4);
+  border-color: rgba(105, 172, 234, 0.4);
 }
 
 .collection-modal-panel {
@@ -2153,7 +2166,7 @@ button {
   border-radius: 50%;
 }
 .toggle-switch input:checked + .slider {
-  background-color: var(--violet, #8e63ff); 
+  background-color: var(--violet, #8796E6); 
 }
 .toggle-switch input:checked + .slider:before {
   transform: translateX(20px);
@@ -2177,9 +2190,9 @@ button {
   transition: 0.2s;
 }
 .seg-btn.active {
-  background: rgba(142, 99, 255, 0.2);
-  color: #b59aff;
-  border: 1px solid rgba(142, 99, 255, 0.4);
+  background: rgba(135, 150, 230, 0.2);
+  color: #B7C3FF;
+  border: 1px solid rgba(135, 150, 230, 0.4);
 }
 
 .list-btn {
@@ -2202,7 +2215,7 @@ button {
 
 .about-icon {
   font-size: 36px;
-  background: radial-gradient(circle, rgba(142, 99, 255, 0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(135, 150, 230, 0.2) 0%, transparent 70%);
   padding: 10px;
   border-radius: 50%;
 }
@@ -2210,7 +2223,7 @@ button {
 .save-settings-btn {
   width: 100%;
   margin-top: 24px;
-  background: linear-gradient(90deg, #8e63ff, #f06ba7);
+  background: linear-gradient(90deg, #8796E6, #69ACEA);
   border: none;
   border-radius: 12px;
   color: white;
@@ -2224,7 +2237,7 @@ button {
 .save-settings-btn:hover {
   filter: brightness(1.1);
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(142, 99, 255, 0.3);
+  box-shadow: 0 10px 20px rgba(135, 150, 230, 0.3);
 }
 
 body.card-size-small .explore-result-grid {
@@ -2298,52 +2311,636 @@ body.disable-animations *::after {
   background: linear-gradient(135deg, rgba(142,99,255,.45), rgba(240,107,167,.35));
 }
 
+.role-select-panel {
+  margin: 18px 0 22px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(135, 150, 230, 0.35);
+  background: linear-gradient(135deg, rgba(135, 150, 230, 0.14), rgba(105, 172, 234, 0.08));
+}
+
+.role-select-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.role-select-head h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+}
+
+.role-select-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.role-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(90px, 1fr));
+  gap: 12px;
+}
+
+.role-option {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  padding: 12px 10px;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  transition: 0.2s ease;
+}
+
+.role-option img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+}
+
+.role-option span {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.role-option:hover,
+.role-option.active {
+  border-color: #69ACEA;
+  background: linear-gradient(135deg, rgba(135,150,230,0.30), rgba(105,172,234,0.22));
+  box-shadow: 0 0 18px rgba(105,172,234,0.22);
+  transform: translateY(-2px);
+}
+
+.member-role-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.member-role-img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 6px;
+}
+
+@media (max-width: 900px) {
+  .role-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.temperature-panel {
+  margin: 18px 0 24px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  border: 1px solid rgba(135, 150, 230, 0.32);
+  background:
+    radial-gradient(circle at 10% 20%, rgba(105,172,234,0.18), transparent 34%),
+    linear-gradient(135deg, rgba(135,150,230,0.13), rgba(105,172,234,0.08));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.temperature-panel h3 {
+  margin: 0 0 6px;
+  color: white;
+}
+
+.temperature-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.temperature-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.temperature-control input[type="range"] {
+  width: 220px;
+  accent-color: var(--mood-cyan);
+}
+
+.temperature-control strong {
+  min-width: 48px;
+  color: white;
+  font-size: 20px;
+}
+
+/* =========================================================
+   Blue + Cyan Final Theme Override
+   放在最底部，用來把舊版粉紫色視覺統一改成紫藍＋水藍。
+   ========================================================= */
+:root {
+  --mood-blue: #8796E6;
+  --mood-cyan: #69ACEA;
+
+  --accent: #8796E6;
+  --accent-2: #69ACEA;
+  --primary: #8796E6;
+  --secondary: #69ACEA;
+
+  --pink: #69ACEA;
+  --violet: #8796E6;
+  --blue: #8796E6;
+  --teal: #69ACEA;
+
+  --text: #F6F8FF;
+  --muted: #C3CCF4;
+  --soft: #8FA6DA;
+}
+
+/* 整體背景改成冷色調 */
+body {
+  background:
+    radial-gradient(circle at 28% 16%, rgba(135, 150, 230, 0.26), transparent 34%),
+    radial-gradient(circle at 78% 28%, rgba(105, 172, 234, 0.18), transparent 30%),
+    radial-gradient(circle at 52% 88%, rgba(105, 172, 234, 0.14), transparent 32%),
+    linear-gradient(135deg, #050711 0%, #0B1228 48%, #07101C 100%) !important;
+}
+
+/* 左側欄與主框線 */
+.sidebar {
+  background: rgba(5, 9, 24, 0.72) !important;
+  border-right-color: rgba(105, 172, 234, 0.16) !important;
+}
+
+.main {
+  background:
+    radial-gradient(circle at 82% 10%, rgba(105, 172, 234, 0.08), transparent 28%),
+    transparent !important;
+}
+
+/* Logo 與標題文字 */
+.brand h1,
+.topbar h2,
+.page-view header h2 {
+  color: #F7F9FF;
+}
+
+.brand h1 {
+  background: linear-gradient(135deg, #8796E6, #69ACEA) !important;
+  -webkit-background-clip: text !important;
+  color: transparent !important;
+}
+
+.eyebrow,
+.modal-label,
+.settings-section h3 {
+  color: #B7C3FF !important;
+}
+
+/* 主要按鈕統一 */
+.search-box button,
+.search-panel button,
+.wide-btn,
+#resetBtn,
+#shuffleBtn,
+#viewAllBtn,
+#addMemberBtn,
+#groupModeBtn,
+.auth-submit,
+.save-settings-btn,
+.collection-empty .primary-btn,
+.col-opt-btn:hover,
+.add-col-card-btn:hover,
+.collection-choice-card button,
+.play-circle,
+.play-btn {
+  background: linear-gradient(135deg, #8796E6, #69ACEA) !important;
+  color: #fff !important;
+  border-color: rgba(105, 172, 234, 0.38) !important;
+  box-shadow: 0 12px 28px rgba(105, 172, 234, 0.24) !important;
+}
+
+/* 次要按鈕維持深色，但改成藍色邊框 */
+#shuffleBtn,
+#viewAllBtn,
+#resetBtn,
+.detail-btn,
+.add-collection-btn,
+.add-col-card-btn,
+.member-actions button,
+.list-btn,
+.top-actions button,
+.top-actions .user-btn {
+  background: rgba(135, 150, 230, 0.10) !important;
+  border: 1px solid rgba(105, 172, 234, 0.26) !important;
+  color: #F4F7FF !important;
+}
+
+#shuffleBtn:hover,
+#viewAllBtn:hover,
+#resetBtn:hover,
+.detail-btn:hover,
+.add-collection-btn:hover,
+.add-col-card-btn:hover,
+.member-actions button:hover,
+.list-btn:hover,
+.top-actions button:hover,
+.top-actions .user-btn:hover {
+  border-color: rgba(105, 172, 234, 0.58) !important;
+  background: rgba(105, 172, 234, 0.16) !important;
+}
+
+/* 左側選單 active / hover */
+.side-nav button.active,
+.side-nav button:hover,
+.nav-link.active,
+.sidebar button.active {
+  background: linear-gradient(135deg, rgba(135, 150, 230, 0.24), rgba(105, 172, 234, 0.12)) !important;
+  border-color: rgba(105, 172, 234, 0.42) !important;
+  color: #ffffff !important;
+  box-shadow: 0 18px 44px rgba(105, 172, 234, 0.10) !important;
+}
+
+/* 搜尋框與輸入欄位 */
+.search-box,
+.explore-search-box,
+.auth-form input,
+.group-controls input {
+  border-color: rgba(105, 172, 234, 0.24) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+}
+
+.search-box input,
+.explore-search-box input,
+.group-controls input {
+  background: rgba(6, 10, 28, 0.78) !important;
+}
+
+/* 區塊卡片與面板 */
+.mood-stage-card,
+.recommend-card,
+.how-card,
+.hint-card,
+.group-panel,
+.settings-card,
+.settings-panel,
+.explore-movie-card,
+.movie-item,
+.library-card,
+.auth-panel,
+.library-panel,
+.member-panel,
+.role-select-panel,
+.temperature-panel {
+  border-color: rgba(105, 172, 234, 0.22) !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(135, 150, 230, 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.060), rgba(255, 255, 255, 0.025)) !important;
+}
+
+/* 多人模式區塊 */
+.group-panel {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(105, 172, 234, 0.16), transparent 34%),
+    linear-gradient(135deg, rgba(135, 150, 230, 0.10), rgba(255, 255, 255, 0.025)) !important;
+}
+
+.member-card {
+  border-color: rgba(105, 172, 234, 0.18) !important;
+  background: rgba(255, 255, 255, 0.050) !important;
+}
+
+.member-card.active {
+  border-color: rgba(105, 172, 234, 0.82) !important;
+  box-shadow: 0 0 0 1px rgba(105, 172, 234, 0.30), 0 14px 34px rgba(105, 172, 234, 0.16) !important;
+}
+
+.member-role-img {
+  border-color: rgba(105, 172, 234, 0.25) !important;
+  background: rgba(135, 150, 230, 0.10) !important;
+}
+
+/* 角色選擇 */
+.role-option {
+  border-color: rgba(105, 172, 234, 0.18) !important;
+  background: rgba(135, 150, 230, 0.08) !important;
+}
+
+.role-option:hover,
+.role-option.active {
+  border-color: #69ACEA !important;
+  background: linear-gradient(135deg, rgba(135, 150, 230, 0.34), rgba(105, 172, 234, 0.22)) !important;
+  box-shadow: 0 0 22px rgba(105, 172, 234, 0.24) !important;
+}
+
+/* 收藏、愛心、播放 */
+.movie-fav-btn,
+.heart-btn,
+.fav-btn,
+.favorite-btn {
+  background: rgba(105, 172, 234, 0.12) !important;
+  border-color: rgba(105, 172, 234, 0.30) !important;
+  color: #DDEBFF !important;
+}
+
+.movie-fav-btn:hover,
+.heart-btn:hover,
+.fav-btn:hover,
+.favorite-btn:hover,
+.movie-fav-btn.active,
+.detail-btn.active {
+  background: linear-gradient(135deg, #8796E6, #69ACEA) !important;
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.movie-score,
+.explore-score-badge {
+  color: #BFD9FF !important;
+}
+
+/* 探索 / 收藏 / 設定頁籤 */
+.collection-tabs .tab-btn.active,
+.tab.active,
+.filter-tab.active,
+.collection-tab.active,
+.mood-chip.active,
+.category-card.active {
+  color: #69ACEA !important;
+  border-color: #69ACEA !important;
+}
+
+.collection-tabs .tab-btn.active::after {
+  background: #69ACEA !important;
+}
+
+.tag-pills button:hover,
+.explore-movie-card:hover,
+.library-card:hover {
+  border-color: rgba(105, 172, 234, 0.48) !important;
+  box-shadow: 0 12px 30px rgba(105, 172, 234, 0.12) !important;
+}
+
+/* 設定頁 */
+.toggle-switch input:checked + .slider {
+  background-color: #69ACEA !important;
+}
+
+.seg-btn.active {
+  background: rgba(105, 172, 234, 0.18) !important;
+  color: #DDEBFF !important;
+  border-color: rgba(105, 172, 234, 0.42) !important;
+}
+
+/* 電影詳細視窗 */
+.modal-panel {
+  border-color: rgba(105, 172, 234, 0.22) !important;
+  background: linear-gradient(135deg, #11182E, #17223A) !important;
+}
+
+.modal-cover::after {
+  background: linear-gradient(to right, transparent 45%, rgba(17, 24, 46, 0.92)) !important;
+}
+
+/* 已選標籤、共用感覺 */
+.chip,
+.group-tag,
+.group-badge,
+.col-badge {
+  background: rgba(105, 172, 234, 0.16) !important;
+  color: #DDEBFF !important;
+}
+
+/* 溫度計 */
+.temperature-panel {
+  border-color: rgba(105, 172, 234, 0.32) !important;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(105,172,234,0.18), transparent 34%),
+    linear-gradient(135deg, rgba(135,150,230,0.15), rgba(105,172,234,0.08)) !important;
+}
+
+.temperature-control input[type="range"],
+input[type="range"] {
+  accent-color: #69ACEA !important;
+}
+
+/* 亮色模式也使用藍色系 */
+body.light-mode {
+  background: #F1F6FF !important;
+  color: #1A2440 !important;
+}
+
+body.light-mode .sidebar,
+body.light-mode .explore-movie-card,
+body.light-mode .settings-panel,
+body.light-mode .settings-card {
+  background: #FFFFFF !important;
+  border-color: #D9E7FF !important;
+}
+
+body.light-mode .brand h1 {
+  background: linear-gradient(135deg, #8796E6, #69ACEA) !important;
+  -webkit-background-clip: text !important;
+  color: transparent !important;
+}
+
+.feedback-temperature {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(105, 172, 234, 0.22);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.feedback-thermometer-img {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 12px;
+  object-fit: contain;
+}
+
+.feedback-temp-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.feedback-temp-control input[type="range"] {
+  flex: 1;
+  accent-color: #69ACEA;
+}
+
+.feedback-temp-control strong {
+  min-width: 46px;
+  color: #fff;
+  font-size: 18px;
+  text-align: right;
+}
+
+.feedback-temp-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.feedback-temp-buttons .feedback-btn {
+  flex: 1;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.feedback-temp-buttons .feedback-btn.like.active {
+  background: linear-gradient(135deg, #F6C85F, #EF6F4D) !important;
+}
+
+.feedback-temp-buttons .feedback-btn.dislike.active {
+  background: linear-gradient(135deg, #69ACEA, #8796E6) !important;
+}
+
+.temperature-panel {
+  display: none !important;
+}
+
+.feedback-temperature {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(105, 172, 234, 0.24);
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.feedback-thermometer-img,
+.feedback-temp-buttons {
+  display: none !important;
+}
+
+.temp-meter {
+  display: grid;
+  gap: 12px;
+}
+
+.temp-meter-head {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.temp-meter-head span:first-child {
+  text-align: left;
+}
+
+.temp-meter-head span:last-child {
+  text-align: right;
+}
+
+.temp-meter-head strong {
+  color: #fff;
+  font-size: 22px;
+  text-align: center;
+}
+
+.temp-track {
+  height: 18px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(90deg, rgba(105, 172, 234, 0.35), rgba(255, 255, 255, 0.10));
+}
+
+.temp-fill {
+  width: 50%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #69ACEA 0%, #8796E6 45%, #F6C85F 72%, #EF6F4D 100%);
+  transition: width 0.18s ease;
+}
+
+.feedback-temperature input[type="range"] {
+  width: 100%;
+  accent-color: #69ACEA;
+}
+
+.temp-submit-btn {
+  width: 100%;
+  margin-top: 14px;
+  border: none;
+  border-radius: 14px;
+  padding: 13px 18px;
+  color: #fff;
+  font-weight: 900;
+  background: linear-gradient(135deg, #8796E6, #69ACEA);
+  box-shadow: 0 12px 28px rgba(105, 172, 234, 0.24);
+}
+
+.temp-submit-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
 .menu-toggle {
     display: none;
 }
 
-@media (max-width:768px){
+@media (max-width: 768px) {
 
-    .sidebar{
+    .sidebar {
         position: relative;
     }
 
-    .menu-toggle{
-        display:flex;
-        justify-content:center;
-        align-items:center;
+    .menu-toggle {
+        display: flex;
+        position: absolute;
+        top: 18px;
+        right: 18px;
 
-        position:absolute;
-        top:14px;
-        right:14px;
+        width: 42px;
+        height: 42px;
 
-        width:42px;
-        height:42px;
+        border: none;
+        border-radius: 10px;
 
-        border:none;
-        border-radius:12px;
+        background: rgba(255,255,255,.08);
+        color: #fff;
 
-        background:rgba(255,255,255,.12);
-        color:#fff;
+        font-size: 26px;
+        cursor: pointer;
 
-        font-size:22px;
-        cursor:pointer;
+        align-items: center;
+        justify-content: center;
 
-        z-index:999;
-    }
-
-    .menu-toggle:hover{
-        background:rgba(255,255,255,.2);
+        z-index: 999;
     }
 
     .side-nav{
         display:none;
-        margin-top:18px;
+        margin-top:15px;
     }
 
     .side-nav.show{
         display:flex;
         flex-direction:column;
+        gap:10px;
     }
 
+    .side-nav .nav-btn{
+        width:100%;
+    }
 }

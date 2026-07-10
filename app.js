@@ -206,6 +206,7 @@ async function init() {
   buildDynamicBubbles();
   renderMembers();
   renderGroupTags();
+  renderRoleOptions();
   renderSelectedTags();
   renderRecommendations();
   renderExploreResults();
@@ -253,8 +254,14 @@ function bindUI() {
   $("modalClose").addEventListener("click", closeModal);
   $("modalBackdrop").addEventListener("click", closeModal);
 
-  $("likeBtn")?.addEventListener("click", () => setFeedback("like"));
-  $("dislikeBtn")?.addEventListener("click", () => setFeedback("dislike"));
+  $("feedbackTemperature")?.addEventListener("input", (e) => {
+    updateTemperaturePreview(Number(e.target.value));
+  });
+
+  $("submitTempFeedback")?.addEventListener("click", () => {
+    const value = Number($("feedbackTemperature")?.value || 50);
+    setTemperatureFeedback(value);
+  });
 
   $("trailerLink")?.addEventListener("click", () => {
     if (!currentModalMovie) return;
@@ -272,6 +279,22 @@ function bindUI() {
     $("groupModeBtn").classList.toggle("active", groupMode);
     $("groupModeBtn").textContent = groupMode ? "多人模式已開啟" : "開啟多人模式";
     renderRecommendations();
+  });
+
+  // 點選角色圖片，套用到目前選中的成員
+  document.querySelectorAll(".role-option").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (!activeMemberId) return;
+
+      const member = groupMembers.find(m => m.id === activeMemberId);
+      if (!member) return;
+
+      member.role = btn.dataset.role;
+
+      saveGroupMembers();
+      renderMembers();
+      renderRoleOptions();
+    });
   });
 
   $("groupWantBtn")?.addEventListener("click", () => setGroupVote("want"));
@@ -1156,6 +1179,7 @@ function handleAuthSubmit() {
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
   const msg = $("authMessage");
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!username || !password) {
     msg.textContent = "請輸入帳號與密碼。";
@@ -1166,6 +1190,11 @@ function handleAuthSubmit() {
   const users = loadUsers();
 
   if (authMode === "register") {
+    if (!emailPattern.test(email)) {
+      msg.textContent = "請輸入正確的 Email 格式，例如：name@example.com";
+      msg.className = "auth-message error";
+      return;
+    }
     if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
       msg.textContent = "此帳號已被註冊，請改用其他帳號。";
       msg.className = "auth-message error";
@@ -1335,6 +1364,7 @@ function toggleFavorite(movie, collectionType = null) {
 
   const items = loadCollection("favorites");
   const exists = items.some(item => String(item.id) === String(movie.id));
+
   const next = exists
     ? items.filter(item => String(item.id) !== String(movie.id))
     : [movieSnapshot({ ...movie, collectionType: collectionType || movie.collectionType || "想看" }), ...items];
@@ -1538,6 +1568,10 @@ function renderExploreResults(keyword = "") {
     card.addEventListener("click", (e) => {
       if (e.target.closest(".add-col-card-btn")) {
         e.stopPropagation();
+        if (!getCurrentUser()) {
+          openAuth("login");
+          return;
+        }
         if (isFavorite(movie)) {
           toggleFavorite(movie);
           updateMemberStats();
@@ -1741,13 +1775,26 @@ function bindSettingsUI() {
 }
 
 function ensureDefaultMembers() {
-  if (groupMembers.length) return;
+  if (groupMembers.length) {
+    groupMembers = groupMembers.map((member, index) => ({
+      ...member,
+      role: member.role || `role-${Math.min(index + 1, 5)}`
+    }));
+
+    if (!activeMemberId || !groupMembers.some(member => member.id === activeMemberId)) {
+      activeMemberId = groupMembers[0]?.id || null;
+    }
+
+    saveGroupMembers();
+    return;
+  }
 
   groupMembers = [
-    { id: "member-a", name: "成員 A", tags: {} },
-    { id: "member-b", name: "成員 B", tags: {} },
-    { id: "member-c", name: "成員 C", tags: {} }
+    { id: "member-a", name: "成員 A", tags: {}, role: "role-1" },
+    { id: "member-b", name: "成員 B", tags: {}, role: "role-2" },
+    { id: "member-c", name: "成員 C", tags: {}, role: "role-3" }
   ];
+
   activeMemberId = "member-a";
   saveGroupMembers();
 }
@@ -1782,7 +1829,7 @@ function addMemberFromInput() {
   if (!name) return;
 
   const id = `member-${Date.now()}`;
-  groupMembers.push({ id, name, tags: {} });
+  groupMembers.push({ id, name, tags: {}, role: `role-${Math.min(groupMembers.length + 1, 5)}` });
   activeMemberId = id;
   input.value = "";
   saveGroupMembers();
@@ -1808,9 +1855,19 @@ function removeMember(id) {
   renderRecommendations();
 }
 
+function renderRoleOptions() {
+  document.querySelectorAll(".role-option").forEach(btn => {
+    const role = btn.dataset.role;
+    const activeMember = groupMembers.find(m => m.id === activeMemberId);
+
+    btn.classList.toggle("active", activeMember?.role === role);
+  });
+}
+
 function setActiveMember(id) {
   activeMemberId = id;
   renderMembers();
+  renderRoleOptions();
   updateGroupVoteUI(currentModalMovie);
 }
 
@@ -1836,31 +1893,63 @@ function renderMembers() {
   if (!box) return;
 
   box.innerHTML = "";
+
   groupMembers.forEach(member => {
     const tagNames = Object.keys(member.tags || {});
     const card = document.createElement("article");
+
     card.className = `member-card ${member.id === activeMemberId ? "active" : ""}`;
+
     card.innerHTML = `
-      <h4>${escapeHtml(member.name)}</h4>
-      <p>${tagNames.length ? tagNames.slice(0, 4).join("、") : "尚未選擇感覺"}</p>
+      <div class="member-role-wrap">
+        <img class="member-role-img" src="roles/${member.role || "role-1"}.png" alt="${escapeHtml(member.name)}的角色">
+        <div>
+          <h4>${escapeHtml(member.name)}</h4>
+          <p>${tagNames.length ? tagNames.slice(0, 4).join("、") : "尚未選擇感覺"}</p>
+        </div>
+      </div>
+
       <div class="member-actions">
-        <button data-action="active">切換</button>
-        <button data-action="rename">改名</button>
-        <button data-action="clear">清空</button>
-        <button data-action="remove">移除</button>
+        <button data-action="active" type="button">切換</button>
+        <button data-action="rename" type="button">改名</button>
+        <button data-action="clear" type="button">清空</button>
+        <button data-action="remove" type="button">移除</button>
       </div>
     `;
 
-    card.querySelector('[data-action="active"]').addEventListener("click", () => setActiveMember(member.id));
-    card.querySelector('[data-action="rename"]').addEventListener("click", () => renameMember(member.id));
-    card.querySelector('[data-action="clear"]').addEventListener("click", () => {
+    // 點整張成員卡片，也可以切換目前選中的成員
+    card.addEventListener("click", () => {
+      setActiveMember(member.id);
+    });
+
+    card.querySelector('[data-action="active"]')?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setActiveMember(member.id);
+    });
+
+    card.querySelector('[data-action="rename"]')?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      renameMember(member.id);
+    });
+
+    card.querySelector('[data-action="clear"]')?.addEventListener("click", (e) => {
+      e.stopPropagation();
+
       member.tags = {};
       saveGroupMembers();
+
       renderMembers();
       renderGroupTags();
+      renderRoleOptions();
       renderRecommendations();
     });
-    card.querySelector('[data-action="remove"]').addEventListener("click", () => removeMember(member.id));
+
+    card.querySelector('[data-action="remove"]')?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeMember(member.id);
+      renderRoleOptions();
+    });
+
     box.appendChild(card);
   });
 }
@@ -2025,6 +2114,94 @@ function markTrailerWatched(movie) {
   saveFeedbacks();
 }
 
+function updateTemperaturePreview(value) {
+  const temperature = Math.max(0, Math.min(100, Number(value) || 0));
+  const tempValue = $("feedbackTemperatureValue");
+  const tempFill = $("feedbackTempFill");
+
+  if (tempValue) {
+    tempValue.textContent = `${temperature}°`;
+  }
+
+  if (tempFill) {
+    tempFill.style.width = `${temperature}%`;
+  }
+}
+
+function getNextRecommendedMovie(currentMovieId) {
+  const currentKey = String(currentMovieId || "");
+
+  const ratedKeys = new Set(
+    Object.keys(feedbacks || {}).map(key => String(key))
+  );
+
+  const scored = allMovies
+    .filter(movie => {
+      const key = getMovieKey(movie);
+
+      // 排除目前這一部
+      if (key === currentKey) return false;
+
+      // 排除已經評價過的電影
+      if (ratedKeys.has(key)) return false;
+
+      return true;
+    })
+    .map(movie => ({
+      movie,
+      score: computeScore(movie)
+    }))
+    .sort((a, b) => {
+      const av = getViewCount(a.movie);
+      const bv = getViewCount(b.movie);
+      return b.score - a.score || bv - av;
+    });
+
+  // 優先找有分數的電影
+  const next = scored.find(item => item.score > 0);
+
+  // 如果沒有符合分數的，就拿第一部未評價電影
+  return next || scored[0] || null;
+}
+
+function getMovieKey(movie) {
+  return String(movie?.id || movie?.title || "").trim();
+}
+
+function setTemperatureFeedback(value) {
+  if (!currentModalMovie) return;
+
+  const movieId = getMovieKey(currentModalMovie);
+  const temperature = Math.max(0, Math.min(100, Number(value) || 50));
+
+  const type = temperature >= 50 ? "like" : "dislike";
+
+  const prev = feedbacks[movieId] || {};
+  feedbacks[movieId] = {
+    ...prev,
+    rating: type,
+    temperature,
+    ratedAt: new Date().toISOString()
+  };
+
+  saveFeedbacks();
+  updateFeedbackUI(currentModalMovie);
+  renderRecommendations();
+
+  const nextBest = getNextRecommendedMovie(movieId);
+
+  if (nextBest) {
+    setTimeout(() => {
+      openModal(nextBest.movie, nextBest.score);
+    }, 500);
+  } else {
+    setTimeout(() => {
+      closeModal();
+      alert("目前已經沒有更多未評價的推薦電影。");
+    }, 500);
+  }
+}
+
 function setFeedback(type) {
   if (!currentModalMovie) return;
 
@@ -2062,35 +2239,62 @@ function setFeedback(type) {
 }
 
 function updateFeedbackUI(movie) {
-  const likeBtn = $("likeBtn");
-  const dislikeBtn = $("dislikeBtn");
+  const tempInput = $("feedbackTemperature");
   const status = $("feedbackStatus");
-  if (!likeBtn || !dislikeBtn || !status) return;
 
-  const rating = getFeedback(movie);
+  if (!status) return;
+
+  const feedback = feedbacks[getMovieKey(movie)] || {};
+  const rating = feedback.rating || "";
+
+  const temperature = typeof feedback.temperature === "number"
+    ? feedback.temperature
+    : rating === "like"
+      ? 85
+      : rating === "dislike"
+        ? 25
+        : 50;
+
   const watched = hasWatchedTrailer(movie);
 
-  likeBtn.classList.toggle("active", rating === "like");
-  dislikeBtn.classList.toggle("active", rating === "dislike");
+  if (tempInput) {
+    tempInput.value = temperature;
+  }
+
+  updateTemperaturePreview(temperature);
 
   if (rating === "like") {
-    status.textContent = "你給了好評：之後會更常推薦相似氛圍的電影。";
+    status.textContent = `你給了 ${temperature}° 高溫好評：之後會更常推薦相似氛圍的電影。`;
   } else if (rating === "dislike") {
-    status.textContent = "你給了差評：之後會降低相似電影的推薦權重。";
+    status.textContent = `你給了 ${temperature}° 低溫評價：之後會降低相似電影的推薦權重。`;
   } else if (watched) {
-    status.textContent = "你已開啟預告片，可以給這部電影好評或差評。";
+    status.textContent = "你已開啟預告片，可以拖曳溫度計留下評價。";
   } else {
-    status.textContent = "尚未評分。你可以看完預告後再給回饋。";
+    status.textContent = "尚未評分。看完預告後，可以拖曳溫度計留下回饋。";
   }
 }
 
 function renderFeedbackBadge(movie) {
-  const rating = getFeedback(movie);
-  if (rating === "like") return `<span class="feedback-badge like">👍 已好評</span>`;
-  if (rating === "dislike") return `<span class="feedback-badge dislike">👎 已差評</span>`;
+  const feedback = feedbacks[movie.id] || {};
+  const rating = feedback.rating || "";
+  const temperature = typeof feedback.temperature === "number"
+    ? feedback.temperature
+    : rating === "like"
+      ? 85
+      : rating === "dislike"
+        ? 20
+        : "";
+
+  if (rating === "like") {
+    return `<span class="feedback-badge like">🌡 ${temperature}° 高溫好評</span>`;
+  }
+
+  if (rating === "dislike") {
+    return `<span class="feedback-badge dislike">🌡 ${temperature}° 低溫評價</span>`;
+  }
+
   return "";
 }
-
 
 function loadViews() {
   try {
@@ -2131,17 +2335,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuToggle = document.getElementById("menuToggle");
   const sideNav = document.querySelector(".side-nav");
 
-  if (menuToggle && sideNav) {
-    menuToggle.addEventListener("click", () => {
-      sideNav.classList.toggle("show");
+  if (!menuToggle || !sideNav) return;
 
-      menuToggle.textContent = sideNav.classList.contains("show")
-        ? "✕"
-        : "☰";
+  menuToggle.addEventListener("click", () => {
+    const isOpen = sideNav.classList.toggle("show");
+
+    menuToggle.textContent = isOpen ? "✕" : "☰";
+    menuToggle.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  sideNav.querySelectorAll(".nav-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (window.innerWidth <= 768) {
+        sideNav.classList.remove("show");
+        menuToggle.textContent = "☰";
+        menuToggle.setAttribute("aria-expanded", "false");
+      }
     });
-  }
+  });
 });
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js");
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./service-worker.js")
+      .then(() => {
+        console.log("Service Worker 註冊成功");
+      })
+      .catch((error) => {
+        console.error("Service Worker 註冊失敗：", error);
+      });
+  });
 }
