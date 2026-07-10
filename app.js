@@ -2367,3 +2367,73 @@ if ("serviceWorker" in navigator) {
       });
   });
 }
+
+let deferredInstallPrompt = null;
+
+const installAppBtn = document.getElementById("installAppBtn");
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+
+  if (installAppBtn) {
+    installAppBtn.style.display = "inline-flex";
+  }
+});
+
+if (installAppBtn) {
+  installAppBtn.addEventListener("click", async () => {
+    const isIOS =
+      /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true;
+
+    if (isStandalone) {
+      alert("Moodluma 已經安裝在這台裝置上。");
+      return;
+    }
+
+    if (isIOS) {
+      alert(
+        "iPhone 安裝方式：\n\n" +
+        "1. 請使用 Safari 開啟網站\n" +
+        "2. 點擊下方的「分享」按鈕\n" +
+        "3. 選擇「加入主畫面」\n" +
+        "4. 點擊「加入」完成安裝"
+      );
+      return;
+    }
+
+    if (!deferredInstallPrompt) {
+      alert(
+        "目前無法直接顯示安裝視窗。\n\n" +
+        "請使用 Chrome 或 Edge 開啟網站，" +
+        "並確認網站已透過 HTTPS 部署。"
+      );
+      return;
+    }
+
+    deferredInstallPrompt.prompt();
+
+    const choice = await deferredInstallPrompt.userChoice;
+
+    if (choice.outcome === "accepted") {
+      console.log("使用者接受安裝 Moodluma");
+    } else {
+      console.log("使用者取消安裝 Moodluma");
+    }
+
+    deferredInstallPrompt = null;
+  });
+}
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+
+  if (installAppBtn) {
+    installAppBtn.textContent = "✓ Moodluma 已安裝";
+    installAppBtn.disabled = true;
+  }
+});
