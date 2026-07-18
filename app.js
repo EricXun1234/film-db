@@ -27,6 +27,8 @@ const CURRENT_USER_KEY = "moodluma-current-user";
 const HISTORY_PREFIX = "moodluma-history";
 const FAVORITE_PREFIX = "moodluma-favorites";
 const GUEST_ID = "guest";
+const ROOM_KEY = "moodluma-current-room";
+const ROOM_PREFIX = "ROOM-";
 
 /*
   支援中英文欄位名稱。
@@ -165,6 +167,15 @@ const KIND_META = {
   genre: { label: "類型", icon: "✦", colors: ["#dc633a", "#e8b553"], glow: "rgba(232,181,83,0.42)" }
 };
 
+const BUBBLE_LIMIT = 10;
+const BUBBLE_SIZE = 92;
+const BUBBLE_COLOR_PALETTE = [
+  { colors: ["#F08A3E", "#F5C04E"], glow: "rgba(245,192,78,0.42)" },
+  { colors: ["#B45CFF", "#EA6FCB"], glow: "rgba(234,111,203,0.42)" },
+  { colors: ["#4F6CFF", "#6C8CFF"], glow: "rgba(79,108,255,0.42)" },
+  { colors: ["#35C6B0", "#5ED39A"], glow: "rgba(53,198,176,0.38)" }
+];
+
 let allMovies = [];
 let bubbles = [];
 let allTagCandidates = [];
@@ -191,6 +202,27 @@ let appSettings = loadJson("moodluma_settings", {
   noSad: false
 });
 
+function getBubblePaletteByGroup(index, total) {
+  const paletteCount = BUBBLE_COLOR_PALETTE.length;
+  const baseSize = Math.floor(total / paletteCount);
+  const extra = total % paletteCount;
+
+  let start = 0;
+
+  for (let i = 0; i < paletteCount; i++) {
+    const groupSize = baseSize + (i < extra ? 1 : 0);
+    const end = start + groupSize;
+
+    if (index >= start && index < end) {
+      return BUBBLE_COLOR_PALETTE[i];
+    }
+
+    start = end;
+  }
+
+  return BUBBLE_COLOR_PALETTE[paletteCount - 1];
+}
+
 function saveAppSettings() {
   saveJson("moodluma_settings", appSettings);
 }
@@ -202,6 +234,12 @@ document.addEventListener("DOMContentLoaded", init);
 async function init() {
   bindUI();
   allMovies = await loadMoviesFromFilmDB();
+
+  updateRoomUI();
+  groupMembers = loadGroupMembers();
+  groupVotes = loadGroupVotes();
+  activeMemberId = groupMembers[0]?.id || null;
+
   ensureDefaultMembers();
   buildDynamicBubbles();
   renderMembers();
@@ -213,6 +251,15 @@ async function init() {
   renderCollection();
   updateAuthUI();
   updateMemberStats();
+  window.addEventListener("resize", debounceBubbleLayout);
+}
+
+let bubbleResizeTimer = null;
+function debounceBubbleLayout() {
+  clearTimeout(bubbleResizeTimer);
+  bubbleResizeTimer = setTimeout(() => {
+    if (bubbles.length) layoutBubbles();
+  }, 120);
 }
 
 function bindUI() {
@@ -269,6 +316,10 @@ function bindUI() {
     updateFeedbackUI(currentModalMovie);
   });
 
+  $("focusMemberInputBtn")?.addEventListener("click", () => {
+  $("memberNameInput")?.focus();
+});
+
   $("addMemberBtn")?.addEventListener("click", addMemberFromInput);
   $("memberNameInput")?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") addMemberFromInput();
@@ -279,6 +330,33 @@ function bindUI() {
     $("groupModeBtn").classList.toggle("active", groupMode);
     $("groupModeBtn").textContent = groupMode ? "多人模式已開啟" : "開啟多人模式";
     renderRecommendations();
+  });
+
+  $("newRoomBtn")?.addEventListener("click", () => {
+    const newCode = generateRoomCode();
+    setCurrentRoomCode(newCode);
+  });
+
+  $("joinRoomBtn")?.addEventListener("click", () => {
+    const code = $("joinRoomInput")?.value || "";
+
+    if (!code.trim()) {
+      alert("請輸入房間代碼。");
+      return;
+    }
+
+    setCurrentRoomCode(code);
+  });
+
+  $("joinRoomInput")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const code = $("joinRoomInput")?.value || "";
+      if (!code.trim()) {
+        alert("請輸入房間代碼。");
+        return;
+      }
+      setCurrentRoomCode(code);
+    }
   });
 
   // 點選角色圖片，套用到目前選中的成員
@@ -330,6 +408,17 @@ function bindUI() {
   $("authLoginTab")?.addEventListener("click", () => setAuthMode("login"));
   $("authRegisterTab")?.addEventListener("click", () => setAuthMode("register"));
   $("authSubmit")?.addEventListener("click", handleAuthSubmit);
+  $("forgotPasswordBtn")?.addEventListener("click", openForgotPassword);
+  $("forgotPasswordClose")?.addEventListener("click", closeForgotPassword);
+  $("forgotPasswordBackdrop")?.addEventListener("click", closeForgotPassword);
+  $("backToLoginBtn")?.addEventListener("click", () => {
+    closeForgotPassword();
+    openAuth("login");
+  });
+  $("resetPasswordSubmit")?.addEventListener("click", handlePasswordReset);
+  $("resetConfirmPassword")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handlePasswordReset();
+  });
   $("authPassword")?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") handleAuthSubmit();
   });
@@ -707,54 +796,60 @@ function classifyTag(tag) {
 
 function pickBalancedTags(candidates, excludeTags = []) {
   let available = candidates.filter(c => !excludeTags.includes(c.tag));
-  if (available.length < 15) {
+  if (available.length < BUBBLE_LIMIT) {
     available = candidates;
   }
 
-  available.sort(() => Math.random() - 0.5);
-  const buckets = { mood: [], atmosphere: [], scene: [], genre: [] };
-  available.forEach(item => buckets[item.kind]?.push(item));
-  const plan = [
-    ["mood", 5],
-    ["atmosphere", 4],
-    ["scene", 4],
-    ["genre", 2]
-  ];
+  available = [...available].sort((a, b) => (b.score || 0) - (a.score || 0));
 
+  const buckets = { mood: [], atmosphere: [], scene: [], genre: [] };
+  available.forEach(item => {
+    const kind = buckets[item.kind] ? item.kind : "mood";
+    buckets[kind].push(item);
+  });
+
+  const order = ["genre", "mood", "atmosphere", "scene", "genre", "mood", "atmosphere", "scene", "mood", "atmosphere"];
   const picked = [];
   const seen = new Set();
 
-  plan.forEach(([kind, max]) => {
-    buckets[kind].slice(0, max).forEach(item => {
-      if (!seen.has(item.tag)) {
-        seen.add(item.tag);
-        picked.push(item);
-      }
-    });
+  order.forEach(kind => {
+    const item = buckets[kind].find(candidate => !seen.has(candidate.tag));
+    if (!item) return;
+    seen.add(item.tag);
+    picked.push(item);
   });
 
   available.forEach(item => {
-    if (picked.length >= 15) return;
-    if (!seen.has(item.tag)) {
-      seen.add(item.tag);
-      picked.push(item);
-    }
+    if (picked.length >= BUBBLE_LIMIT) return;
+    if (seen.has(item.tag)) return;
+    seen.add(item.tag);
+    picked.push(item);
   });
 
-  return picked.slice(0, 15);
+  return picked.slice(0, BUBBLE_LIMIT);
 }
 
 function createBubbles(items) {
   const stage = $("moodStage");
   stage.querySelectorAll(".mood-bubble").forEach(el => el.remove());
 
-  bubbles = items.map((item) => {
+  const displayItems = items.slice(0, BUBBLE_LIMIT);
+
+  bubbles = displayItems.map((item, index) => {
     const meta = KIND_META[item.kind] || KIND_META.mood;
+    const palette = getBubblePaletteByGroup(index, displayItems.length);
     const el = document.createElement("button");
     el.className = "mood-bubble";
-    el.style.setProperty("--bubble-a", meta.colors[0]);
-    el.style.setProperty("--bubble-b", meta.colors[1]);
-    el.style.setProperty("--glow", meta.glow);
+    el.style.setProperty("--bubble-a", palette.colors[0]);
+    el.style.setProperty("--bubble-b", palette.colors[1]);
+    el.style.setProperty("--glow", palette.glow);
+    el.style.setProperty("width", `${BUBBLE_SIZE}px`, "important");
+    el.style.setProperty("height", `${BUBBLE_SIZE}px`, "important");
+    el.style.setProperty("min-width", `${BUBBLE_SIZE}px`, "important");
+    el.style.setProperty("min-height", `${BUBBLE_SIZE}px`, "important");
+    el.style.setProperty("max-width", `${BUBBLE_SIZE}px`, "important");
+    el.style.setProperty("max-height", `${BUBBLE_SIZE}px`, "important");
+    el.style.setProperty("transform", "none", "important");
     el.innerHTML = `
       <span>
         <div class="icon">${meta.icon}</div>
@@ -766,9 +861,7 @@ function createBubbles(items) {
     el.dataset.kind = item.kind;
     stage.appendChild(el);
 
-    const bubble = { ...item, el, x: 0, y: 0, weight: 0, size: 90 + Math.min(36, item.count * 7) };
-    el.style.width = `${bubble.size}px`;
-    el.style.height = `${bubble.size}px`;
+    const bubble = { ...item, el, x: 0, y: 0, weight: 0, size: BUBBLE_SIZE };
 
     makeDraggable(bubble);
     el.addEventListener("click", () => {
@@ -786,18 +879,46 @@ function createBubbles(items) {
 function layoutBubbles() {
   const stage = $("moodStage");
   const rect = stage.getBoundingClientRect();
+  const total = Math.max(bubbles.length, 1);
+  const compact = rect.width < 620;
+  const bubbleSize = compact ? Math.max(68, Math.min(82, rect.width * 0.17)) : BUBBLE_SIZE;
   const cx = rect.width / 2;
   const cy = rect.height / 2;
-  const radius = Math.min(rect.width, rect.height) * 0.40;
+  const innerSafeRadius = compact ? 112 : 145;
+  const outerRadius = Math.max(innerSafeRadius, Math.min(rect.width, rect.height) * (compact ? 0.36 : 0.39));
+  const rings = compact && total > 7 ? 2 : 1;
 
-  bubbles.forEach((bubble, i) => {
-    const angle = (Math.PI * 2 * i) / bubbles.length - Math.PI / 2;
-    const r = radius; 
-    bubble.x = cx + Math.cos(angle) * r - bubble.size / 2;
-    bubble.y = cy + Math.sin(angle) * r - bubble.size / 2;
+  bubbles.forEach((bubble, index) => {
+    const ring = rings === 2 ? index % 2 : 0;
+    const ringItems = bubbles.filter((_, i) => (rings === 2 ? i % 2 : 0) === ring).length;
+    const ringIndex = rings === 2 ? Math.floor(index / 2) : index;
+    const radius = rings === 2
+      ? (ring === 0 ? outerRadius * 0.74 : outerRadius)
+      : outerRadius;
+    const angleOffset = ring === 1 ? Math.PI / Math.max(ringItems, 1) : 0;
+    const angle = -Math.PI / 2 + angleOffset + (Math.PI * 2 * ringIndex) / Math.max(ringItems, 1);
+
+    bubble.size = bubbleSize;
+    bubble.x = cx + Math.cos(angle) * radius - bubbleSize / 2;
+    bubble.y = cy + Math.sin(angle) * radius - bubbleSize / 2;
+    clampBubbleToStage(bubble);
+    bubble.el.style.setProperty("width", `${bubbleSize}px`, "important");
+    bubble.el.style.setProperty("height", `${bubbleSize}px`, "important");
+    bubble.el.style.setProperty("min-width", `${bubbleSize}px`, "important");
+    bubble.el.style.setProperty("min-height", `${bubbleSize}px`, "important");
+    bubble.el.style.setProperty("max-width", `${bubbleSize}px`, "important");
+    bubble.el.style.setProperty("max-height", `${bubbleSize}px`, "important");
+    bubble.el.style.setProperty("transform", "none", "important");
     setBubblePosition(bubble);
     updateBubbleWeight(bubble);
   });
+}
+
+function clampBubbleToStage(bubble) {
+  const stage = $("moodStage");
+  const padding = 8;
+  bubble.x = Math.max(padding, Math.min(bubble.x, stage.clientWidth - bubble.size - padding));
+  bubble.y = Math.max(padding, Math.min(bubble.y, stage.clientHeight - bubble.size - padding));
 }
 
 function setBubblePosition(bubble) {
@@ -829,12 +950,13 @@ function makeDraggable(bubble) {
     if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
     bubble.x = originX + dx;
     bubble.y = originY + dy;
+    clampBubbleToStage(bubble);
     setBubblePosition(bubble);
     updateBubbleWeight(bubble);
   });
 
-  bubble.el.addEventListener("pointerup", (e) => {
-    bubble.el.releasePointerCapture(e.pointerId);
+  const finishDrag = (e) => {
+    if (bubble.el.hasPointerCapture?.(e.pointerId)) bubble.el.releasePointerCapture(e.pointerId);
     bubble.el.classList.remove("dragging");
     updateBubbleWeight(bubble);
 
@@ -842,7 +964,10 @@ function makeDraggable(bubble) {
       addSelectedTag(bubble.tag, bubble.weight, bubble.kind);
       renderRecommendations();
     }
-  });
+  };
+
+  bubble.el.addEventListener("pointerup", finishDrag);
+  bubble.el.addEventListener("pointercancel", finishDrag);
 }
 
 function updateBubbleWeight(bubble) {
@@ -1226,6 +1351,73 @@ function handleAuthSubmit() {
   updateAuthUI();
   updateMemberStats();
   setTimeout(closeAuth, 350);
+}
+
+function openForgotPassword() {
+  closeAuth();
+  ["resetUsername", "resetEmail", "resetNewPassword", "resetConfirmPassword"].forEach(id => {
+    if ($(id)) $(id).value = "";
+  });
+  const msg = $("resetPasswordMessage");
+  if (msg) {
+    msg.textContent = "";
+    msg.className = "auth-message";
+  }
+  $("forgotPasswordModal")?.classList.add("active");
+  $("forgotPasswordModal")?.setAttribute("aria-hidden", "false");
+  setTimeout(() => $("resetUsername")?.focus(), 50);
+}
+
+function closeForgotPassword() {
+  $("forgotPasswordModal")?.classList.remove("active");
+  $("forgotPasswordModal")?.setAttribute("aria-hidden", "true");
+}
+
+function handlePasswordReset() {
+  const username = $("resetUsername")?.value.trim() || "";
+  const email = $("resetEmail")?.value.trim() || "";
+  const newPassword = $("resetNewPassword")?.value || "";
+  const confirmPassword = $("resetConfirmPassword")?.value || "";
+  const msg = $("resetPasswordMessage");
+  const fail = (text) => {
+    msg.textContent = text;
+    msg.className = "auth-message error";
+  };
+
+  if (!username || !email || !newPassword || !confirmPassword) {
+    fail("請完整填寫所有必填欄位。");
+    return;
+  }
+  if (newPassword.length < 6) {
+    fail("新密碼至少需要 6 個字元。");
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    fail("兩次輸入的新密碼不一致。");
+    return;
+  }
+
+  const users = loadUsers();
+  const userIndex = users.findIndex(user =>
+    user.username.toLowerCase() === username.toLowerCase() &&
+    String(user.email || "").toLowerCase() === email.toLowerCase()
+  );
+
+  if (userIndex < 0) {
+    fail("帳號與註冊 Email 不符合，請重新確認。");
+    return;
+  }
+
+  users[userIndex].password = newPassword;
+  users[userIndex].passwordUpdatedAt = new Date().toISOString();
+  saveUsers(users);
+  msg.textContent = "密碼重設成功，請使用新密碼登入。";
+  msg.className = "auth-message success";
+  setTimeout(() => {
+    closeForgotPassword();
+    openAuth("login");
+    $("authUsername").value = username;
+  }, 700);
 }
 
 function logoutUser() {
@@ -1774,6 +1966,77 @@ function bindSettingsUI() {
   });
 }
 
+function generateRoomCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+
+  for (let i = 0; i < 4; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return `${ROOM_PREFIX}${code}`;
+}
+
+function getCurrentRoomCode() {
+  let code = localStorage.getItem(ROOM_KEY);
+
+  if (!code) {
+    code = generateRoomCode();
+    localStorage.setItem(ROOM_KEY, code);
+  }
+
+  return code;
+}
+
+function setCurrentRoomCode(code) {
+  const cleanCode = String(code || "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "");
+
+  if (!cleanCode) return;
+
+  const finalCode = cleanCode.startsWith(ROOM_PREFIX)
+    ? cleanCode
+    : `${ROOM_PREFIX}${cleanCode}`;
+
+  localStorage.setItem(ROOM_KEY, finalCode);
+  updateRoomUI();
+
+  groupMembers = loadGroupMembers();
+  groupVotes = loadGroupVotes();
+  activeMemberId = groupMembers[0]?.id || null;
+
+  ensureDefaultMembers();
+
+  renderMembers();
+  renderGroupTags();
+  renderRoleOptions();
+  renderRecommendations();
+
+  alert(`已切換到房間：${finalCode}`);
+}
+
+function getRoomMembersKey() {
+  return `moodluma-group-members-${getCurrentRoomCode()}`;
+}
+
+function getRoomVotesKey() {
+  return `moodluma-group-votes-${getCurrentRoomCode()}`;
+}
+
+function updateRoomUI() {
+  const code = getCurrentRoomCode();
+
+  if ($("roomCode")) {
+    $("roomCode").textContent = code;
+  }
+
+  if ($("joinRoomInput")) {
+    $("joinRoomInput").value = code;
+  }
+}
+
 function ensureDefaultMembers() {
   if (groupMembers.length) {
     groupMembers = groupMembers.map((member, index) => ({
@@ -1801,26 +2064,26 @@ function ensureDefaultMembers() {
 
 function loadGroupMembers() {
   try {
-    return JSON.parse(localStorage.getItem("feelmovie-group-members") || "[]");
+    return JSON.parse(localStorage.getItem(getRoomMembersKey()) || "[]");
   } catch {
     return [];
   }
 }
 
 function saveGroupMembers() {
-  localStorage.setItem("feelmovie-group-members", JSON.stringify(groupMembers));
+  localStorage.setItem(getRoomMembersKey(), JSON.stringify(groupMembers));
 }
 
 function loadGroupVotes() {
   try {
-    return JSON.parse(localStorage.getItem("feelmovie-group-votes") || "{}");
+    return JSON.parse(localStorage.getItem(getRoomVotesKey()) || "{}");
   } catch {
     return {};
   }
 }
 
 function saveGroupVotes() {
-  localStorage.setItem("feelmovie-group-votes", JSON.stringify(groupVotes));
+  localStorage.setItem(getRoomVotesKey(), JSON.stringify(groupVotes));
 }
 
 function addMemberFromInput() {
