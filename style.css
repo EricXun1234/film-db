@@ -4413,3 +4413,583 @@ body.light-mode .settings-card {
   .drop-zone { width: 130px !important; height: 130px !important; }
   .drop-zone small { font-size: 10px !important; }
 }
+
+#page-home .recommend-card {
+  background:
+    radial-gradient(circle at 30% 20%, rgba(145, 140, 255, 0.20), transparent 36%),
+    radial-gradient(circle at 80% 70%, rgba(99, 214, 255, 0.10), transparent 40%),
+    linear-gradient(
+      135deg,
+      rgba(145, 140, 255, 0.18) 0%,
+      rgba(99, 214, 255, 0.10) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+  box-shadow:
+    0 22px 58px rgba(30, 42, 132, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+  backdrop-filter: blur(24px) saturate(115%) !important;
+}
+
+#page-home .recommend-card::before,
+#page-home .recommend-card::after {
+  display: none !important;
+}
+
+#page-home .recommend-list .movie-item,
+#page-home .recommend-list .recommend-item,
+#page-home .recommend-list article {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(145, 140, 255, 0.13) 0%,
+      rgba(99, 214, 255, 0.08) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: none !important;
+}
+
+#page-home .recommend-card h3,
+#page-home .recommend-card h4,
+#page-home .recommend-card strong {
+  color: #ffffff !important;
+}
+
+#page-home .recommend-card p,
+#page-home .recommend-card span,
+#page-home .recommend-card small {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+/* ===== Moodluma Dreamy Luminous Customer Theme ===== */
+
+:root {
+  --dream-purple: #918CFF;
+  --dream-cyan: #63D6FF;
+  --bg-1: #273B86;
+  --bg-2: #646FE4;
+  --bg-3: #4FB6EA;
+  --card: rgba(255, 255, 255, 0.13);
+  --card-2: rgba(255, 255, 255, 0.08);
+  --line: rgba(255, 255, 255, 0.22);
+  --text: #F7FBFF;
+  --muted: rgba(247, 251, 255, 0.78);
+  --soft: rgba(247, 251, 255, 0.56);
+  --pink: #918CFF;
+  --violet: #918CFF;
+  --blue: #63D6FF;
+  --teal: #63D6FF;
+  --mood-blue: #918CFF;
+  --mood-cyan: #63D6FF;
+  --accent: #63D6FF;
+  --accent-2: #918CFF;
+  --primary: #63D6FF;
+  --secondary: #918CFF;
+}
+
+html,
+body,
+button,
+input,
+textarea,
+select {
+  font-family: "Noto Sans TC", "Source Han Sans TC", "Source Han Sans", "思源黑體 TC", "思源黑體", "Microsoft JhengHei", Arial, sans-serif !important;
+}
+
+html,
+body {
+  color: #F7FBFF !important;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(145, 140, 255, 0.58), transparent 34%),
+    radial-gradient(circle at 78% 12%, rgba(99, 214, 255, 0.42), transparent 34%),
+    radial-gradient(circle at 52% 46%, rgba(145, 140, 255, 0.16), transparent 34%),
+    linear-gradient(135deg, #273B86 0%, #646FE4 48%, #4FB6EA 100%) !important;
+  background-attachment: fixed !important;
+}
+
+.app-shell,
+.main,
+main,
+.page-view {
+  background: transparent !important;
+}
+
+.sidebar {
+  background: linear-gradient(180deg, rgba(33, 45, 122, 0.58), rgba(24, 44, 104, 0.44)) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 16px 0 42px rgba(29, 38, 112, 0.16) !important;
+  backdrop-filter: blur(26px) saturate(130%) !important;
+}
+
+.brand h1 {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  color: #FFFFFF !important;
+  text-shadow: 0 0 18px rgba(99, 214, 255, 0.38) !important;
+}
+
+body,
+p,
+span,
+small,
+label,
+li,
+td,
+th,
+.brand p,
+.brand > p,
+.member-card p,
+.group-summary p,
+.movie-desc,
+.movie-actors,
+.modal-actors,
+#modalDesc,
+.db-status,
+.room-box span,
+.library-info p,
+.library-info small,
+.settings-panel,
+.set-row,
+.auth-desc,
+.feedback-status,
+.feedback-box p,
+.stage-head p,
+.recommend-head p,
+.hint-card p,
+.topbar p,
+.group-head p,
+.role-select-head p {
+  color: rgba(247, 251, 255, 0.78) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+.topbar h2,
+.page-view header h2,
+.group-head h3,
+.stage-head h3,
+.recommend-head h3,
+.how-card h3,
+.hint-card h3,
+.modal-content h2,
+.member-card h4,
+.explore-info h4,
+.movie-item h4,
+.library-info h3,
+.room-box strong,
+.collection-empty h3,
+.settings-panel h3,
+.profile-info h4,
+.feedback-box h3 {
+  color: #FFFFFF !important;
+  text-shadow: 0 4px 22px rgba(27, 38, 117, 0.26) !important;
+}
+
+.eyebrow,
+.modal-label,
+.settings-section h3 {
+  color: rgba(255, 255, 255, 0.86) !important;
+  letter-spacing: 0.16em !important;
+}
+
+.mood-stage-card,
+.how-card,
+.hint-card,
+.group-panel,
+.settings-card,
+.settings-panel,
+.explore-movie-card,
+.library-card,
+.auth-panel,
+.library-panel,
+.member-panel,
+.role-select-panel,
+.temperature-panel,
+.feedback-box,
+.room-box,
+.group-summary,
+.member-card,
+.collection-card,
+.panel,
+.card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.075)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 24px 64px rgba(30, 42, 132, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+  backdrop-filter: blur(25px) saturate(130%) !important;
+}
+
+.recommend-card,
+#page-home .recommend-card {
+  background: linear-gradient(135deg, rgba(145, 140, 255, 0.16), rgba(99, 214, 255, 0.09)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.19) !important;
+  box-shadow: 0 22px 58px rgba(30, 42, 132, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+  backdrop-filter: blur(24px) saturate(112%) !important;
+}
+
+#page-home .recommend-card::before,
+#page-home .recommend-card::after {
+  display: none !important;
+}
+
+.movie-item,
+#page-home .recommend-list .movie-item,
+#page-home .recommend-list .recommend-item,
+#page-home .recommend-list article {
+  background: linear-gradient(135deg, rgba(145, 140, 255, 0.13), rgba(99, 214, 255, 0.075)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: none !important;
+}
+
+.search-box button,
+.search-panel button,
+.wide-btn,
+#addMemberBtn,
+#groupModeBtn,
+#joinRoomBtn,
+.auth-submit,
+.save-settings-btn,
+.collection-empty .primary-btn,
+.collection-choice-card button,
+.play-circle,
+.play-btn,
+.temp-submit-btn,
+#searchBtn,
+#submitTempFeedback,
+.party-bottom-actions > button {
+  background: linear-gradient(135deg, #918CFF 0%, #63D6FF 100%) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.26) !important;
+  box-shadow: 0 14px 30px rgba(99, 214, 255, 0.24), 0 0 18px rgba(99, 214, 255, 0.16) !important;
+}
+
+.top-actions button,
+.top-actions .user-btn,
+.top-actions .install-btn,
+#shuffleBtn,
+#viewAllBtn,
+#resetBtn,
+.detail-btn,
+.add-collection-btn,
+.add-col-card-btn,
+.member-actions button,
+.list-btn,
+.room-small-btn,
+.collection-tabs .tab-btn,
+.seg-btn,
+.col-opt-btn {
+  color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.13) !important;
+  border: 1px solid rgba(255, 255, 255, 0.23) !important;
+  box-shadow: 0 10px 26px rgba(30, 42, 132, 0.13) !important;
+  backdrop-filter: blur(18px) !important;
+}
+
+.search-box,
+.explore-search-box {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.23) !important;
+  box-shadow: 0 18px 42px rgba(30, 42, 132, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+.search-box input,
+.explore-search-box input,
+.group-controls input,
+.join-room-box input,
+.auth-form input,
+.party-add-row input,
+.party-room-row input,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  background: rgba(255, 255, 255, 0.13) !important;
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.20) !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+.search-box input::placeholder,
+.explore-search-box input::placeholder,
+.group-controls input::placeholder,
+.join-room-box input::placeholder {
+  color: rgba(255, 255, 255, 0.56) !important;
+}
+
+.side-nav button,
+.nav-link,
+.sidebar button {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.side-nav button.active,
+.side-nav button:hover,
+.nav-link.active,
+.sidebar button.active {
+  color: #FFFFFF !important;
+  background: linear-gradient(135deg, rgba(145, 140, 255, 0.32), rgba(99, 214, 255, 0.22)) !important;
+  border-color: rgba(255, 255, 255, 0.33) !important;
+  box-shadow: 0 14px 34px rgba(99, 214, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+}
+
+.mood-stage {
+  background:
+    radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.13), transparent 18%),
+    radial-gradient(circle at 50% 50%, rgba(145, 140, 255, 0.18), transparent 46%),
+    radial-gradient(circle at 76% 20%, rgba(99, 214, 255, 0.10), transparent 38%),
+    rgba(255, 255, 255, 0.045) !important;
+}
+
+.orbit {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.drop-zone {
+  background: radial-gradient(circle, rgba(145, 140, 255, 0.38), rgba(99, 214, 255, 0.16)) !important;
+  border-color: rgba(255, 255, 255, 0.27) !important;
+  box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.11), 0 10px 36px rgba(99, 214, 255, 0.16) !important;
+}
+
+.drop-zone,
+.drop-zone span,
+.drop-zone strong,
+.drop-zone small,
+.mood-bubble *,
+.mood-bubble .icon,
+.mood-bubble .tag,
+.mood-bubble .kind {
+  color: #FFFFFF !important;
+}
+
+.mood-bubble {
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  box-shadow: 0 0 30px var(--glow), 0 16px 36px rgba(30, 42, 132, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+}
+
+.movie-meta span,
+.modal-meta span,
+.explore-tags span,
+.feedback-badge,
+.group-tag,
+.group-badge,
+.col-badge,
+.chip,
+.explore-score-badge {
+  color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.13) !important;
+  border: 1px solid rgba(255, 255, 255, 0.20) !important;
+}
+
+.movie-score,
+.movie-score small {
+  color: rgba(255, 255, 255, 0.86) !important;
+}
+
+.movie-fav-btn,
+.heart-btn,
+.fav-btn,
+.favorite-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  color: #FFFFFF !important;
+}
+
+.movie-fav-btn.active,
+.heart-btn.active,
+.fav-btn.active,
+.favorite-btn.active,
+.collection-tabs .tab-btn.active,
+.add-col-card-btn {
+  background: linear-gradient(135deg, #918CFF, #63D6FF) !important;
+  color: #FFFFFF !important;
+}
+
+.collection-tabs .tab-btn {
+  border-radius: 999px !important;
+}
+
+.collection-tabs .tab-btn.active::after {
+  display: none !important;
+}
+
+.explore-info {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.035)) !important;
+}
+
+.modal-backdrop {
+  background: rgba(48, 54, 152, 0.42) !important;
+  backdrop-filter: blur(18px) saturate(130%) !important;
+}
+
+.modal-panel,
+.auth-panel,
+.library-panel,
+.member-panel {
+  background: linear-gradient(135deg, rgba(100, 110, 224, 0.80), rgba(72, 166, 220, 0.60)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.23) !important;
+  box-shadow: 0 36px 92px rgba(30, 42, 132, 0.34) !important;
+  backdrop-filter: blur(30px) saturate(136%) !important;
+}
+
+.modal-cover::after {
+  background: linear-gradient(to right, transparent 42%, rgba(100, 110, 224, 0.78)) !important;
+}
+
+.feedback-temperature,
+.temp-meter {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border-color: rgba(255, 255, 255, 0.20) !important;
+}
+
+.toggle-switch .slider {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+.toggle-switch input:checked + .slider {
+  background: linear-gradient(135deg, #918CFF, #63D6FF) !important;
+}
+
+body.light-mode {
+  background:
+    radial-gradient(circle at 15% 8%, rgba(145, 140, 255, 0.58), transparent 34%),
+    radial-gradient(circle at 78% 12%, rgba(99, 214, 255, 0.42), transparent 34%),
+    linear-gradient(135deg, #273B86 0%, #646FE4 48%, #4FB6EA 100%) !important;
+  color: #F7FBFF !important;
+}
+
+body.light-mode .sidebar,
+body.light-mode .explore-movie-card,
+body.light-mode .settings-panel,
+body.light-mode .settings-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.075)) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+#page-home .recommend-card {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(145, 140, 255, 0.20) 0%,
+      rgba(99, 214, 255, 0.08) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow:
+    0 20px 50px rgba(40, 50, 140, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(22px) saturate(108%) !important;
+}
+
+#page-home .recommend-list .movie-item,
+#page-home .recommend-list .recommend-item,
+#page-home .recommend-list article {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(145, 140, 255, 0.16) 0%,
+      rgba(99, 214, 255, 0.06) 100%
+    ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: none !important;
+}
+
+#page-home .recommend-card::before,
+#page-home .recommend-card::after,
+#page-home .recommend-list .movie-item::before,
+#page-home .recommend-list .movie-item::after {
+  display: none !important;
+}
+
+#page-home .recommend-card h3,
+#page-home .recommend-card h4,
+#page-home .recommend-card strong {
+  color: #ffffff !important;
+}
+
+#page-home .recommend-card p,
+#page-home .recommend-card span,
+#page-home .recommend-card small {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.recommend-panel,
+.recommendation-panel,
+.home-right,
+.right-panel,
+.usage-section,
+.usage-card,
+.tip-card,
+.hint-card,
+.info-card {
+  background: linear-gradient(
+    135deg,
+    rgba(76, 96, 210, 0.26) 0%,
+    rgba(92, 104, 214, 0.18) 35%,
+    rgba(53, 84, 160, 0.22) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow: 0 10px 28px rgba(20, 36, 82, 0.16) !important;
+}
+
+.recommend-card,
+.movie-card,
+.recommend-list .card,
+.recommendation-item {
+  background: linear-gradient(
+    135deg,
+    rgba(72, 96, 196, 0.24) 0%,
+    rgba(83, 101, 200, 0.18) 40%,
+    rgba(50, 82, 150, 0.20) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow: 0 8px 20px rgba(17, 31, 70, 0.12) !important;
+}
+
+#page-home .recommend-card,
+#page-home .how-card,
+#page-home .hint-card {
+  background: rgba(145, 140, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow:
+    0 18px 42px rgba(60, 55, 150, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(20px) saturate(110%) !important;
+}
+
+#page-home .recommend-list .movie-item,
+#page-home .recommend-list .recommend-item,
+#page-home .recommend-list article {
+  background: rgba(145, 140, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: none !important;
+}
+
+#page-home .recommend-card::before,
+#page-home .recommend-card::after,
+#page-home .how-card::before,
+#page-home .how-card::after,
+#page-home .hint-card::before,
+#page-home .hint-card::after,
+#page-home .recommend-list .movie-item::before,
+#page-home .recommend-list .movie-item::after {
+  display: none !important;
+}
+
+#page-home .recommend-card *,
+#page-home .how-card *,
+#page-home .hint-card * {
+  color: rgba(255, 255, 255, 0.86) !important;
+}
+
+#page-home .recommend-card h3,
+#page-home .recommend-card h4,
+#page-home .how-card h3,
+#page-home .hint-card h3,
+#page-home .recommend-card strong,
+#page-home .how-card strong,
+#page-home .hint-card strong {
+  color: #ffffff !important;
+}
