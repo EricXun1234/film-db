@@ -743,136 +743,90 @@ function slug(s) {
   return String(s).toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, "-");
 }
 
-function normalizeTagIdentity(tag) {
-  return cleanTag(tag)
-    .toLowerCase()
-    .replace(/[\s＿_\-－]/g, "")
-    .replace(/電影$/g, "")
-    .replace(/片$/g, "");
-}
-
-function shuffleArray(list) {
-  const result = [...list];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-}
-
-function isUsableBubbleTag(tag) {
-  const clean = cleanTag(tag);
-  if (!clean || clean.length > 14) return false;
-  if (/^(null|undefined|none|n\/a|無|未知)$/i.test(clean)) return false;
-  return normalizeTagIdentity(clean).length > 0;
-}
-
 function buildDynamicBubbles() {
   const counts = new Map();
 
-  const addTags = (list, sourceKind, base) => {
-    (Array.isArray(list) ? list : []).forEach(rawTag => {
-      const tag = cleanTag(rawTag);
-      if (!isUsableBubbleTag(tag)) return;
-
-      // 類型、場景直接依資料庫欄位分類；只有 mood 欄位需要再拆成情緒或氛圍。
-      const kind = sourceKind === "mood" ? classifyTag(tag, "mood") : sourceKind;
-      const identity = normalizeTagIdentity(tag);
-      const prev = counts.get(identity) || { tag, score: 0, kind, count: 0, identity };
-
-      prev.score += base + (kind === "mood" ? 1.2 : 0);
-      prev.count += 1;
-      prev.kind = kind;
-
-      // 同義名稱例如「愛情」與「愛情片」只保留較完整、較常見的顯示名稱。
-      if (tag.length > prev.tag.length) prev.tag = tag;
-      counts.set(identity, prev);
-    });
-  };
-
   allMovies.forEach(movie => {
-    addTags(movie.mood, "mood", 5.2);
-    addTags(movie.genre, "genre", 2.2);
-    addTags(movie.mainScene, "scene", 3.1);
-    addTags(movie.subScene, "scene", 2.2);
+    const fieldGroups = [
+      { list: movie.mood, base: 5.2 },
+      { list: movie.genre, base: 2.2 },
+      { list: movie.mainScene, base: 3.1 },
+      { list: movie.subScene, base: 2.2 }
+    ];
+
+    fieldGroups.forEach(({ list, base }) => {
+      list.forEach(tag => {
+        const kind = classifyTag(tag);
+        const prev = counts.get(tag) || { tag, score: 0, kind, count: 0 };
+        prev.score += base + (kind === "mood" ? 1.4 : 0);
+        prev.count += 1;
+        prev.kind = kind;
+        counts.set(tag, prev);
+      });
+    });
   });
 
-  const fallbackTags = [
-    ["孤獨", "mood"], ["療癒", "mood"], ["浪漫", "mood"], ["壓迫感", "mood"], ["放空", "mood"],
-    ["深夜感", "atmosphere"], ["雨夜", "atmosphere"], ["夕陽感", "atmosphere"], ["冷調", "atmosphere"],
-    ["校園", "scene"], ["海邊", "scene"], ["咖啡館", "scene"], ["老屋", "scene"],
-    ["恐怖片", "genre"], ["愛情片", "genre"], ["科幻片", "genre"], ["喜劇片", "genre"]
-  ];
+  let candidates = [...counts.values()];
 
-  fallbackTags.forEach(([tag, kind]) => {
-    const identity = normalizeTagIdentity(tag);
-    if (!counts.has(identity)) counts.set(identity, { tag, score: 1, kind, count: 1, identity });
-  });
+  // 若資料庫標籤太少，補一些偏「感受型」的圓圈，避免畫面空。
+  if (candidates.length < 10) {
+    const fallbackTags = [
+      ["孤獨", "mood"], ["療癒", "mood"], ["浪漫", "mood"], ["壓迫感", "mood"], ["放空", "mood"],
+      ["深夜感", "atmosphere"], ["雨夜", "atmosphere"], ["夕陽感", "atmosphere"], ["冷調", "atmosphere"],
+      ["校園", "scene"], ["海邊", "scene"], ["咖啡館", "scene"], ["老屋", "scene"],
+      ["恐怖片", "genre"], ["愛情片", "genre"]
+    ];
+    fallbackTags.forEach(([tag, kind]) => {
+      if (!counts.has(tag)) candidates.push({ tag, score: 1, kind, count: 1 });
+    });
+  }
 
-  allTagCandidates = [...counts.values()];
-  createBubbles(pickBalancedTags(allTagCandidates));
+  allTagCandidates = candidates;
+  const selected = pickBalancedTags(allTagCandidates, []);
+  createBubbles(selected);
 }
 
-function classifyTag(tag, fallbackKind = "mood") {
-  const t = cleanTag(tag);
-
-  // mood 欄位中，先辨識明確的氛圍詞，再辨識情緒詞。
-  if (TAG_KIND_RULES.atmosphere.some(word => t.includes(word) || word.includes(t))) return "atmosphere";
-  if (TAG_KIND_RULES.mood.some(word => t.includes(word) || word.includes(t))) return "mood";
-
-  // 此函式也保留一般判斷能力，供未來其他欄位使用。
-  if (TAG_KIND_RULES.scene.some(word => t.includes(word) || word.includes(t))) return "scene";
-  if (TAG_KIND_RULES.genre.some(word => t.includes(word) || word.includes(t))) return "genre";
-  return fallbackKind;
+function classifyTag(tag) {
+  const t = String(tag);
+  for (const [kind, words] of Object.entries(TAG_KIND_RULES)) {
+    if (words.some(w => t.includes(w) || w.includes(t))) return kind;
+  }
+  return "mood";
 }
 
 function pickBalancedTags(candidates, excludeTags = []) {
-  const excluded = new Set(excludeTags.map(normalizeTagIdentity));
-  const uniqueCandidates = [];
-  const candidateSeen = new Set();
+  let available = candidates.filter(c => !excludeTags.includes(c.tag));
+  if (available.length < BUBBLE_LIMIT) {
+    available = candidates;
+  }
 
-  candidates.forEach(item => {
-    const identity = item.identity || normalizeTagIdentity(item.tag);
-    if (!identity || candidateSeen.has(identity)) return;
-    candidateSeen.add(identity);
-    uniqueCandidates.push({ ...item, identity });
-  });
-
-  // 換一批時先排除目前畫面的標籤；剩餘不足才允許少量舊標籤補位。
-  let primaryPool = uniqueCandidates.filter(item => !excluded.has(item.identity));
-  if (!primaryPool.length) primaryPool = uniqueCandidates;
+  available = [...available].sort((a, b) => (b.score || 0) - (a.score || 0));
 
   const buckets = { mood: [], atmosphere: [], scene: [], genre: [] };
-  shuffleArray(primaryPool).forEach(item => {
+  available.forEach(item => {
     const kind = buckets[item.kind] ? item.kind : "mood";
     buckets[kind].push(item);
   });
 
-  // 每輪維持分類平衡：情緒 3、氛圍 3、場景 2、類型 2。
-  const order = ["mood", "atmosphere", "scene", "genre", "mood", "atmosphere", "scene", "genre", "mood", "atmosphere"];
+  const order = ["genre", "mood", "atmosphere", "scene", "genre", "mood", "atmosphere", "scene", "mood", "atmosphere"];
   const picked = [];
   const seen = new Set();
 
   order.forEach(kind => {
-    const item = buckets[kind].find(candidate => !seen.has(candidate.identity));
+    const item = buckets[kind].find(candidate => !seen.has(candidate.tag));
     if (!item) return;
-    seen.add(item.identity);
+    seen.add(item.tag);
     picked.push(item);
   });
 
-  // 某個分類不足時，從其他分類隨機補滿。
-  const refillPool = shuffleArray([
-    ...primaryPool,
-    ...uniqueCandidates.filter(item => excluded.has(item.identity))
-  ]);
-
-  refillPool.forEach(item => {
-    if (picked.length >= BUBBLE_LIMIT || seen.has(item.identity)) return;
-    seen.add(item.identity);
+  available.forEach(item => {
+    if (picked.length >= BUBBLE_LIMIT) return;
+    if (seen.has(item.tag)) return;
+    seen.add(item.tag);
     picked.push(item);
   });
 
-  return shuffleArray(picked.slice(0, BUBBLE_LIMIT));
+  return picked.slice(0, BUBBLE_LIMIT);
 }
 
 function createBubbles(items) {
@@ -1095,53 +1049,6 @@ function renderSelectedTags() {
   });
 }
 
-
-function getMovieCardTags(movie) {
-  const result = [];
-  const seen = new Set();
-
-  const addTag = (label, value, kind) => {
-    const clean = cleanTag(value);
-    const identity = normalizeTagIdentity(clean);
-    if (!clean || !identity || seen.has(identity)) return;
-
-    seen.add(identity);
-    result.push({ label, value: clean, kind });
-  };
-
-  // 類型直接取自資料庫 genre 欄位，不再與情緒、場景混在一起。
-  const genre = (movie.genre || []).find(isUsableBubbleTag);
-  if (genre) addTag("類型", genre, "genre");
-
-  // mood 欄位依文字內容拆成「情緒」與「氛圍」。
-  const moodTags = (movie.mood || []).filter(isUsableBubbleTag);
-  const emotion = moodTags.find(tag => classifyTag(tag, "mood") === "mood");
-  const atmosphere = moodTags.find(tag => classifyTag(tag, "mood") === "atmosphere");
-
-  if (emotion) addTag("情緒", emotion, "mood");
-  if (atmosphere) addTag("氛圍", atmosphere, "atmosphere");
-
-  // 主要場景優先，沒有才使用次要場景。
-  const scene = [
-    ...(movie.mainScene || []),
-    ...(movie.subScene || [])
-  ].find(isUsableBubbleTag);
-
-  if (scene) addTag("場景", scene, "scene");
-
-  // 小卡最多顯示 3 個標籤，優先保留類型、情緒與場景。
-  const priority = { genre: 0, mood: 1, scene: 2, atmosphere: 3 };
-  return result
-    .sort((a, b) => priority[a.kind] - priority[b.kind])
-    .slice(0, 3);
-}
-
-function renderMovieCardTags(movie) {
-  return getMovieCardTags(movie)
-    .map(item => `<span data-kind="${safeAttr(item.kind)}">${escapeHtml(item.label)}：${escapeHtml(item.value)}</span>`)
-    .join("");
-}
-
 function renderRecommendations(showAll = false) {
   const list = $("recommendList");
   const scored = allMovies
@@ -1173,7 +1080,7 @@ function renderRecommendations(showAll = false) {
       <div>
         <h4>${escapeHtml(movie.title)}</h4>
         <div class="movie-meta">
-          ${renderMovieCardTags(movie)}
+          ${topTags(movie).slice(0, 3).map(t => `<span>${escapeHtml(t)}</span>`).join("")}
           ${renderFeedbackBadge(movie)}
           ${renderGroupMovieBadge(movie)}
         </div>
