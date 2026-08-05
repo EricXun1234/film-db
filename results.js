@@ -149,9 +149,12 @@ function normalizeMovie(raw, index = 0) {
   ]) || "";
 
   const mood = getField(raw, [
-    "mood", "emotion", "emotions", "atmosphere", "feel", "feeling", "vibe",
+    "mood", "moods", "emotion", "emotions", "atmosphere", "atmospheres", "feel", "feeling", "vibe",
     "情感／氛圍", "情感/氛圍", "情感", "氛圍", "情緒"
   ]) || "";
+  const mainScene = getField(raw, ["mainScene", "primaryScene", "main_scene", "scenesMain", "scenes_main", "scenes", "主要場景", "主場景"]) || "";
+  const subScene = getField(raw, ["subScene", "secondaryScene", "sub_scene", "scenesSub", "scenes_sub", "次要場景", "副場景"]) || "";
+  const keywords = getField(raw, ["keywords", "keyword", "tags", "tag", "關鍵字", "標籤", "電影關鍵字"]) || "";
 
   const rawPoster = getField(raw, [
   "poster", "posterUrl", "poster_url",
@@ -188,6 +191,9 @@ const poster = rawPoster
   desc: String(desc).trim(),
   genre: String(genre).trim(),
   mood: String(mood).trim(),
+  mainScene: String(mainScene).trim(),
+  subScene: String(subScene).trim(),
+  keywords: String(keywords).trim(),
   poster: String(poster || "").trim() || "assets/default-poster.png",
   trailer: String(trailer).trim(),
   actors: String(raw.actors || "").trim()
@@ -239,6 +245,9 @@ function renderSearchResults(keyword) {
       ${movie.desc}
       ${movie.genre}
       ${movie.mood}
+      ${movie.mainScene}
+      ${movie.subScene}
+      ${movie.keywords}
     `.toLowerCase();
 
     if (!kw) return true;
@@ -272,9 +281,9 @@ function renderSearchResults(keyword) {
           ${escapeHtml(reason)}
         </p>
 
-        <div class="info-box">
-          <small>關鍵字</small>
-          <p>${escapeHtml(getKeywordText(movie))}</p>
+        <div class="info-box tag-info-box">
+          <small>電影標籤</small>
+          <div class="movie-tags">${getMovieTags(movie).map(tag => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
         </div>
 
         <div class="info-box">
@@ -315,11 +324,35 @@ function renderSearchResults(keyword) {
   }).join("");
 }
 
+function getMovieTags(movie, limit = 6) {
+  const unique = [];
+  const seen = new Set();
+
+  const addTags = (value, maxCount) => {
+    let added = 0;
+    for (const rawTag of toList(value)) {
+      const tag = String(rawTag).trim().replace(/^#/, "");
+      const key = tag.toLowerCase();
+      if (!tag || seen.has(key)) continue;
+      seen.add(key);
+      unique.push(tag);
+      added += 1;
+      if (unique.length >= limit || added >= maxCount) break;
+    }
+  };
+
+  // 小卡以類型為主，再補情緒；只有不足時才加入場景或其他關鍵字。
+  addTags(movie.genre, 4);
+  if (unique.length < limit) addTags(movie.mood, 2);
+  if (unique.length < limit) addTags(movie.mainScene, 1);
+  if (unique.length < limit) addTags(movie.subScene, 1);
+  if (unique.length < limit) addTags(movie.keywords, limit);
+
+  return unique.slice(0, limit);
+}
+
 function getKeywordText(movie) {
-  return [
-    movie.mood,
-    movie.genre
-  ].filter(Boolean).join("、") || "暫無關鍵字";
+  return getMovieTags(movie).join("、") || "暫無關鍵字";
 }
 
 function getMatchScore(movie, keyword) {

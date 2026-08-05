@@ -262,3 +262,9 @@ body {
 .fav-result-btn.active {
   background: linear-gradient(135deg, #8e63ff, #f06ba7);
 }
+
+
+/* ===== Movie tag badges ===== */
+.tag-info-box { text-align: left; }
+.movie-tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.movie-tags span { display:inline-flex; align-items:center; max-width:100%; padding:7px 11px; border-radius:999px; background:linear-gradient(135deg, rgba(142,99,255,.25), rgba(240,107,167,.18)); border:1px solid rgba(255,255,255,.13); color:rgba(255,255,255,.9); font-size:13px; line-height:1.2; overflow-wrap:anywhere; }

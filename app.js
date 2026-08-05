@@ -57,6 +57,7 @@ const FIELD_MAP = {
   duration: ["duration", "runtime", "length", "片長", "時長"],
   views: ["views", "viewCount", "view_count", "clicks", "clickCount", "瀏覽次數", "點擊次數", "觀看次數"],
   actors: ["actors", "actor", "cast", "casts","演員", "演員名單", "主演", "卡司"],
+  keywords: ["keywords", "keyword", "tags", "tag", "關鍵字", "標籤", "電影關鍵字"],
 };
 
 const FALLBACK_MOVIES = [
@@ -708,6 +709,7 @@ function normalizeMovie(raw, idx = 0) {
     mood: toArray(get("mood")),
     mainScene: toArray(get("mainScene")),
     subScene: toArray(get("subScene")),
+    keywords: toArray(get("keywords")),
     raw
   };
 }
@@ -1159,7 +1161,21 @@ function fuzzyTagHit(movie, tag) {
 }
 
 function topTags(movie) {
-  return [...movie.mood, ...movie.genre, ...movie.mainScene, ...movie.subScene].filter(Boolean);
+  const values = [
+    ...(movie.genre || []),
+    ...(movie.mood || []),
+    ...(movie.mainScene || []),
+    ...(movie.subScene || []),
+    ...(movie.keywords || [])
+  ];
+  const seen = new Set();
+  return values.filter(tag => {
+    const clean = cleanTag(tag);
+    const key = clean.toLowerCase();
+    if (!clean || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function openModal(movie, score = 0) {
@@ -1184,7 +1200,7 @@ $("modalDesc").insertAdjacentElement("afterend", actorsBox);
   const meta = [
     movie.year,
     movie.duration,
-    ...topTags(movie).slice(0, 4),
+    ...topTags(movie).slice(0, 12),
     `${Math.round(Math.max(score, 0.05) * 100)}% 適合`
   ].filter(Boolean);
 
@@ -1702,7 +1718,26 @@ function renderExploreResults(keyword = "") {
 
   let targetMovies = [...allMovies];
   const key = String(keyword || "").trim().toLowerCase();
+  const CATEGORY_RULES = {
+    "喜劇": ["喜劇", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "詼諧", "黑色幽默", "comedy"],
+    "愛情": ["愛情", "浪漫", "戀愛", "感情", "情侶", "情感糾葛", "關係探索", "romance"],
+    "驚悚": ["驚悚", "心理驚悚", "緊張", "追殺", "逃亡", "危險", "生存戰", "thriller"],
+    "科幻": ["科幻", "未來", "太空", "外星", "機器人", "人工智慧", "ai", "時空", "時間旅行", "多元宇宙", "高科技", "sci-fi", "scifi"],
+    "動作": ["動作", "動作片", "戰鬥", "武打", "功夫", "格鬥", "槍戰", "特務", "諜報", "英雄", "超級英雄", "追逐", "action"],
+    "動畫": ["動畫", "卡通", "動漫", "親子", "童趣", "動物主角", "animation", "anime"],
+    "劇情": ["劇情", "劇情片", "人生", "家庭", "成長", "勵志", "人性", "社會寫實", "救贖", "drama"],
+    "懸疑": ["懸疑", "推理", "謎團", "偵探", "解謎", "神秘", "命案", "陰謀", "mystery"],
+    "恐怖": ["恐怖", "心理恐怖", "鬼", "鬼屋", "靈異", "超自然", "詛咒", "惡魔", "惡靈", "驅魔", "血腥", "怪物", "horror"],
+    "犯罪": ["犯罪", "黑幫", "警匪", "警察", "毒梟", "劫案", "謀殺案", "國際犯罪", "crime"],
+    "冒險": ["冒險", "探險", "探索", "旅程", "尋寶", "奇遇", "遺跡", "adventure"],
+    "奇幻": ["奇幻", "魔法", "魔幻", "精靈", "神話", "黑暗奇幻", "異空間", "fantasy"],
+    "家庭": ["家庭", "家庭劇", "親子", "溫馨", "童趣", "社區生活", "family"],
+    "戰爭": ["戰爭", "軍事", "軍隊", "戰場", "核子", "歷史戰爭", "war"],
+    "歷史": ["歷史", "歷史劇", "時代劇", "傳記", "古裝", "復古", "history"],
+    "音樂": ["音樂", "音樂劇", "歌舞", "合唱團", "舞台", "music"]
+  };
   if (key) {
+    const aliases = CATEGORY_RULES[key] || [key];
     targetMovies = targetMovies.filter(movie => {
       const movieText = [
         movie.title,
@@ -1711,9 +1746,10 @@ function renderExploreResults(keyword = "") {
         ...(movie.genre || []),
         ...(movie.mood || []),
         ...(movie.mainScene || []),
-        ...(movie.subScene || [])
+        ...(movie.subScene || []),
+        ...(movie.keywords || [])
       ].join(" ").toLowerCase();
-      return movieText.includes(key);
+      return aliases.some(alias => movieText.includes(String(alias).toLowerCase()));
     });
   }
 
@@ -1742,7 +1778,7 @@ function renderExploreResults(keyword = "") {
   displayMovies.forEach(movie => {
     const card = document.createElement("article");
     card.className = "explore-movie-card";
-    const tags = topTags(movie).slice(0, 2).map(t => `<span>${escapeHtml(t)}</span>`).join("");
+    const tags = topTags(movie).slice(0, 5).map(t => `<span>${escapeHtml(t)}</span>`).join("");
     const mockScore = Math.floor(Math.random() * 20 + 80);
     const collected = isFavorite(movie);
     card.innerHTML = `
@@ -1846,7 +1882,7 @@ function renderCollection() {
     const movie = hydrateMovie(item);
     const card = document.createElement("article");
     card.className = "explore-movie-card";
-    const tags = topTags(movie).slice(0, 2).map(t => `<span>${escapeHtml(t)}</span>`).join("");
+    const tags = topTags(movie).slice(0, 5).map(t => `<span>${escapeHtml(t)}</span>`).join("");
     const type = item.collectionType || "想看";
     const date = item.addDate || (item.savedAt ? new Date(item.savedAt).toLocaleDateString("zh-TW") : "近期");
     card.innerHTML = `
