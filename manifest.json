@@ -11,7 +11,7 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "moodluma-pwa.png",
+      "src": "moodluma-pwa-v2.png",
       "sizes": "512x512",
       "type": "image/png"
     }
