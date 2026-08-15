@@ -1,4 +1,4 @@
-const CACHE_NAME = "moodluma-v1";
+const CACHE_NAME = "moodluma-v2";
 
 const CORE_FILES = [
   "./",
