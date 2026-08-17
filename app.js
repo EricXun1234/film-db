@@ -51,22 +51,13 @@ const FIELD_MAP = {
   youtubeId: ["youtubeId", "youtube_id", "videoId", "video_id", "ytId", "yt_id", "YouTube ID", "影片ID", "影片 ID"],
   mainScene: ["mainScene", "primaryScene", "main_scene", "主要場景", "主場景"],
   subScene: ["subScene", "secondaryScene", "sub_scene", "次要場景", "副場景"],
-  genre: [
-    "genreKeywords", "genre_keywords", "genres", "genre", "categories", "category", "types", "type",
-    "類型關鍵字", "類型", "電影類型", "分類", "電影分類", "片種", "風格"
-  ],
-  mood: [
-    "mood", "emotion", "emotions", "atmosphere", "feel", "feeling", "vibe", "tone",
-    "情感／氛圍", "情感/氛圍", "情感", "氛圍", "情緒", "情緒關鍵字", "氛圍關鍵字"
-  ],
+  genre: ["genreKeywords", "genre_keywords", "genres", "genre", "類型關鍵字", "類型", "電影類型"],
+  mood: ["mood", "emotion", "emotions", "atmosphere", "feel", "feeling", "vibe", "情感／氛圍", "情感/氛圍", "情感", "氛圍", "情緒"],
   year: ["year", "releaseYear", "release_year", "年份", "上映年份"],
   duration: ["duration", "runtime", "length", "片長", "時長"],
   views: ["views", "viewCount", "view_count", "clicks", "clickCount", "瀏覽次數", "點擊次數", "觀看次數"],
   actors: ["actors", "actor", "cast", "casts","演員", "演員名單", "主演", "卡司"],
-  keywords: [
-    "keywords", "keyword", "tags", "tag", "labels", "label",
-    "關鍵字", "標籤", "電影關鍵字", "內容關鍵字", "主題", "題材"
-  ],
+  keywords: ["keywords", "keyword", "tags", "tag", "關鍵字", "標籤", "電影關鍵字"],
 };
 
 const FALLBACK_MOVIES = [
@@ -167,41 +158,8 @@ const TAG_KIND_RULES = {
   mood: ["孤獨", "療癒", "浪漫", "放鬆", "歡樂", "壓迫", "不安", "溫柔", "懷舊", "熱血", "空虛", "疏離", "感人", "悲傷", "焦慮", "沉重", "自由", "安靜", "悵然", "心碎", "陰鬱", "愉快", "舒服", "夢幻", "治癒", "致鬱", "恐懼", "孤單", "寂寞", "失落", "希望"],
   atmosphere: ["深夜", "雨夜", "夕陽", "冷調", "暖色", "迷幻", "黑色幽默", "未來感", "復古", "慢節奏", "海風", "詭異", "神秘", "寧靜", "末日", "霓虹", "夜晚", "夏天", "冬天", "灰暗", "明亮"],
   scene: ["校園", "海邊", "小鎮", "城市", "老屋", "咖啡館", "醫院", "森林", "實驗室", "公路", "夜市", "辦公室", "家庭", "港口", "山區", "雨中", "餐廳", "酒吧", "房間", "車站"],
-  genre: ["恐怖", "愛情", "科幻", "犯罪", "喜劇", "動作", "劇情", "動畫", "紀錄", "懸疑", "驚悚", "青春", "冒險", "奇幻", "家庭", "戰爭", "歷史", "音樂", "傳記", "西部"]
+  genre: ["恐怖", "愛情", "科幻", "犯罪", "喜劇", "動作", "劇情", "動畫", "紀錄", "懸疑", "驚悚", "青春", "冒險"]
 };
-
-/*
-  熱門分類不只比對單一「類型」字串，也涵蓋常見子類型、題材與中英文別名。
-  這些規則會同時套用到片名、簡介、類型、氛圍、場景與關鍵字欄位。
-*/
-const CATEGORY_RULES = {
-  "喜劇": ["喜劇", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "詼諧", "黑色幽默", "諷刺", "惡搞", "脫口秀", "comedy", "comic", "satire"],
-  "愛情": ["愛情", "浪漫", "戀愛", "愛戀", "戀人", "戀曲", "戀情", "感情", "初戀", "暗戀", "相愛", "愛上", "真愛", "情侶", "伴侶", "夫妻", "婚姻", "婚戀", "婚禮", "婚約", "約會", "分手", "前任", "情感糾葛", "關係探索", "love story", "romance", "romantic", "relationship", "rom-com", "romcom"],
-  "驚悚": ["驚悚", "心理驚悚", "緊張", "追殺", "逃亡", "危險", "生存戰", "懾人", "懸命", "thriller", "suspense"],
-  "科幻": ["科幻", "未來", "太空", "外星", "機器人", "人工智慧", "時空", "時間旅行", "多元宇宙", "高科技", "賽博龐克", "反烏托邦", "sci-fi", "scifi", "science fiction", "cyberpunk"],
-  "動作": ["動作", "戰鬥", "武打", "功夫", "格鬥", "槍戰", "特務", "諜報", "英雄", "超級英雄", "追逐", "復仇", "傭兵", "action", "martial arts"],
-  "動畫": ["動畫", "卡通", "動漫", "親子動畫", "童趣", "定格動畫", "animation", "animated", "anime"],
-  "劇情": ["劇情", "人生", "家庭倫理", "成長", "勵志", "人性", "社會寫實", "救贖", "寫實", "職人", "drama", "dramatic"],
-  "懸疑": ["懸疑", "推理", "謎團", "偵探", "解謎", "神秘", "命案", "陰謀", "查案", "反轉", "燒腦", "mystery", "detective", "whodunit"],
-  "恐怖": ["恐怖", "心理恐怖", "鬼", "鬼屋", "靈異", "超自然", "詛咒", "惡魔", "惡靈", "驅魔", "血腥", "怪物", "殭屍", "喪屍", "horror", "supernatural"],
-  "犯罪": ["犯罪", "黑幫", "警匪", "警察", "毒梟", "劫案", "謀殺案", "國際犯罪", "詐騙", "監獄", "緝毒", "crime", "gangster", "heist"],
-  "冒險": ["冒險", "探險", "探索", "旅程", "尋寶", "奇遇", "遺跡", "遠征", "荒野", "adventure", "expedition"],
-  "奇幻": ["奇幻", "魔法", "魔幻", "精靈", "神話", "黑暗奇幻", "異空間", "巫師", "龍族", "童話", "fantasy", "fairy tale"],
-  "家庭": ["家庭", "家庭劇", "親子", "溫馨", "家人", "父子", "父女", "母子", "母女", "手足", "祖孫", "family"],
-  "戰爭": ["戰爭", "軍事", "軍隊", "戰場", "核子", "歷史戰爭", "士兵", "空戰", "海戰", "war", "military"],
-  "歷史": ["歷史", "歷史劇", "時代劇", "傳記", "古裝", "年代", "宮廷", "史詩", "真人真事", "history", "historical", "biography", "biopic"],
-  "音樂": ["音樂", "音樂劇", "歌舞", "合唱團", "舞台", "樂團", "歌手", "演唱會", "舞蹈", "music", "musical", "concert"]
-};
-
-const FALLBACK_BUBBLE_TAGS = [
-  ["孤獨", "mood"], ["療癒", "mood"], ["浪漫", "mood"], ["壓迫感", "mood"], ["放空", "mood"],
-  ["歡樂", "mood"], ["感人", "mood"], ["熱血", "mood"],
-  ["深夜感", "atmosphere"], ["雨夜", "atmosphere"], ["夕陽感", "atmosphere"], ["冷調", "atmosphere"],
-  ["復古", "atmosphere"], ["慢節奏", "atmosphere"],
-  ["校園", "scene"], ["海邊", "scene"], ["咖啡館", "scene"], ["老屋", "scene"],
-  ["公路", "scene"], ["小鎮", "scene"],
-  ["恐怖片", "genre"], ["愛情片", "genre"], ["科幻片", "genre"], ["喜劇片", "genre"]
-];
 
 const KIND_META = {
   mood: { label: "情緒", icon: "♡", colors: ["#9b5cff", "#f06ba7"], glow: "rgba(240,107,167,0.45)" },
@@ -211,8 +169,8 @@ const KIND_META = {
 };
 
 const BUBBLE_LIMIT = 10;
-const MAX_BUBBLE_HISTORY_ROUNDS = 3;
 const BUBBLE_SIZE = 92;
+const EXPLORE_RESULT_LIMIT = 36;
 const BUBBLE_COLOR_PALETTE = [
   { colors: ["#F08A3E", "#F5C04E"], glow: "rgba(245,192,78,0.42)" },
   { colors: ["#B45CFF", "#EA6FCB"], glow: "rgba(234,111,203,0.42)" },
@@ -220,10 +178,32 @@ const BUBBLE_COLOR_PALETTE = [
   { colors: ["#35C6B0", "#5ED39A"], glow: "rgba(53,198,176,0.38)" }
 ];
 
+/*
+  熱門分類的別名集中管理，除了資料庫類型欄，也會比對情緒、關鍵字、
+  場景與簡介。這能涵蓋「愛情片／浪漫喜劇／rom-com」等不同標記方式。
+*/
+const CATEGORY_RULES = {
+  "喜劇": ["喜劇", "喜劇片", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "詼諧", "黑色幽默", "comedy", "comic", "satire"],
+  "愛情": ["愛情", "愛情片", "爱情", "愛情故事", "浪漫", "浪漫愛情", "浪漫喜劇", "愛情喜劇", "戀愛", "戀曲", "愛戀", "戀人", "戀情", "初戀", "暗戀", "告白", "約會", "情侶", "伴侶", "婚姻", "夫妻", "感情", "情感", "情感糾葛", "關係探索", "兩性關係", "romance", "romantic", "rom-com", "romcom", "love story"],
+  "驚悚": ["驚悚", "惊悚", "心理驚悚", "緊張", "追殺", "逃亡", "危險", "生存戰", "thriller", "suspense"],
+  "科幻": ["科幻", "科幻片", "未來", "太空", "外星", "機器人", "人工智慧", "時空", "時間旅行", "多元宇宙", "高科技", "sci-fi", "scifi", "science fiction", "ai"],
+  "動作": ["動作", "動作片", "动作", "戰鬥", "武打", "功夫", "格鬥", "槍戰", "特務", "諜報", "英雄", "超級英雄", "追逐", "action", "martial arts"],
+  "動畫": ["動畫", "動畫片", "动画", "卡通", "動漫", "親子", "童趣", "動物主角", "animation", "animated", "anime"],
+  "劇情": ["劇情", "劇情片", "剧情", "人生", "家庭", "成長", "勵志", "人性", "社會寫實", "救贖", "drama", "dramatic"],
+  "懸疑": ["懸疑", "悬疑", "推理", "謎團", "偵探", "解謎", "神秘", "命案", "陰謀", "mystery", "detective", "whodunit"],
+  "恐怖": ["恐怖", "恐怖片", "心理恐怖", "鬼", "鬼屋", "靈異", "超自然", "詛咒", "惡魔", "惡靈", "驅魔", "血腥", "怪物", "horror", "haunted", "slasher"],
+  "犯罪": ["犯罪", "犯罪片", "黑幫", "警匪", "警察", "毒梟", "劫案", "謀殺案", "國際犯罪", "crime", "gangster", "heist"],
+  "冒險": ["冒險", "冒险", "探險", "探索", "旅程", "尋寶", "奇遇", "遺跡", "adventure", "quest"],
+  "奇幻": ["奇幻", "魔法", "魔幻", "精靈", "神話", "黑暗奇幻", "異空間", "fantasy", "fairy tale"],
+  "家庭": ["家庭", "家庭劇", "親子", "溫馨", "童趣", "社區生活", "family", "family-friendly"],
+  "戰爭": ["戰爭", "战争", "軍事", "軍隊", "戰場", "核子", "歷史戰爭", "war", "military"],
+  "歷史": ["歷史", "历史", "歷史劇", "時代劇", "傳記", "古裝", "復古", "history", "historical", "biography", "biopic"],
+  "音樂": ["音樂", "音乐", "音樂劇", "歌舞", "合唱團", "舞台", "music", "musical", "concert"]
+};
+
 let allMovies = [];
 let bubbles = [];
 let allTagCandidates = [];
-let bubbleRoundHistory = [];
 let selectedTags = new Map();
 let searchKeyword = "";
 let viewCounts = loadViews();
@@ -237,7 +217,7 @@ let authMode = "login";
 let libraryMode = "favorites";
 let pendingMovie = null;
 let currentTab = "全部收藏";
-let appSettings = loadJson("moodluma_settings", {
+const DEFAULT_APP_SETTINGS = {
   themeDark: true,
   anim: true,
   cardSize: "中",
@@ -245,7 +225,12 @@ let appSettings = loadJson("moodluma_settings", {
   prefNiche: false,
   noHorror: false,
   noSad: false
-});
+};
+
+let appSettings = {
+  ...DEFAULT_APP_SETTINGS,
+  ...loadJson("moodluma_settings", DEFAULT_APP_SETTINGS)
+};
 
 function getBubblePaletteByGroup(index, total) {
   const paletteCount = BUBBLE_COLOR_PALETTE.length;
@@ -526,9 +511,7 @@ async function loadMoviesFromFilmDB() {
 
       if (list.length) {
         const uniqueList = dedupeMovies(list);
-        const removedCount = list.length - uniqueList.length;
-        const dedupeNote = removedCount > 0 ? `，已合併 ${removedCount} 筆重複資料` : "";
-        $("dbStatus").textContent = `已連接 FilmDB：成功讀取 ${uniqueList.length} 部電影${dedupeNote}，圓圈與搜尋皆由資料庫生成。`;
+        $("dbStatus").textContent = `已連接 FilmDB：成功讀取 ${uniqueList.length} 部電影，圓圈與搜尋皆由資料庫生成。`;
         return uniqueList;
       }
     } catch (err) {
@@ -638,7 +621,7 @@ function parseMoviesFromHtml(html, sourceUrl) {
     });
   }
 
-  return movies.filter(m => m.title);
+  return dedupeMovies(movies.filter(m => m.title));
 }
 
 function absolutize(url, baseUrl) {
@@ -664,7 +647,7 @@ function normalizeMovieList(data) {
     arr = p.movies || p.films || p.data || p.items || [];
   }
 
-  return arr.map((item, idx) => normalizeMovie(item, idx)).filter(m => m.title);
+  return dedupeMovies(arr.map((item, idx) => normalizeMovie(item, idx)).filter(m => m.title));
 }
 
 
@@ -761,106 +744,6 @@ function normalizeMovie(raw, idx = 0) {
   };
 }
 
-function normalizeIdentityText(value) {
-  return String(value || "")
-    .normalize("NFKC")
-    .toLowerCase()
-    .replace(/[\s\p{P}\p{S}]+/gu, "");
-}
-
-function getMovieYear(movie) {
-  return String(movie?.year || "").match(/(?:19|20)\d{2}/)?.[0] || "";
-}
-
-function mergeUniqueTags(...lists) {
-  const seen = new Set();
-  const merged = [];
-
-  lists.flat().forEach(tag => {
-    const clean = cleanTag(tag);
-    const key = canonicalTagKey(clean);
-    if (!clean || !key || seen.has(key)) return;
-    seen.add(key);
-    merged.push(clean);
-  });
-
-  return merged;
-}
-
-function mergeMovieRecords(current, incoming) {
-  const preferLonger = (a, b) => String(b || "").length > String(a || "").length ? b : a;
-
-  return {
-    ...incoming,
-    ...current,
-    id: current.id || incoming.id,
-    title: current.title || incoming.title,
-    desc: preferLonger(current.desc, incoming.desc),
-    poster: current.poster || incoming.poster,
-    trailer: current.trailer || incoming.trailer,
-    year: current.year || incoming.year,
-    duration: current.duration || incoming.duration,
-    actors: preferLonger(current.actors, incoming.actors),
-    views: Math.max(Number(current.views || 0), Number(incoming.views || 0)),
-    genre: mergeUniqueTags(current.genre || [], incoming.genre || []),
-    mood: mergeUniqueTags(current.mood || [], incoming.mood || []),
-    mainScene: mergeUniqueTags(current.mainScene || [], incoming.mainScene || []),
-    subScene: mergeUniqueTags(current.subScene || [], incoming.subScene || []),
-    keywords: mergeUniqueTags(current.keywords || [], incoming.keywords || []),
-    raw: { ...(incoming.raw || {}), ...(current.raw || {}) }
-  };
-}
-
-/*
-  FilmDB 的 HTML 或 API 有時會讓同一部片以不同資料列出現。
-  預告片相同、資料庫 id 相同，或片名相同且年份不衝突時，視為同一部並合併欄位。
-*/
-function dedupeMovies(movies) {
-  const unique = [];
-  const idIndex = new Map();
-  const trailerIndex = new Map();
-  const titleIndex = new Map();
-
-  (movies || []).filter(Boolean).forEach(movie => {
-    const explicitId = movie.raw?.id || movie.raw?._id || movie.raw?.uuid || "";
-    const idKey = normalizeIdentityText(explicitId);
-    const trailerKey = getYoutubeIdFromUrl(movie.trailer);
-    const titleKey = normalizeIdentityText(movie.title);
-    const year = getMovieYear(movie);
-    let matchIndex;
-
-    if (trailerKey && trailerIndex.has(trailerKey)) {
-      matchIndex = trailerIndex.get(trailerKey);
-    } else if (idKey && idIndex.has(idKey)) {
-      matchIndex = idIndex.get(idKey);
-    } else if (titleKey && !titleKey.startsWith("未命名電影")) {
-      const candidates = titleIndex.get(titleKey) || [];
-      matchIndex = candidates.find(index => {
-        const existingYear = getMovieYear(unique[index]);
-        return !year || !existingYear || year === existingYear;
-      });
-    }
-
-    if (matchIndex !== undefined) {
-      unique[matchIndex] = mergeMovieRecords(unique[matchIndex], movie);
-      if (idKey) idIndex.set(idKey, matchIndex);
-      if (trailerKey) trailerIndex.set(trailerKey, matchIndex);
-      if (titleKey && !(titleIndex.get(titleKey) || []).includes(matchIndex)) {
-        titleIndex.set(titleKey, [...(titleIndex.get(titleKey) || []), matchIndex]);
-      }
-      return;
-    }
-
-    const nextIndex = unique.length;
-    unique.push(movie);
-    if (idKey) idIndex.set(idKey, nextIndex);
-    if (trailerKey) trailerIndex.set(trailerKey, nextIndex);
-    if (titleKey) titleIndex.set(titleKey, [...(titleIndex.get(titleKey) || []), nextIndex]);
-  });
-
-  return unique;
-}
-
 function normalizeKey(s) {
   return String(s).toLowerCase().replace(/\s|_|-|\/|／|：|:/g, "");
 }
@@ -876,7 +759,7 @@ function normalizeUrl(url) {
 
 function toArray(value) {
   if (!value) return [];
-  if (Array.isArray(value)) return value.flatMap(toArray);
+  if (Array.isArray(value)) return value.map(cleanTag).filter(Boolean);
   if (typeof value === "object") return Object.values(value).flatMap(toArray);
   return String(value)
     .split(/[,，、|/／\n;；]+/)
@@ -888,17 +771,106 @@ function cleanTag(s) {
   return String(s).trim().replace(/^#/, "").replace(/\s+/g, " ");
 }
 
-function canonicalTagKey(tag) {
-  const key = normalizeIdentityText(tag);
-  const genreRoot = TAG_KIND_RULES.genre.find(root => {
-    const normalizedRoot = normalizeIdentityText(root);
-    return key === `${normalizedRoot}片` || key === `${normalizedRoot}電影` || key === `${normalizedRoot}影片`;
-  });
-  return genreRoot ? normalizeIdentityText(genreRoot) : key;
-}
-
 function slug(s) {
   return String(s).toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, "-");
+}
+
+function normalizeIdentityText(value) {
+  return String(value || "")
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[\s\p{P}\p{S}]+/gu, "");
+}
+
+function uniqueTagValues(...lists) {
+  const values = [];
+  const seen = new Set();
+
+  lists.flat().forEach(value => {
+    const tag = cleanTag(value);
+    const key = normalizeIdentityText(tag);
+    if (!tag || !key || seen.has(key)) return;
+    seen.add(key);
+    values.push(tag);
+  });
+
+  return values;
+}
+
+function getPreferredText(first, second, placeholder = "") {
+  const a = String(first || "").trim();
+  const b = String(second || "").trim();
+  const isPlaceholder = value => !value || value === placeholder || value.includes("尚未提供完整簡介");
+
+  if (isPlaceholder(a) && !isPlaceholder(b)) return b;
+  if (isPlaceholder(b)) return a;
+  return b.length > a.length ? b : a;
+}
+
+function mergeMovieRecords(primary, duplicate) {
+  return {
+    ...primary,
+    desc: getPreferredText(primary.desc, duplicate.desc, "目前資料庫尚未提供完整簡介。"),
+    poster: getPreferredText(primary.poster, duplicate.poster),
+    trailer: getPreferredText(primary.trailer, duplicate.trailer),
+    year: primary.year || duplicate.year || "",
+    duration: getPreferredText(primary.duration, duplicate.duration),
+    actors: getPreferredText(primary.actors, duplicate.actors),
+    views: Math.max(Number(primary.views || 0), Number(duplicate.views || 0)),
+    genre: uniqueTagValues(primary.genre || [], duplicate.genre || []),
+    mood: uniqueTagValues(primary.mood || [], duplicate.mood || []),
+    mainScene: uniqueTagValues(primary.mainScene || [], duplicate.mainScene || []),
+    subScene: uniqueTagValues(primary.subScene || [], duplicate.subScene || []),
+    keywords: uniqueTagValues(primary.keywords || [], duplicate.keywords || []),
+    raw: { ...(duplicate.raw || {}), ...(primary.raw || {}) }
+  };
+}
+
+function dedupeMovies(movies) {
+  const unique = [];
+  const titleBuckets = new Map();
+  const videoIndex = new Map();
+
+  (Array.isArray(movies) ? movies : []).forEach(movie => {
+    if (!movie?.title) return;
+
+    const titleKey = normalizeIdentityText(movie.title);
+    const yearKey = normalizeIdentityText(movie.year);
+    const videoKey = getYoutubeIdFromUrl(movie.trailer);
+    const bucket = titleBuckets.get(titleKey) || [];
+
+    let duplicateIndex = videoKey ? videoIndex.get(videoKey) : undefined;
+    if (duplicateIndex === undefined) {
+      duplicateIndex = bucket.find(index => {
+        const existingYear = normalizeIdentityText(unique[index]?.year);
+        return !yearKey || !existingYear || yearKey === existingYear;
+      });
+    }
+
+    if (duplicateIndex === undefined) {
+      const nextIndex = unique.length;
+      unique.push(movie);
+      titleBuckets.set(titleKey, [...bucket, nextIndex]);
+      if (videoKey) videoIndex.set(videoKey, nextIndex);
+      return;
+    }
+
+    unique[duplicateIndex] = mergeMovieRecords(unique[duplicateIndex], movie);
+    if (videoKey) videoIndex.set(videoKey, duplicateIndex);
+  });
+
+  return unique;
+}
+
+function normalizeBubbleTagKey(tag) {
+  const normalized = String(tag || "")
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/^#/, "")
+    .replace(/[\s\p{P}\p{S}]+/gu, "")
+    .replace(/(?:電影|影片|片)$/u, "");
+
+  return normalized || normalizeIdentityText(tag);
 }
 
 function buildDynamicBubbles() {
@@ -909,19 +881,20 @@ function buildDynamicBubbles() {
       { list: movie.mood, base: 5.2 },
       { list: movie.genre, base: 2.2 },
       { list: movie.mainScene, base: 3.1 },
-      { list: movie.subScene, base: 2.2 },
-      { list: movie.keywords, base: 1.8 }
+      { list: movie.subScene, base: 2.2 }
     ];
 
     fieldGroups.forEach(({ list, base }) => {
       list.forEach(tag => {
-        const key = canonicalTagKey(tag);
-        if (!key) return;
         const kind = classifyTag(tag);
-        const prev = counts.get(key) || { tag: cleanTag(tag), score: 0, kind, count: 0 };
+        const key = normalizeBubbleTagKey(tag);
+        if (!key) return;
+
+        const prev = counts.get(key) || { tag, key, score: 0, kind, count: 0 };
         prev.score += base + (kind === "mood" ? 1.4 : 0);
         prev.count += 1;
         prev.kind = kind;
+        if (String(tag).length < String(prev.tag).length) prev.tag = tag;
         counts.set(key, prev);
       });
     });
@@ -929,17 +902,21 @@ function buildDynamicBubbles() {
 
   let candidates = [...counts.values()];
 
-  // 至少準備兩輪不同標籤；資料庫候選不足時才使用低權重備用標籤。
-  if (candidates.length < BUBBLE_LIMIT * 2) {
-    FALLBACK_BUBBLE_TAGS.forEach(([tag, kind]) => {
-      const key = canonicalTagKey(tag);
-      if (counts.has(key) || candidates.some(item => canonicalTagKey(item.tag) === key)) return;
-      candidates.push({ tag, score: 0.8, kind, count: 0 });
+  // 若資料庫標籤太少，補一些偏「感受型」的圓圈，避免畫面空。
+  if (candidates.length < 10) {
+    const fallbackTags = [
+      ["孤獨", "mood"], ["療癒", "mood"], ["浪漫", "mood"], ["壓迫感", "mood"], ["放空", "mood"],
+      ["深夜感", "atmosphere"], ["雨夜", "atmosphere"], ["夕陽感", "atmosphere"], ["冷調", "atmosphere"],
+      ["校園", "scene"], ["海邊", "scene"], ["咖啡館", "scene"], ["老屋", "scene"],
+      ["恐怖片", "genre"], ["愛情片", "genre"]
+    ];
+    fallbackTags.forEach(([tag, kind]) => {
+      const key = normalizeBubbleTagKey(tag);
+      if (!counts.has(key)) candidates.push({ tag, key, score: 1, kind, count: 1 });
     });
   }
 
   allTagCandidates = candidates;
-  bubbleRoundHistory = [];
   const selected = pickBalancedTags(allTagCandidates, []);
   createBubbles(selected);
 }
@@ -952,96 +929,160 @@ function classifyTag(tag) {
   return "mood";
 }
 
-function pickBalancedTags(candidates, excludeTags = []) {
-  const uniqueCandidates = [];
-  const candidateIndex = new Map();
+const recentBubbleSets = [];
 
-  (candidates || []).forEach(item => {
-    const key = canonicalTagKey(item.tag);
-    if (!key) return;
-
-    if (candidateIndex.has(key)) {
-      const index = candidateIndex.get(key);
-      const current = uniqueCandidates[index];
-      current.score = Math.max(Number(current.score || 0), Number(item.score || 0));
-      current.count = Math.max(Number(current.count || 0), Number(item.count || 0));
-      return;
-    }
-
-    candidateIndex.set(key, uniqueCandidates.length);
-    uniqueCandidates.push({ ...item, tag: cleanTag(item.tag), _key: key });
-  });
-
-  const excludedKeys = new Set(excludeTags.map(canonicalTagKey));
-  const recentKeys = new Set(bubbleRoundHistory.flat());
-  const buckets = { mood: [[], [], []], atmosphere: [[], [], []], scene: [[], [], []], genre: [[], [], []] };
-
-  uniqueCandidates.forEach(item => {
-    const kind = buckets[item.kind] ? item.kind : "mood";
-    const freshness = !excludedKeys.has(item._key) && !recentKeys.has(item._key)
-      ? 0
-      : (!excludedKeys.has(item._key) ? 1 : 2);
-    buckets[kind][freshness].push(item);
-  });
-
-  Object.values(buckets).forEach(tiers => {
-    tiers.forEach((items, tier) => {
-      tiers[tier] = weightedShuffle(items);
-    });
-  });
-
-  const order = ["genre", "mood", "atmosphere", "scene", "genre", "mood", "atmosphere", "scene", "mood", "atmosphere"];
-  const quotas = { genre: 2, mood: 3, atmosphere: 3, scene: 2 };
-  const kindCounts = { genre: 0, mood: 0, atmosphere: 0, scene: 0 };
-  const picked = [];
-  const seen = new Set();
-
-  for (let freshness = 0; freshness < 3 && picked.length < BUBBLE_LIMIT; freshness += 1) {
-    order.forEach(kind => {
-      if (picked.length >= BUBBLE_LIMIT || kindCounts[kind] >= quotas[kind]) return;
-      const item = buckets[kind][freshness].find(candidate => !seen.has(candidate._key));
-      if (!item) return;
-      seen.add(item._key);
-      kindCounts[kind] += 1;
-      picked.push(item);
-    });
+function randomUnit() {
+  if (globalThis.crypto?.getRandomValues) {
+    const buffer = new Uint32Array(1);
+    globalThis.crypto.getRandomValues(buffer);
+    return (buffer[0] + 1) / 4294967297;
   }
-
-  // 若某一類候選不足，以其他類別補齊，但仍優先選近期未出現的標籤。
-  for (let freshness = 0; freshness < 3 && picked.length < BUBBLE_LIMIT; freshness += 1) {
-    weightedShuffle(uniqueCandidates.filter(item => {
-      const itemFreshness = !excludedKeys.has(item._key) && !recentKeys.has(item._key)
-        ? 0
-        : (!excludedKeys.has(item._key) ? 1 : 2);
-      return itemFreshness === freshness && !seen.has(item._key);
-    })).forEach(item => {
-      if (picked.length >= BUBBLE_LIMIT || seen.has(item._key)) return;
-      seen.add(item._key);
-      picked.push(item);
-    });
-  }
-
-  return picked.slice(0, BUBBLE_LIMIT);
+  return Math.random();
 }
 
-function weightedShuffle(items) {
-  return [...items]
+function shuffledCopy(items) {
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(randomUnit() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  return copy;
+}
+
+function getCandidateTagKey(item) {
+  return item?.key || normalizeBubbleTagKey(item?.tag);
+}
+
+function getRecentTagPenalty(tagKey, currentSet) {
+  if (currentSet.has(tagKey)) return 0.04;
+
+  let penalty = 1;
+  recentBubbleSets.forEach((entry, index) => {
+    if (!entry.keys.has(tagKey)) return;
+    const age = recentBubbleSets.length - 1 - index;
+    const recentPenalty = age === 0 ? 0.16 : age === 1 ? 0.32 : age === 2 ? 0.52 : 0.72;
+    penalty = Math.min(penalty, recentPenalty);
+  });
+
+  return penalty;
+}
+
+function weightedRandomSample(items, count, currentSet = new Set(), excludedKeys = new Set()) {
+  if (!items.length || count <= 0) return [];
+
+  return items
+    .filter(item => !excludedKeys.has(getCandidateTagKey(item)))
     .map(item => {
-      const weight = Math.max(0.25, Number(item.score || 0) + 1);
-      const random = Math.max(Number.EPSILON, Math.random());
-      return { item, rank: -Math.log(random) / weight };
+      const baseScore = Math.max(0.25, Math.log2(2 + Number(item.score || 0)));
+      const repeatPenalty = getRecentTagPenalty(getCandidateTagKey(item), currentSet);
+      const weight = Math.max(0.08, baseScore * repeatPenalty);
+      const key = Math.pow(randomUnit(), 1 / weight);
+      return { item, key };
     })
-    .sort((a, b) => a.rank - b.rank)
+    .sort((a, b) => b.key - a.key)
+    .slice(0, count)
     .map(entry => entry.item);
 }
 
-function rememberBubbleRound(items) {
-  const keys = items.map(item => canonicalTagKey(item.tag)).filter(Boolean);
-  if (!keys.length) return;
+function sampleFreshFirst(items, count, currentSet, excludedKeys = new Set()) {
+  if (count <= 0) return [];
 
-  const possibleHistoryRounds = Math.max(1, Math.floor(allTagCandidates.length / BUBBLE_LIMIT) - 1);
-  const historyLimit = Math.min(MAX_BUBBLE_HISTORY_ROUNDS, possibleHistoryRounds);
-  bubbleRoundHistory = [keys, ...bubbleRoundHistory].slice(0, historyLimit);
+  const fresh = items.filter(item => !currentSet.has(getCandidateTagKey(item)));
+  const picked = weightedRandomSample(fresh, count, currentSet, excludedKeys);
+  const pickedKeys = new Set([...excludedKeys, ...picked.map(getCandidateTagKey)]);
+
+  if (picked.length < count) {
+    picked.push(...weightedRandomSample(items, count - picked.length, currentSet, pickedKeys));
+  }
+
+  return picked;
+}
+
+function buildRandomBalancedTagSet(candidates, currentTags = []) {
+  const kindOrder = ["genre", "mood", "atmosphere", "scene"];
+  const quotas = { genre: 2, mood: 3, atmosphere: 3, scene: 2 };
+  const buckets = { mood: [], atmosphere: [], scene: [], genre: [] };
+  const currentSet = new Set(currentTags.map(normalizeBubbleTagKey));
+
+  candidates.forEach(item => {
+    const kind = buckets[item.kind] ? item.kind : "mood";
+    buckets[kind].push(item);
+  });
+
+  const picked = [];
+  const seen = new Set();
+
+  kindOrder.forEach(kind => {
+    sampleFreshFirst(buckets[kind], quotas[kind], currentSet, seen).forEach(item => {
+      const key = getCandidateTagKey(item);
+      if (seen.has(key)) return;
+      seen.add(key);
+      picked.push(item);
+    });
+  });
+
+  const remaining = candidates.filter(item => !seen.has(getCandidateTagKey(item)));
+  sampleFreshFirst(remaining, BUBBLE_LIMIT - picked.length, currentSet, seen).forEach(item => {
+    const key = getCandidateTagKey(item);
+    if (seen.has(key)) return;
+    seen.add(key);
+    picked.push(item);
+  });
+
+  return picked
+    .slice(0, BUBBLE_LIMIT)
+    .sort((a, b) => kindOrder.indexOf(a.kind) - kindOrder.indexOf(b.kind));
+}
+
+function pickBalancedTags(candidates, excludeTags = []) {
+  if (!Array.isArray(candidates) || !candidates.length) return [];
+
+  const distinctCandidates = [...new Map(
+    candidates.map(item => [getCandidateTagKey(item), item])
+  ).values()];
+  const currentSet = new Set(excludeTags.map(normalizeBubbleTagKey));
+  const availableFreshCount = distinctCandidates.filter(item => !currentSet.has(getCandidateTagKey(item))).length;
+  let selected = [];
+
+  for (let attempt = 0; attempt < 24; attempt += 1) {
+    const candidateSet = buildRandomBalancedTagSet(distinctCandidates, excludeTags);
+    const signature = candidateSet
+      .map(getCandidateTagKey)
+      .slice()
+      .sort()
+      .join("|");
+
+    const changedCount = candidateSet.filter(item => !currentSet.has(getCandidateTagKey(item))).length;
+    const desiredChanged = Math.max(1, Math.ceil(candidateSet.length * 0.7));
+    const minimumChanged = Math.min(candidateSet.length, availableFreshCount, desiredChanged);
+    const recentlyUsed = recentBubbleSets.some(entry => entry.signature === signature);
+
+    selected = candidateSet;
+
+    if (!recentlyUsed && (excludeTags.length === 0 || changedCount >= minimumChanged)) {
+      rememberBubbleSet(selected, signature);
+      return selected;
+    }
+  }
+
+  const fallbackSignature = selected
+    .map(getCandidateTagKey)
+    .slice()
+    .sort()
+    .join("|");
+
+  if (fallbackSignature) rememberBubbleSet(selected, fallbackSignature);
+
+  return selected;
+}
+
+function rememberBubbleSet(items, signature = "") {
+  const keys = new Set(items.map(getCandidateTagKey));
+  recentBubbleSets.push({
+    signature: signature || [...keys].sort().join("|"),
+    keys
+  });
+  while (recentBubbleSets.length > 8) recentBubbleSets.shift();
 }
 
 function createBubbles(items) {
@@ -1050,21 +1091,13 @@ function createBubbles(items) {
 
   const displayItems = items.slice(0, BUBBLE_LIMIT);
 
-  bubbles = displayItems.map((item, index) => {
+  bubbles = displayItems.map(item => {
     const meta = KIND_META[item.kind] || KIND_META.mood;
-    const palette = getBubblePaletteByGroup(index, displayItems.length);
     const el = document.createElement("button");
     el.className = "mood-bubble";
-    el.style.setProperty("--bubble-a", palette.colors[0]);
-    el.style.setProperty("--bubble-b", palette.colors[1]);
-    el.style.setProperty("--glow", palette.glow);
-    el.style.setProperty("width", `${BUBBLE_SIZE}px`, "important");
-    el.style.setProperty("height", `${BUBBLE_SIZE}px`, "important");
-    el.style.setProperty("min-width", `${BUBBLE_SIZE}px`, "important");
-    el.style.setProperty("min-height", `${BUBBLE_SIZE}px`, "important");
-    el.style.setProperty("max-width", `${BUBBLE_SIZE}px`, "important");
-    el.style.setProperty("max-height", `${BUBBLE_SIZE}px`, "important");
-    el.style.setProperty("transform", "none", "important");
+    el.style.setProperty("--bubble-a", meta.colors[0]);
+    el.style.setProperty("--bubble-b", meta.colors[1]);
+    el.style.setProperty("--glow", meta.glow);
     el.innerHTML = `
       <span>
         <div class="icon">${meta.icon}</div>
@@ -1076,7 +1109,7 @@ function createBubbles(items) {
     el.dataset.kind = item.kind;
     stage.appendChild(el);
 
-    const bubble = { ...item, el, x: 0, y: 0, weight: 0, size: BUBBLE_SIZE };
+    const bubble = { ...item, el, x: 0, y: 0, weight: 0, size: 0 };
 
     makeDraggable(bubble);
     el.addEventListener("click", () => {
@@ -1088,47 +1121,63 @@ function createBubbles(items) {
     return bubble;
   });
 
-  rememberBubbleRound(displayItems);
   layoutBubbles();
+}
+
+function getResponsiveBubbleSize(stageWidth) {
+  if (stageWidth <= 340) return 58;
+  if (stageWidth <= 380) return 62;
+  if (stageWidth <= 430) return 66;
+  if (stageWidth <= 520) return 72;
+  if (stageWidth <= 700) return 80;
+  return BUBBLE_SIZE;
 }
 
 function layoutBubbles() {
   const stage = $("moodStage");
+  if (!stage || !bubbles.length) return;
+
   const rect = stage.getBoundingClientRect();
-  const total = Math.max(bubbles.length, 1);
-  const compact = rect.width < 620;
-  const bubbleSize = compact ? Math.max(68, Math.min(82, rect.width * 0.17)) : BUBBLE_SIZE;
   const cx = rect.width / 2;
   const cy = rect.height / 2;
-  const innerSafeRadius = compact ? 112 : 145;
-  const outerRadius = Math.max(innerSafeRadius, Math.min(rect.width, rect.height) * (compact ? 0.36 : 0.39));
-  const rings = compact && total > 7 ? 2 : 1;
+  const total = bubbles.length;
+  const size = getResponsiveBubbleSize(rect.width);
+  const maxRadiusX = rect.width / 2 - size / 2 - 10;
+  const maxRadiusY = rect.height / 2 - size / 2 - 12;
+  const radius = Math.max(
+    70,
+    Math.min(Math.min(rect.width, rect.height) * 0.39, maxRadiusX, maxRadiusY)
+  );
 
   bubbles.forEach((bubble, index) => {
-    const ring = rings === 2 ? index % 2 : 0;
-    const ringItems = bubbles.filter((_, i) => (rings === 2 ? i % 2 : 0) === ring).length;
-    const ringIndex = rings === 2 ? Math.floor(index / 2) : index;
-    const radius = rings === 2
-      ? (ring === 0 ? outerRadius * 0.74 : outerRadius)
-      : outerRadius;
-    const angleOffset = ring === 1 ? Math.PI / Math.max(ringItems, 1) : 0;
-    const angle = -Math.PI / 2 + angleOffset + (Math.PI * 2 * ringIndex) / Math.max(ringItems, 1);
+    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / total;
+    bubble.size = size;
+    bubble.x = cx + Math.cos(angle) * radius - size / 2;
+    bubble.y = cy + Math.sin(angle) * radius - size / 2;
 
-    bubble.size = bubbleSize;
-    bubble.x = cx + Math.cos(angle) * radius - bubbleSize / 2;
-    bubble.y = cy + Math.sin(angle) * radius - bubbleSize / 2;
-    clampBubbleToStage(bubble);
-    bubble.el.style.setProperty("width", `${bubbleSize}px`, "important");
-    bubble.el.style.setProperty("height", `${bubbleSize}px`, "important");
-    bubble.el.style.setProperty("min-width", `${bubbleSize}px`, "important");
-    bubble.el.style.setProperty("min-height", `${bubbleSize}px`, "important");
-    bubble.el.style.setProperty("max-width", `${bubbleSize}px`, "important");
-    bubble.el.style.setProperty("max-height", `${bubbleSize}px`, "important");
+    bubble.el.style.setProperty("width", `${size}px`, "important");
+    bubble.el.style.setProperty("height", `${size}px`, "important");
+    bubble.el.style.setProperty("min-width", `${size}px`, "important");
+    bubble.el.style.setProperty("min-height", `${size}px`, "important");
+    bubble.el.style.setProperty("max-width", `${size}px`, "important");
+    bubble.el.style.setProperty("max-height", `${size}px`, "important");
     bubble.el.style.setProperty("transform", "none", "important");
+
     setBubblePosition(bubble);
     updateBubbleWeight(bubble);
   });
 }
+
+let bubbleResizeFrame = 0;
+function scheduleBubbleLayout() {
+  cancelAnimationFrame(bubbleResizeFrame);
+  bubbleResizeFrame = requestAnimationFrame(() => {
+    if (bubbles.length) layoutBubbles();
+  });
+}
+
+window.addEventListener("resize", scheduleBubbleLayout, { passive: true });
+window.addEventListener("orientationchange", scheduleBubbleLayout);
 
 function clampBubbleToStage(bubble) {
   const stage = $("moodStage");
@@ -1267,33 +1316,43 @@ function renderSelectedTags() {
 
 function renderRecommendations(showAll = false) {
   const list = $("recommendList");
-  const scored = allMovies
-    .map(movie => ({ movie, score: computeScore(movie) }))
-    .filter(x => getFeedback(x.movie) !== "dislike")
-    .sort((a, b) => {
-      const av = getViewCount(a.movie);
-      const bv = getViewCount(b.movie);
-      return b.score - a.score || bv - av;
-    });
+  const criteriaActive = hasRecommendationCriteria();
 
-  const filtered = selectedTags.size || searchKeyword
-    ? scored.filter(x => x.score > 0)
-    : scored.sort((a, b) => getViewCount(b.movie) - getViewCount(a.movie) || b.score - a.score);
+  let scored = allMovies
+    .filter(moviePassesPreferenceFilters)
+    .filter(movie => getFeedback(movie) !== "dislike")
+    .map(movie => ({
+      movie,
+      score: computeScore(movie),
+      rankScore: computeRankingScore(movie)
+    }));
 
-  const display = (showAll ? filtered : filtered.slice(0, 4));
+  scored.sort((a, b) => {
+    const av = getViewCount(a.movie);
+    const bv = getViewCount(b.movie);
+    return b.rankScore - a.rankScore || bv - av;
+  });
+
+  const filtered = criteriaActive
+    ? scored.filter(item => item.score > 0)
+    : scored;
+
+  const display = showAll ? filtered : filtered.slice(0, 4);
 
   if (!display.length) {
-    list.innerHTML = `<div class="empty-state">找不到完全符合的電影。可以把圓圈拉遠一點、減少標籤，或改搜更寬的感覺詞。</div>`;
+    list.innerHTML = `<div class="empty-state">目前沒有符合條件的電影。可以減少排除條件、重新選擇感覺，或換個排列。</div>`;
     return;
   }
 
   list.innerHTML = "";
+
   display.forEach(({ movie, score }) => {
+    const compatibility = getCompatibilityText(score);
     const item = document.createElement("article");
     item.className = "movie-item";
     item.innerHTML = `
       <div class="poster" style="background-image:url('${safeAttr(movie.poster)}')"></div>
-      <div>
+      <div class="movie-main-info">
         <h4>${escapeHtml(movie.title)}</h4>
         <div class="movie-meta">
           ${topTags(movie).slice(0, 3).map(t => `<span>${escapeHtml(t)}</span>`).join("")}
@@ -1304,69 +1363,216 @@ function renderRecommendations(showAll = false) {
         <p class="movie-actors">演員：${escapeHtml(movie.actors || "暫無演員資料")}</p>
       </div>
       <div class="movie-score">
-        <button class="movie-fav-btn ${isFavorite(movie) ? "active" : ""}" type="button" aria-label="收藏電影">${isFavorite(movie) ? "♥" : "♡"}</button>
-        ${Math.round(Math.max(score, 0.05) * 100)}%
-        <small>適合度</small>
-        <small>👁 ${getViewCount(movie)} 次</small>
-        <button class="play-circle" type="button">▶</button>
+        <button class="movie-fav-btn ${isFavorite(movie) ? "active" : ""}" type="button" aria-label="收藏電影">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+        </button>
+        <div class="match-info">
+          <strong>${compatibility.value}</strong>
+          <small>${compatibility.label}</small>
+        </div>
+        <small class="view-count">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+          <span>${getViewCount(movie)} 次</span>
+        </small>
+        <button class="play-circle" type="button" aria-label="查看電影">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5V7Z"/></svg>
+        </button>
       </div>
     `;
+
     item.querySelector(".movie-fav-btn")?.addEventListener("click", (e) => {
       e.stopPropagation();
       toggleFavorite(movie);
       updateMemberStats();
       renderRecommendations();
     });
+
     item.addEventListener("click", () => openModal(movie, score));
     list.appendChild(item);
   });
 }
 
-function computeScore(movie) {
-  const movieText = [
+function hasRecommendationCriteria() {
+  const hasPersonal = selectedTags.size > 0;
+  const hasGroup = groupMode && getGroupTagMap().size > 0;
+  return hasPersonal || hasGroup;
+}
+
+function moviePassesPreferenceFilters(movie) {
+  const genreText = (movie.genre || []).join(" ").toLowerCase();
+  const moodText = (movie.mood || []).join(" ").toLowerCase();
+  const allText = [
     movie.title,
     movie.desc,
-    ...movie.genre,
-    ...movie.mood,
-    ...movie.mainScene,
-    ...movie.subScene
+    genreText,
+    moodText,
+    ...(movie.keywords || [])
   ].join(" ").toLowerCase();
 
-  let score = 0;
-  let max = 0;
+  if (appSettings.noHorror) {
+    const horrorWords = ["恐怖", "驚悚", "鬼", "靈異", "惡魔", "血腥", "horror"];
+    if (horrorWords.some(word => allText.includes(word))) return false;
+  }
 
-  [...selectedTags.values()].forEach(({ tag, weight }) => {
-    const t = tag.toLowerCase();
-    const hitTag = fuzzyTagHit(movie, tag);
-    const hitText = movieText.includes(t);
+  if (appSettings.noSad) {
+    const sadWords = ["悲劇", "悲傷", "心碎", "憂鬱", "沉重", "虐心"];
+    if (sadWords.some(word => allText.includes(word))) return false;
+  }
 
-    max += weight;
+  return true;
+}
 
-    if (hitTag) {
-      score += weight;
-    } else if (hitText) {
-      score += weight * 0.7;
+function getPopularityRatio(movie) {
+  const maxViews = Math.max(
+    1,
+    ...allMovies.map(item => Math.max(0, Number(getViewCount(item) || 0)))
+  );
+  return Math.max(0, Math.min(1, Number(getViewCount(movie) || 0) / maxViews));
+}
+
+function normalizeMatchText(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
+}
+
+function getMovieFeatureGroups(movie) {
+  return [
+    { values: movie.mood || [], strength: 1.00 },
+    { values: movie.genre || [], strength: 0.92 },
+    { values: movie.mainScene || [], strength: 0.86 },
+    { values: movie.subScene || [], strength: 0.78 },
+    { values: movie.keywords || [], strength: 0.74 },
+    { values: [movie.title], strength: 0.70 },
+    { values: [movie.desc], strength: 0.62 }
+  ];
+}
+
+function getTagMatchStrength(movie, tag) {
+  const needle = normalizeMatchText(tag);
+  if (!needle) return 0;
+
+  let best = 0;
+
+  getMovieFeatureGroups(movie).forEach(group => {
+    group.values.forEach(value => {
+      const haystack = normalizeMatchText(value);
+      if (!haystack) return;
+
+      if (haystack === needle) {
+        best = Math.max(best, group.strength);
+        return;
+      }
+
+      if (haystack.includes(needle) || needle.includes(haystack)) {
+        best = Math.max(best, group.strength * 0.82);
+      }
+    });
+  });
+
+  return Math.max(0, Math.min(1, best));
+}
+
+function computeTagMatchScore(movie, tagItems) {
+  if (!tagItems.length) return null;
+
+  let totalPreferenceWeight = 0;
+  let matchedPreferenceWeight = 0;
+  let matchedCount = 0;
+
+  tagItems.forEach(({ tag, weight }) => {
+    const cleanTagValue = String(tag || "").trim();
+    if (!cleanTagValue) return;
+
+    const preferenceWeight = Math.max(0.05, Math.min(1, Number(weight) || 0.6));
+    const matchStrength = getTagMatchStrength(movie, cleanTagValue);
+
+    totalPreferenceWeight += preferenceWeight;
+
+    if (matchStrength > 0) {
+      matchedCount += 1;
+      matchedPreferenceWeight += preferenceWeight * matchStrength;
     }
   });
 
-  let finalScore = 0;
+  if (!totalPreferenceWeight) return null;
 
-  if (max === 0) {
-    finalScore = Math.min(1, 0.18 + getViewCount(movie) * 0.02);
-  } else {
-    finalScore = Math.min(1, score / max);
-  }
+  const preferenceCoverage = matchedPreferenceWeight / totalPreferenceWeight;
 
-  if (groupMode) {
-    finalScore += computeGroupScore(movie) * 0.45;
-    finalScore += computeGroupVoteScore(movie);
-  }
+  const movieFeatureCount = Math.max(
+    4,
+    Math.min(
+      10,
+      topTags(movie).length || 4
+    )
+  );
 
-  const feedback = getFeedback(movie);
-  if (feedback === "like") finalScore += 0.22;
-  if (feedback === "dislike") finalScore -= 0.35;
+  const movieFeaturePrecision = Math.min(1, matchedCount / movieFeatureCount);
+  const evidenceStrength = matchedCount > 0
+    ? 1 - Math.exp(-matchedCount / 2)
+    : 0;
+
+  const finalScore =
+    preferenceCoverage * 0.68 +
+    movieFeaturePrecision * 0.20 +
+    evidenceStrength * 0.12;
 
   return Math.max(0, Math.min(1, finalScore));
+}
+
+function computeScore(movie) {
+  const personalItems = [...selectedTags.values()];
+  const personalScore = computeTagMatchScore(movie, personalItems);
+
+  let groupScore = null;
+  if (groupMode) {
+    const groupItems = [...getGroupTagMap().values()];
+    groupScore = computeTagMatchScore(movie, groupItems);
+  }
+
+  const available = [];
+  if (personalScore !== null) available.push({ score: personalScore, weight: 0.7 });
+  if (groupScore !== null) available.push({ score: groupScore, weight: personalScore === null ? 1 : 0.3 });
+
+  if (!available.length) return 0;
+
+  const totalWeight = available.reduce((sum, item) => sum + item.weight, 0);
+  const weightedScore = available.reduce((sum, item) => sum + item.score * item.weight, 0) / totalWeight;
+
+  return Math.max(0, Math.min(1, weightedScore));
+}
+
+function computeRankingScore(movie) {
+  let rankScore = computeScore(movie);
+
+  const feedback = feedbacks[getMovieKey(movie)] || {};
+  if (typeof feedback.temperature === "number") {
+    const feedbackAdjustment = (feedback.temperature - 50) / 500;
+    rankScore += feedbackAdjustment;
+  } else if (feedback.rating === "like") {
+    rankScore += 0.08;
+  }
+
+  const popularity = getPopularityRatio(movie);
+  if (appSettings.prefPop) rankScore += popularity * 0.12;
+  if (appSettings.prefNiche) rankScore += (1 - popularity) * 0.12;
+
+  return rankScore;
+}
+
+function getCompatibilityText(score) {
+  if (!hasRecommendationCriteria()) {
+    return {
+      value: "—",
+      label: "請先選感覺"
+    };
+  }
+
+  return {
+    value: `${Math.round(Math.max(0, Math.min(1, score)) * 100)}%`,
+    label: "適合度"
+  };
 }
 
 function fuzzyTagHit(movie, tag) {
@@ -1415,11 +1621,11 @@ $("modalDesc").insertAdjacentElement("afterend", actorsBox);
     movie.year,
     movie.duration,
     ...topTags(movie).slice(0, 12),
-    `${Math.round(Math.max(score, 0.05) * 100)}% 適合`
+    hasRecommendationCriteria() ? `${Math.round(Math.max(0, Math.min(1, score)) * 100)}% 適合` : "尚未計算適合度"
   ].filter(Boolean);
 
   $("modalMeta").innerHTML = meta.map(m => `<span>${escapeHtml(m)}</span>`).join("");
-  $("modalViewCount").textContent = `👁 ${getViewCount(movie)} 次瀏覽`;
+  $("modalViewCount").innerHTML = `<span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg><span>${getViewCount(movie)} 次瀏覽</span></span>`;
   updateFeedbackUI(movie);
   updateGroupVoteUI(movie);
   updateFavoriteUI(movie);
@@ -1729,7 +1935,6 @@ function movieSnapshot(movie, score = 0) {
     mood: Array.isArray(movie.mood) ? movie.mood : toArray(movie.mood),
     mainScene: Array.isArray(movie.mainScene) ? movie.mainScene : toArray(movie.mainScene),
     subScene: Array.isArray(movie.subScene) ? movie.subScene : toArray(movie.subScene),
-    keywords: Array.isArray(movie.keywords) ? movie.keywords : toArray(movie.keywords),
     score,
     savedAt: new Date().toISOString(),
     collectionType: movie.collectionType || "想看",
@@ -1746,7 +1951,6 @@ function hydrateMovie(item) {
     mood: Array.isArray(item.mood) ? item.mood : toArray(item.mood),
     mainScene: Array.isArray(item.mainScene) ? item.mainScene : toArray(item.mainScene),
     subScene: Array.isArray(item.subScene) ? item.subScene : toArray(item.subScene),
-    keywords: Array.isArray(item.keywords) ? item.keywords : toArray(item.keywords),
     views: item.views || 0,
     raw: item.raw || {}
   };
@@ -1928,13 +2132,36 @@ function bindExploreUI() {
   });
 }
 
-function resolveCategoryKey(keyword) {
-  const key = normalizeIdentityText(keyword).replace(/(?:電影|影片|片)$/u, "");
-  return Object.keys(CATEGORY_RULES).find(category => normalizeIdentityText(category) === key) || "";
+function normalizeExploreText(value) {
+  return String(value || "")
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[\s\u3000]+/g, " ")
+    .trim();
 }
 
-function getExploreMovieText(movie) {
-  return [
+function textContainsExploreAlias(text, alias) {
+  const haystack = normalizeExploreText(text);
+  const needle = normalizeExploreText(alias);
+  if (!haystack || !needle) return false;
+
+  if (["ai", "war"].includes(needle)) {
+    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(^|[^a-z0-9])${escaped}(?=$|[^a-z0-9])`, "i").test(haystack);
+  }
+
+  return haystack.includes(needle);
+}
+
+function flattenExploreValues(value) {
+  if (value === null || value === undefined) return [];
+  if (Array.isArray(value)) return value.flatMap(flattenExploreValues);
+  if (typeof value === "object") return Object.values(value).flatMap(flattenExploreValues);
+  return [String(value)];
+}
+
+function getMovieExploreValues(movie, includeRaw = true) {
+  const values = [
     movie.title,
     movie.desc,
     movie.actors,
@@ -1943,26 +2170,59 @@ function getExploreMovieText(movie) {
     ...(movie.mainScene || []),
     ...(movie.subScene || []),
     ...(movie.keywords || [])
-  ].join(" ").normalize("NFKC").toLowerCase();
+  ];
+
+  if (includeRaw) values.push(...flattenExploreValues(movie.raw || {}));
+  return values.filter(Boolean);
 }
 
-function movieMatchesExploreKeyword(movie, keyword) {
-  const rawKeyword = String(keyword || "").trim().normalize("NFKC").toLowerCase();
-  if (!rawKeyword) return true;
+function getExploreAliases(keyword) {
+  const normalizedKeyword = normalizeExploreText(keyword);
+  if (!normalizedKeyword) return [];
 
-  const categoryKey = resolveCategoryKey(rawKeyword);
-  const aliases = categoryKey ? CATEGORY_RULES[categoryKey] : [rawKeyword];
-  const movieText = getExploreMovieText(movie);
-  return aliases.some(alias => movieText.includes(String(alias).normalize("NFKC").toLowerCase()));
+  const category = Object.entries(CATEGORY_RULES).find(([name, aliases]) => {
+    if (normalizeExploreText(name) === normalizedKeyword) return true;
+    return aliases.some(alias => normalizeExploreText(alias) === normalizedKeyword);
+  });
+
+  return category ? category[1] : [keyword];
 }
 
-function shuffleArray(items) {
-  const shuffled = [...items];
-  for (let i = shuffled.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
+function movieMatchesExploreAliases(movie, aliases = []) {
+  const values = getMovieExploreValues(movie);
+  return aliases.some(alias => values.some(value => textContainsExploreAlias(value, alias)));
+}
+
+function computeExploreMatchScore(movie, aliases = []) {
+  const needles = aliases.map(normalizeExploreText).filter(Boolean);
+
+  if (!needles.length) return null;
+
+  const fields = [
+    { values: [movie.title], score: 100 },
+    { values: movie.genre || [], score: 96 },
+    { values: movie.mood || [], score: 92 },
+    { values: movie.keywords || [], score: 90 },
+    { values: [...(movie.mainScene || []), ...(movie.subScene || [])], score: 86 },
+    { values: [movie.desc], score: 74 },
+    { values: [movie.actors], score: 68 }
+  ];
+
+  let best = 0;
+
+  fields.forEach(field => {
+    const haystack = field.values.join(" ");
+    if (!haystack) return;
+
+    needles.forEach(needle => {
+      if (!needle) return;
+      if (textContainsExploreAlias(haystack, needle)) {
+        best = Math.max(best, field.score);
+      }
+    });
+  });
+
+  return best || 60;
 }
 
 function renderExploreResults(keyword = "") {
@@ -1970,15 +2230,14 @@ function renderExploreResults(keyword = "") {
   if (!list) return;
 
   let targetMovies = dedupeMovies(allMovies);
-  const key = String(keyword || "").trim();
+  const key = normalizeExploreText(keyword);
+  const activeAliases = getExploreAliases(key);
   if (key) {
-    targetMovies = targetMovies.filter(movie => movieMatchesExploreKeyword(movie, key));
+    targetMovies = targetMovies.filter(movie => movieMatchesExploreAliases(movie, activeAliases));
   }
 
   if (appSettings.noHorror) {
-    targetMovies = targetMovies.filter(movie => (
-      !movieMatchesExploreKeyword(movie, "恐怖") && !movieMatchesExploreKeyword(movie, "驚悚")
-    ));
+    targetMovies = targetMovies.filter(m => !m.genre.includes("恐怖") && !m.genre.includes("驚悚"));
   }
   if (appSettings.noSad) {
     targetMovies = targetMovies.filter(m => !m.genre.includes("悲劇") && !m.mood.includes("悲傷") && !m.mood.includes("心碎"));
@@ -1988,10 +2247,10 @@ function renderExploreResults(keyword = "") {
   } else if (appSettings.prefNiche) {
     targetMovies.sort((a, b) => getViewCount(a) - getViewCount(b));
   } else {
-    targetMovies = shuffleArray(targetMovies);
+    targetMovies = shuffledCopy(targetMovies);
   }
 
-  const displayMovies = targetMovies.slice(0, 24);
+  const displayMovies = targetMovies.slice(0, key ? EXPLORE_RESULT_LIMIT : 18);
   if (!displayMovies.length) {
     list.innerHTML = `<div class="empty-state">找不到相關電影，試試其他分類吧！</div>`;
     return;
@@ -2003,11 +2262,12 @@ function renderExploreResults(keyword = "") {
     const card = document.createElement("article");
     card.className = "explore-movie-card";
     const tags = topTags(movie).slice(0, 5).map(t => `<span>${escapeHtml(t)}</span>`).join("");
-    const mockScore = Math.floor(Math.random() * 20 + 80);
+    const exploreScore = computeExploreMatchScore(movie, activeAliases);
     const collected = isFavorite(movie);
+    const scoreBadge = exploreScore === null ? "探索" : `${exploreScore}% 匹配`;
     card.innerHTML = `
       <div class="explore-poster" style="background-image:url('${safeAttr(movie.poster)}')">
-        <div class="explore-score-badge">${mockScore}% ♡</div>
+        <div class="explore-score-badge">${scoreBadge}</div>
       </div>
       <div class="explore-info">
         <h4>${escapeHtml(movie.title)}</h4>
@@ -2035,7 +2295,7 @@ function renderExploreResults(keyword = "") {
         }
         return;
       }
-      openModal(movie, mockScore / 100);
+      openModal(movie, exploreScore === null ? 0 : exploreScore / 100);
     });
     list.appendChild(card);
   });
@@ -2156,15 +2416,24 @@ function bindSettingsUI() {
     if ($("setNoHorror")) $("setNoHorror").checked = appSettings.noHorror;
     if ($("setNoSad")) $("setNoSad").checked = appSettings.noSad;
 
-    document.querySelectorAll(".seg-btn").forEach(b => {
-      b.classList.toggle("active", b.getAttribute("data-val") === appSettings.cardSize);
+    document.querySelectorAll(".seg-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-val") === appSettings.cardSize);
     });
 
     document.body.classList.toggle("light-mode", !appSettings.themeDark);
+    document.documentElement.style.colorScheme = appSettings.themeDark ? "dark" : "light";
+
     document.body.classList.toggle("disable-animations", !appSettings.anim);
+
     document.body.classList.remove("card-size-small", "card-size-large");
     if (appSettings.cardSize === "小") document.body.classList.add("card-size-small");
     if (appSettings.cardSize === "大") document.body.classList.add("card-size-large");
+  };
+
+  const refreshBySettings = () => {
+    applyVisualSettings();
+    renderExploreResults($("exploreSearchInput")?.value || "");
+    renderRecommendations();
   };
 
   applyVisualSettings();
@@ -2181,20 +2450,29 @@ function bindSettingsUI() {
   Object.keys(toggleMap).forEach(id => {
     const el = $(id);
     if (!el) return;
-    el.addEventListener("change", (e) => {
-      appSettings[toggleMap[id]] = e.target.checked;
+
+    el.addEventListener("change", e => {
+      const settingKey = toggleMap[id];
+      appSettings[settingKey] = e.target.checked;
+
+      if (id === "setPrefPop" && e.target.checked) {
+        appSettings.prefNiche = false;
+      }
+
+      if (id === "setPrefNiche" && e.target.checked) {
+        appSettings.prefPop = false;
+      }
+
       saveAppSettings();
-      applyVisualSettings();
-      renderExploreResults($("exploreSearchInput")?.value || "");
-      renderRecommendations();
+      refreshBySettings();
     });
   });
 
   document.querySelectorAll(".seg-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      appSettings.cardSize = btn.getAttribute("data-val");
+      appSettings.cardSize = btn.getAttribute("data-val") || "中";
       saveAppSettings();
-      applyVisualSettings();
+      refreshBySettings();
     });
   });
 
@@ -2210,19 +2488,27 @@ function bindSettingsUI() {
   });
 
   $("resetAllDataBtn")?.addEventListener("click", () => {
-    if (confirm("將清除所有記憶、會員登入狀態與設定，確定繼續？")) {
-      localStorage.clear();
-      location.reload();
-    }
+    if (!confirm("確定要把外觀與推薦偏好恢復成預設值嗎？")) return;
+
+    appSettings = { ...DEFAULT_APP_SETTINGS };
+    saveAppSettings();
+    refreshBySettings();
+    alert("設定已恢復預設值。");
   });
 
-  $("saveSettingsBtn")?.addEventListener("click", (e) => {
-    e.target.textContent = "✓ 設定已儲存";
-    e.target.style.background = "#6ccf91";
+  $("saveSettingsBtn")?.addEventListener("click", e => {
+    saveAppSettings();
+    applyVisualSettings();
+
+    const btn = e.currentTarget;
+    const oldText = btn.textContent;
+    btn.textContent = "✓ 設定已儲存";
+    btn.classList.add("saved");
+
     setTimeout(() => {
-      e.target.textContent = "儲存設定";
-      e.target.style.background = "linear-gradient(90deg, #8e63ff, #f06ba7)";
-    }, 1500);
+      btn.textContent = oldText || "儲存設定";
+      btn.classList.remove("saved");
+    }, 1300);
   });
 }
 
@@ -2661,30 +2947,27 @@ function getNextRecommendedMovie(currentMovieId) {
   const scored = allMovies
     .filter(movie => {
       const key = getMovieKey(movie);
-
-      // 排除目前這一部
       if (key === currentKey) return false;
-
-      // 排除已經評價過的電影
       if (ratedKeys.has(key)) return false;
-
+      if (!moviePassesPreferenceFilters(movie)) return false;
       return true;
     })
     .map(movie => ({
       movie,
-      score: computeScore(movie)
+      score: computeScore(movie),
+      rankScore: computeRankingScore(movie)
     }))
     .sort((a, b) => {
       const av = getViewCount(a.movie);
       const bv = getViewCount(b.movie);
-      return b.score - a.score || bv - av;
+      return b.rankScore - a.rankScore || bv - av;
     });
 
-  // 優先找有分數的電影
-  const next = scored.find(item => item.score > 0);
+  if (hasRecommendationCriteria()) {
+    return scored.find(item => item.score > 0) || scored[0] || null;
+  }
 
-  // 如果沒有符合分數的，就拿第一部未評價電影
-  return next || scored[0] || null;
+  return scored[0] || null;
 }
 
 function getMovieKey(movie) {
@@ -2863,7 +3146,6 @@ document.addEventListener("DOMContentLoaded", () => {
   menuToggle.addEventListener("click", () => {
     const isOpen = sideNav.classList.toggle("show");
 
-    menuToggle.textContent = isOpen ? "✕" : "☰";
     menuToggle.setAttribute("aria-expanded", String(isOpen));
   });
 
@@ -2871,7 +3153,6 @@ document.addEventListener("DOMContentLoaded", () => {
     button.addEventListener("click", () => {
       if (window.innerWidth <= 768) {
         sideNav.classList.remove("show");
-        menuToggle.textContent = "☰";
         menuToggle.setAttribute("aria-expanded", "false");
       }
     });
@@ -2956,7 +3237,7 @@ window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
 
   if (installAppBtn) {
-    installAppBtn.textContent = "✓ Moodluma 已安裝";
+    installAppBtn.innerHTML = `<span class="icon-label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg><span>Moodluma 已安裝</span></span>`;
     installAppBtn.disabled = true;
   }
 });
