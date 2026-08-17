@@ -4993,3 +4993,2053 @@ body.light-mode .settings-card {
 #page-home .hint-card strong {
   color: #ffffff !important;
 }
+
+.ui-icon {
+  width: 1.1em;
+  height: 1.1em;
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: -0.16em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 20px;
+}
+
+.nav-icon .ui-icon,
+.icon-label .ui-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-label,
+.view-count,
+.setting-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.menu-toggle .menu-icon-close {
+  display: none;
+}
+
+.menu-toggle[aria-expanded="true"] .menu-icon-open {
+  display: none;
+}
+
+.menu-toggle[aria-expanded="true"] .menu-icon-close {
+  display: block;
+}
+
+.cat-btn .icon .ui-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.movie-fav-btn .ui-icon {
+  width: 21px;
+  height: 21px;
+}
+
+.play-circle .ui-icon {
+  width: 19px;
+  height: 19px;
+}
+
+.about-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.about-icon .ui-icon {
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 900px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+  }
+
+  html {
+    scroll-padding-top: env(safe-area-inset-top);
+  }
+
+  body {
+    min-width: 0 !important;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overscroll-behavior-x: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  img,
+  video,
+  iframe {
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  .app-shell {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .sidebar {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    padding:
+      max(18px, env(safe-area-inset-top))
+      max(18px, env(safe-area-inset-right))
+      18px
+      max(18px, env(safe-area-inset-left)) !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
+    overflow: visible !important;
+    z-index: 70 !important;
+  }
+
+  .brand {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding-right: 64px !important;
+  }
+
+  .brand-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .brand-logo {
+    width: 44px !important;
+    height: 44px !important;
+    flex: 0 0 44px !important;
+    object-fit: contain !important;
+  }
+
+  .brand h1 {
+    margin: 0 !important;
+    font-size: 25px !important;
+    line-height: 1.12 !important;
+  }
+
+  .brand > p {
+    margin: 5px 0 0 !important;
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+  }
+
+  .ad-banner {
+    width: 100% !important;
+    height: 56px !important;
+    min-height: 56px !important;
+    margin: 18px 0 0 !important;
+    border-radius: 16px !important;
+    font-size: 12px !important;
+  }
+
+  .menu-toggle {
+    display: grid !important;
+    place-items: center !important;
+    position: absolute !important;
+    top: max(18px, env(safe-area-inset-top)) !important;
+    right: max(18px, env(safe-area-inset-right)) !important;
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+    padding: 0 !important;
+    border-radius: 14px !important;
+    font-size: 0 !important;
+  }
+
+  .menu-toggle .ui-icon {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .side-nav {
+    display: none !important;
+    width: 100% !important;
+    margin: 16px 0 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    white-space: normal !important;
+  }
+
+  .side-nav.show {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .side-nav .nav-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 52px !important;
+    padding: 0 18px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    border-radius: 16px !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+  }
+
+  .side-nav .nav-btn span:not(.nav-icon) {
+    display: inline !important;
+    font-size: 16px !important;
+  }
+
+  .main {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding:
+      24px
+      max(14px, env(safe-area-inset-right))
+      calc(44px + env(safe-area-inset-bottom))
+      max(14px, env(safe-area-inset-left)) !important;
+  }
+
+  .page-view,
+  .topbar,
+  .search-panel,
+  .hero-layout,
+  .info-row,
+  .group-panel,
+  .settings-grid,
+  .explore-content,
+  .collection-content {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .topbar {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+    align-items: start !important;
+    margin-bottom: 20px !important;
+  }
+
+  .topbar h2,
+  .page-view header h2 {
+    margin: 4px 0 10px !important;
+    font-size: clamp(34px, 9.5vw, 44px) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -1.1px !important;
+  }
+
+  .topbar > div:first-child > p:not(.eyebrow) {
+    margin: 0 !important;
+    font-size: 15px !important;
+    line-height: 1.65 !important;
+  }
+
+  .eyebrow {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    letter-spacing: 0.14em !important;
+  }
+
+  .top-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    justify-content: stretch !important;
+  }
+
+  .top-actions button,
+  .top-actions .user-btn,
+  .top-actions .install-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 46px !important;
+    padding: 10px 10px !important;
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    border-radius: 15px !important;
+  }
+
+  #installAppBtn {
+    grid-column: 1 / -1 !important;
+  }
+
+  .search-panel {
+    margin-bottom: 18px !important;
+  }
+
+  .search-box,
+  .explore-search-box {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 10px !important;
+    border-radius: 19px !important;
+  }
+
+  .search-box input,
+  .explore-search-box input {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 48px !important;
+    padding: 0 14px !important;
+    font-size: 16px !important;
+    border-radius: 14px !important;
+  }
+
+  .search-box button,
+  .explore-search-box button {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 46px !important;
+    border-radius: 14px !important;
+    font-size: 15px !important;
+  }
+
+  .hero-layout,
+  .info-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .mood-stage-card,
+  .recommend-card,
+  .how-card,
+  .hint-card,
+  .group-panel,
+  .settings-panel {
+    border-radius: 22px !important;
+  }
+
+  .mood-stage-card,
+  .recommend-card {
+    padding: 16px !important;
+  }
+
+  .stage-head,
+  .recommend-head {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    align-items: start !important;
+    margin-bottom: 14px !important;
+  }
+
+  .stage-head h3,
+  .recommend-head h3,
+  .how-card h3,
+  .hint-card h3 {
+    font-size: 22px !important;
+    line-height: 1.25 !important;
+  }
+
+  .stage-head p,
+  .recommend-head p,
+  .hint-card p {
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+  }
+
+  #shuffleBtn,
+  #viewAllBtn {
+    width: auto !important;
+    min-width: 118px !important;
+    min-height: 44px !important;
+    justify-self: start !important;
+    padding: 0 16px !important;
+    border-radius: 14px !important;
+  }
+
+  .mood-stage {
+    width: 100% !important;
+    max-width: 470px !important;
+    min-height: 420px !important;
+    height: 420px !important;
+    margin-inline: auto !important;
+    border-radius: 22px !important;
+    overflow: hidden !important;
+  }
+
+  .orbit {
+    width: auto !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  .orbit-1 { width: 34% !important; }
+  .orbit-2 { width: 67% !important; }
+  .orbit-3 { width: 92% !important; }
+
+  .drop-zone {
+    width: clamp(108px, 31vw, 124px) !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  .drop-zone span {
+    font-size: 12px !important;
+  }
+
+  .drop-zone strong {
+    margin-top: -12px !important;
+    font-size: 16px !important;
+  }
+
+  .drop-zone small {
+    margin-top: -22px !important;
+    max-width: 100px !important;
+    font-size: 9px !important;
+    line-height: 1.35 !important;
+  }
+
+  .mood-bubble {
+    padding: 5px !important;
+    box-shadow:
+      0 0 18px var(--glow),
+      inset 0 0 20px rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .mood-bubble > span {
+    width: 100% !important;
+  }
+
+  .mood-bubble .icon {
+    font-size: 17px !important;
+    margin-bottom: 2px !important;
+  }
+
+  .mood-bubble .tag {
+    width: 100% !important;
+    max-width: 54px !important;
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .mood-bubble .kind {
+    display: block !important;
+    margin-top: 1px !important;
+    font-size: 8px !important;
+    line-height: 1.1 !important;
+  }
+
+  .selected-row {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-top: 12px !important;
+    padding: 12px !important;
+    gap: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .selected-row > span {
+    width: auto !important;
+    font-size: 13px !important;
+  }
+
+  .selected-tags {
+    flex: 1 1 140px !important;
+    min-width: 0 !important;
+    gap: 7px !important;
+  }
+
+  #resetBtn {
+    min-width: 64px !important;
+    min-height: 42px !important;
+    margin-left: auto !important;
+  }
+
+  .recommend-list {
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 12px !important;
+    margin: 16px 0 !important;
+  }
+
+  .movie-item {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: 78px minmax(0, 1fr) 46px !important;
+    gap: 10px !important;
+    align-items: start !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .poster {
+    width: 78px !important;
+    height: 108px !important;
+    border-radius: 10px !important;
+    object-fit: cover !important;
+  }
+
+  .movie-item > div:nth-child(2) {
+    min-width: 0 !important;
+  }
+
+  .movie-item h4 {
+    margin: 0 0 6px !important;
+    font-size: 16px !important;
+    line-height: 1.3 !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .movie-meta {
+    gap: 5px !important;
+    margin-bottom: 7px !important;
+  }
+
+  .movie-meta span {
+    padding: 4px 6px !important;
+    font-size: 9px !important;
+  }
+
+  .movie-desc,
+  .movie-actors {
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+
+  .movie-desc {
+    -webkit-line-clamp: 2 !important;
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+  }
+
+  .movie-actors {
+    -webkit-line-clamp: 2 !important;
+    margin-top: 5px !important;
+    font-size: 9px !important;
+    line-height: 1.4 !important;
+  }
+
+  .movie-score {
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 5px !important;
+    text-align: center !important;
+    white-space: normal !important;
+    font-size: 14px !important;
+  }
+
+  .movie-score small {
+    margin: 0 !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+  }
+
+  .movie-fav-btn,
+  .play-circle {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    border-radius: 50% !important;
+  }
+
+  .wide-btn {
+    min-height: 48px !important;
+    padding: 12px 16px !important;
+  }
+
+  .how-card,
+  .hint-card {
+    padding: 18px !important;
+  }
+
+  .steps {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+  }
+
+  .steps div {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 14px 12px !important;
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .steps div:nth-child(odd) {
+    border-right: 1px solid rgba(255,255,255,.12) !important;
+  }
+
+  .steps b {
+    width: 28px !important;
+    height: 28px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .steps h4 {
+    font-size: 14px !important;
+  }
+
+  .steps p {
+    font-size: 11px !important;
+    line-height: 1.55 !important;
+  }
+
+  .category-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .cat-btn {
+    min-width: 0 !important;
+    padding: 11px 4px !important;
+    gap: 7px !important;
+    border-radius: 14px !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+  }
+
+  .cat-btn .icon {
+    width: 38px !important;
+    height: 38px !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 0 !important;
+  }
+
+  .cat-btn .icon .ui-icon {
+    width: 21px !important;
+    height: 21px !important;
+  }
+
+  .tag-pills {
+    gap: 8px !important;
+  }
+
+  .tag-pills button {
+    padding: 9px 11px !important;
+    font-size: 11px !important;
+  }
+
+  .explore-result-grid,
+  body.card-size-small .explore-result-grid,
+  body.card-size-large .explore-result-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .explore-movie-card {
+    min-width: 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+
+  .explore-poster {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 2 / 3 !important;
+    object-fit: cover !important;
+  }
+
+  .explore-score-badge {
+    top: 6px !important;
+    right: 6px !important;
+    padding: 4px 6px !important;
+    font-size: 9px !important;
+  }
+
+  .explore-info {
+    min-width: 0 !important;
+    padding: 10px !important;
+    display: grid !important;
+    gap: 8px !important;
+  }
+
+  .explore-info h4,
+  body.card-size-small .explore-movie-card h4,
+  body.card-size-large .explore-movie-card h4 {
+    min-height: 38px !important;
+    margin: 0 !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    overflow: hidden !important;
+  }
+
+  .explore-meta {
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+  }
+
+  .explore-tags {
+    min-width: 0 !important;
+    min-height: 24px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+    overflow: hidden !important;
+  }
+
+  .explore-tags span {
+    max-width: 100% !important;
+    padding: 4px 6px !important;
+    border-radius: 999px !important;
+    font-size: 9px !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .add-col-card-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    padding: 8px 6px !important;
+    border-radius: 12px !important;
+    font-size: 11px !important;
+  }
+
+  .collection-tabs {
+    width: 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    overscroll-behavior-inline: contain !important;
+    scrollbar-width: none !important;
+    padding: 2px 0 10px !important;
+    margin-bottom: 18px !important;
+    white-space: nowrap !important;
+  }
+
+  .collection-tabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .collection-tabs .tab-btn {
+    flex: 0 0 auto !important;
+    min-height: 40px !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+    border-radius: 999px !important;
+  }
+
+  .add-collection-btn {
+    width: fit-content !important;
+    min-height: 44px !important;
+    padding: 0 16px !important;
+  }
+
+  .collection-empty {
+    min-height: 330px !important;
+    padding: 42px 18px !important;
+  }
+
+  .group-panel {
+    padding: 16px !important;
+    gap: 16px !important;
+  }
+
+  .group-head,
+  .group-summary {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .group-head h3 {
+    font-size: 24px !important;
+  }
+
+  .room-box {
+    width: 100% !important;
+    text-align: left !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .group-controls,
+  .join-room-box,
+  .party-add-row,
+  .party-room-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .group-controls input,
+  .group-controls button,
+  .join-room-box input,
+  .join-room-box button,
+  .party-add-row input,
+  .party-add-row button,
+  .party-room-row input,
+  .party-room-row button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+  }
+
+  .role-select-panel {
+    padding: 14px !important;
+    border-radius: 18px !important;
+  }
+
+  .role-select-head {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-items: start !important;
+    gap: 6px !important;
+  }
+
+  .role-select-head h3 {
+    font-size: 18px !important;
+    white-space: normal !important;
+  }
+
+  .role-select-head p {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+  }
+
+  .role-list,
+  .role-options,
+  .party-role-compact .role-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .role-option,
+  .party-role-compact .role-option {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 112px !important;
+    padding: 10px 4px !important;
+    border-radius: 15px !important;
+  }
+
+  .role-option img,
+  .party-role-compact .role-option img {
+    width: 62px !important;
+    height: 62px !important;
+    max-height: 62px !important;
+    object-fit: contain !important;
+  }
+
+  .role-option span {
+    font-size: 12px !important;
+  }
+
+  .member-list {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .member-card {
+    min-width: 0 !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .member-role-img {
+    width: 48px !important;
+    height: 48px !important;
+    object-fit: contain !important;
+  }
+
+  .member-actions {
+    gap: 7px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .member-actions button {
+    min-height: 34px !important;
+    padding: 0 10px !important;
+  }
+
+  .group-summary {
+    min-height: 0 !important;
+    padding: 16px !important;
+  }
+
+  .party-bottom-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .party-bottom-actions > button,
+  .party-room-pill {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .settings-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    margin-top: 18px !important;
+  }
+
+  .settings-col {
+    display: grid !important;
+    grid-template-rows: auto !important;
+    gap: 16px !important;
+  }
+
+  .settings-panel {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 18px !important;
+  }
+
+  .settings-panel h3 {
+    margin-bottom: 18px !important;
+    font-size: 17px !important;
+  }
+
+  .set-row {
+    min-height: 46px !important;
+    margin-bottom: 10px !important;
+    gap: 12px !important;
+    font-size: 14px !important;
+  }
+
+  .setting-label {
+    min-width: 0 !important;
+  }
+
+  .setting-label .ui-icon {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .toggle-switch {
+    flex: 0 0 44px !important;
+  }
+
+  .segmented-control {
+    width: 100% !important;
+  }
+
+  .seg-btn {
+    min-height: 42px !important;
+  }
+
+  .list-btn {
+    min-height: 48px !important;
+    padding: 10px 4px !important;
+  }
+
+  .about-panel > div {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    gap: 12px !important;
+  }
+
+  .about-icon {
+    padding: 6px !important;
+  }
+
+  .save-settings-btn {
+    width: min(210px, 100%) !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    margin: 18px auto 0 !important;
+    padding: 12px 22px !important;
+  }
+
+  .movie-modal,
+  .auth-modal,
+  .library-modal,
+  .member-modal {
+    padding:
+      max(10px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      max(10px, env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left)) !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .modal-panel {
+    width: min(100%, 520px) !important;
+    max-width: 520px !important;
+    max-height: calc(100dvh - 20px) !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    border-radius: 22px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+  }
+
+  .modal-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    padding: 0 !important;
+    font-size: 24px !important;
+  }
+
+  .modal-cover {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: clamp(220px, 66vw, 300px) !important;
+    background-position: center 28% !important;
+  }
+
+  .modal-cover::after {
+    background: linear-gradient(to top, rgba(69, 83, 186, 0.78), transparent 62%) !important;
+  }
+
+  .modal-content {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 24px 18px 22px !important;
+    justify-content: flex-start !important;
+  }
+
+  .modal-content h2 {
+    margin-bottom: 12px !important;
+    font-size: clamp(30px, 9vw, 40px) !important;
+    line-height: 1.12 !important;
+    letter-spacing: -1px !important;
+  }
+
+  .modal-meta {
+    gap: 6px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .modal-meta span {
+    padding: 6px 8px !important;
+    font-size: 10px !important;
+  }
+
+  #modalDesc {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+  }
+
+  .modal-actors {
+    font-size: 12px !important;
+    line-height: 1.6 !important;
+  }
+
+  .modal-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 18px !important;
+  }
+
+  .modal-actions > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    padding: 10px 8px !important;
+    font-size: 11px !important;
+  }
+
+  .modal-actions > *:first-child {
+    grid-column: 1 / -1 !important;
+  }
+
+  .feedback-box {
+    margin-top: 18px !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .feedback-box h3 {
+    font-size: 16px !important;
+  }
+
+  .feedback-temperature,
+  .temp-meter {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .temp-submit-btn {
+    width: 100% !important;
+    min-height: 44px !important;
+  }
+
+  .auth-panel,
+  .library-panel,
+  .member-panel,
+  .forgot-password-panel {
+    width: min(100%, 520px) !important;
+    max-width: 520px !important;
+    max-height: calc(100dvh - 20px) !important;
+    margin: 0 !important;
+    padding: 22px 18px !important;
+    overflow-y: auto !important;
+    border-radius: 22px !important;
+  }
+
+  .library-head {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .library-card {
+    grid-template-columns: 76px minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .member-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .temperature-panel {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    padding: 16px !important;
+  }
+
+  .temperature-control {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    gap: 10px !important;
+  }
+
+  body.light-mode .app-shell,
+  body.light-mode .main,
+  body.light-mode .page-view {
+    background: transparent !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .main {
+    padding-inline: 12px !important;
+  }
+
+  .top-actions button,
+  .top-actions .user-btn,
+  .top-actions .install-btn {
+    font-size: 13px !important;
+    padding-inline: 8px !important;
+  }
+
+  .mood-stage {
+    min-height: 404px !important;
+    height: 404px !important;
+  }
+
+  .mood-bubble .tag {
+    max-width: 50px !important;
+    font-size: 10px !important;
+  }
+
+  .mood-bubble .kind {
+    font-size: 8px !important;
+  }
+
+  .movie-item {
+    grid-template-columns: 70px minmax(0, 1fr) 42px !important;
+    gap: 8px !important;
+  }
+
+  .poster {
+    width: 70px !important;
+    height: 100px !important;
+  }
+
+  .movie-fav-btn,
+  .play-circle {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .explore-result-grid,
+  body.card-size-small .explore-result-grid,
+  body.card-size-large .explore-result-grid {
+    gap: 10px !important;
+  }
+
+  .explore-info {
+    padding: 9px !important;
+  }
+
+  .explore-info h4,
+  body.card-size-small .explore-movie-card h4,
+  body.card-size-large .explore-movie-card h4 {
+    font-size: 12px !important;
+  }
+
+  .role-list,
+  .role-options,
+  .party-role-compact .role-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .role-option img,
+  .party-role-compact .role-option img {
+    width: 56px !important;
+    height: 56px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .top-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  #installAppBtn {
+    grid-column: auto !important;
+  }
+
+  .steps {
+    grid-template-columns: 1fr !important;
+  }
+
+  .steps div:nth-child(odd) {
+    border-right: 0 !important;
+  }
+
+  .explore-result-grid,
+  body.card-size-small .explore-result-grid,
+  body.card-size-large .explore-result-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .role-list,
+  .role-options,
+  .party-role-compact .role-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* ===== Mobile v2: compact home cards, functional settings, complete light theme ===== */
+
+.match-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  min-width: 58px;
+}
+
+.match-info strong {
+  color: inherit;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.match-info small {
+  margin: 0;
+}
+
+.movie-main-info {
+  min-width: 0;
+}
+
+.setting-note {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0.72;
+}
+
+.save-settings-btn.saved {
+  background: #63D6A3 !important;
+  box-shadow: 0 10px 26px rgba(99, 214, 163, 0.24) !important;
+}
+
+/* Desktop card size now also changes recommendation cards */
+body.card-size-small .movie-item {
+  grid-template-columns: 72px 1fr auto;
+}
+body.card-size-small .movie-item .poster {
+  width: 72px;
+  height: 100px;
+}
+body.card-size-small .movie-item h4 {
+  font-size: 15px;
+}
+
+body.card-size-large .movie-item {
+  grid-template-columns: 112px 1fr auto;
+}
+body.card-size-large .movie-item .poster {
+  width: 112px;
+  height: 154px;
+}
+body.card-size-large .movie-item h4 {
+  font-size: 20px;
+}
+
+/* Full light theme: every major surface changes, not only the top area */
+body.light-mode {
+  --text: #17213f !important;
+  --muted: #53617f !important;
+  --soft: #74809b !important;
+  --line: rgba(58, 78, 150, 0.18) !important;
+  color: #17213f !important;
+  background:
+    radial-gradient(circle at 14% 8%, rgba(145, 140, 255, 0.20), transparent 34%),
+    radial-gradient(circle at 84% 10%, rgba(99, 214, 255, 0.22), transparent 34%),
+    linear-gradient(135deg, #eef1ff 0%, #e4ecff 48%, #dff6ff 100%) !important;
+}
+
+body.light-mode .app-shell,
+body.light-mode .main,
+body.light-mode .page-view {
+  background: transparent !important;
+}
+
+body.light-mode .sidebar {
+  background: rgba(244, 247, 255, 0.86) !important;
+  border-color: rgba(58, 78, 150, 0.16) !important;
+  box-shadow: 12px 0 34px rgba(62, 81, 156, 0.09) !important;
+}
+
+body.light-mode .brand h1,
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode h4,
+body.light-mode h5,
+body.light-mode h6,
+body.light-mode strong,
+body.light-mode .topbar h2,
+body.light-mode .page-view header h2,
+body.light-mode .settings-panel h3 {
+  color: #17213f !important;
+  text-shadow: none !important;
+}
+
+body.light-mode p,
+body.light-mode small,
+body.light-mode label,
+body.light-mode .brand p,
+body.light-mode .topbar p,
+body.light-mode .stage-head p,
+body.light-mode .recommend-head p,
+body.light-mode .hint-card p,
+body.light-mode .movie-desc,
+body.light-mode .movie-actors,
+body.light-mode .db-status,
+body.light-mode .set-row,
+body.light-mode .setting-note {
+  color: #53617f !important;
+}
+
+body.light-mode .mood-stage-card,
+body.light-mode .recommend-card,
+body.light-mode .how-card,
+body.light-mode .hint-card,
+body.light-mode .group-panel,
+body.light-mode .settings-card,
+body.light-mode .settings-panel,
+body.light-mode .explore-movie-card,
+body.light-mode .library-card,
+body.light-mode .role-select-panel,
+body.light-mode .temperature-panel,
+body.light-mode .feedback-box,
+body.light-mode .room-box,
+body.light-mode .group-summary,
+body.light-mode .member-card,
+body.light-mode .collection-card,
+body.light-mode .panel,
+body.light-mode .card {
+  background: rgba(255, 255, 255, 0.64) !important;
+  border-color: rgba(58, 78, 150, 0.16) !important;
+  box-shadow:
+    0 18px 46px rgba(69, 87, 161, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
+}
+
+body.light-mode #page-home .recommend-card {
+  background: rgba(255, 255, 255, 0.62) !important;
+}
+
+body.light-mode .movie-item,
+body.light-mode #page-home .recommend-list .movie-item,
+body.light-mode #page-home .recommend-list article,
+body.light-mode .explore-info {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border-color: rgba(58, 78, 150, 0.14) !important;
+}
+
+body.light-mode .movie-item h4,
+body.light-mode .explore-info h4,
+body.light-mode .library-info h3,
+body.light-mode .member-card h4 {
+  color: #17213f !important;
+}
+
+body.light-mode .movie-meta span,
+body.light-mode .explore-tags span,
+body.light-mode .chip,
+body.light-mode .group-tag,
+body.light-mode .group-badge,
+body.light-mode .col-badge,
+body.light-mode .explore-score-badge {
+  color: #314164 !important;
+  background: rgba(93, 112, 186, 0.10) !important;
+  border-color: rgba(58, 78, 150, 0.13) !important;
+}
+
+body.light-mode .search-box,
+body.light-mode .explore-search-box {
+  background: rgba(255, 255, 255, 0.64) !important;
+  border-color: rgba(58, 78, 150, 0.16) !important;
+}
+
+body.light-mode .search-box input,
+body.light-mode .explore-search-box input,
+body.light-mode .group-controls input,
+body.light-mode .join-room-box input,
+body.light-mode .auth-form input,
+body.light-mode input[type="text"],
+body.light-mode input[type="email"],
+body.light-mode input[type="password"],
+body.light-mode textarea {
+  color: #17213f !important;
+  background: rgba(255, 255, 255, 0.74) !important;
+  border-color: rgba(58, 78, 150, 0.14) !important;
+}
+
+body.light-mode input::placeholder,
+body.light-mode textarea::placeholder {
+  color: #7d89a4 !important;
+}
+
+body.light-mode .top-actions button,
+body.light-mode .top-actions .user-btn,
+body.light-mode .top-actions .install-btn,
+body.light-mode #shuffleBtn,
+body.light-mode #viewAllBtn,
+body.light-mode #resetBtn,
+body.light-mode .detail-btn,
+body.light-mode .member-actions button,
+body.light-mode .list-btn,
+body.light-mode .room-small-btn,
+body.light-mode .collection-tabs .tab-btn,
+body.light-mode .seg-btn,
+body.light-mode .col-opt-btn {
+  color: #243354 !important;
+  background: rgba(255, 255, 255, 0.58) !important;
+  border-color: rgba(58, 78, 150, 0.16) !important;
+}
+
+body.light-mode .side-nav .nav-btn {
+  color: #40506f !important;
+}
+
+body.light-mode .side-nav .nav-btn.active,
+body.light-mode .side-nav .nav-btn:hover {
+  color: #1b2a4c !important;
+  background: rgba(145, 140, 255, 0.18) !important;
+  border-color: rgba(88, 102, 184, 0.20) !important;
+}
+
+body.light-mode .mood-stage {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(145, 140, 255, 0.14), transparent 48%),
+    rgba(255, 255, 255, 0.30) !important;
+}
+
+body.light-mode .orbit {
+  border-color: rgba(65, 83, 151, 0.18) !important;
+}
+
+body.light-mode .drop-zone {
+  background: radial-gradient(circle, rgba(145, 140, 255, 0.22), rgba(99, 214, 255, 0.12)) !important;
+  border-color: rgba(65, 83, 151, 0.20) !important;
+}
+
+body.light-mode .drop-zone span,
+body.light-mode .drop-zone strong,
+body.light-mode .drop-zone small {
+  color: #26375d !important;
+}
+
+body.light-mode .mood-bubble *,
+body.light-mode .mood-bubble .icon,
+body.light-mode .mood-bubble .tag,
+body.light-mode .mood-bubble .kind {
+  color: #ffffff !important;
+}
+
+body.light-mode .modal-panel,
+body.light-mode .auth-panel,
+body.light-mode .library-panel,
+body.light-mode .member-panel,
+body.light-mode .forgot-password-panel {
+  color: #17213f !important;
+  background: rgba(243, 247, 255, 0.94) !important;
+  border-color: rgba(58, 78, 150, 0.16) !important;
+}
+
+body.light-mode .modal-content h2,
+body.light-mode .auth-panel h2,
+body.light-mode .library-panel h2,
+body.light-mode .member-panel h2 {
+  color: #17213f !important;
+}
+
+body.light-mode .modal-backdrop {
+  background: rgba(65, 78, 151, 0.22) !important;
+}
+
+body.light-mode .toggle-switch .slider {
+  background: #c8d3e8 !important;
+}
+
+body.light-mode .toggle-switch input:checked + .slider {
+  background: linear-gradient(135deg, #918CFF, #63D6FF) !important;
+}
+
+/* Primary actions remain high-contrast in light mode */
+body.light-mode .search-box button,
+body.light-mode .explore-search-box button,
+body.light-mode .wide-btn,
+body.light-mode #addMemberBtn,
+body.light-mode #groupModeBtn,
+body.light-mode #joinRoomBtn,
+body.light-mode .auth-submit,
+body.light-mode .save-settings-btn,
+body.light-mode .collection-empty .primary-btn,
+body.light-mode .play-circle,
+body.light-mode .temp-submit-btn {
+  color: #ffffff !important;
+}
+
+@media (max-width: 900px) {
+  /* Home recommendation cards: compact two-row mobile layout */
+  .recommend-card {
+    padding: 14px !important;
+  }
+
+  .recommend-head {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: start !important;
+    gap: 10px !important;
+  }
+
+  .recommend-head > div {
+    min-width: 0 !important;
+  }
+
+  .recommend-head h3 {
+    margin-bottom: 4px !important;
+  }
+
+  .recommend-head p {
+    margin: 0 !important;
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+  }
+
+  #viewAllBtn {
+    min-width: 92px !important;
+    min-height: 40px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
+    justify-self: end !important;
+  }
+
+  .movie-item,
+  body.card-size-small .movie-item,
+  body.card-size-large .movie-item {
+    display: grid !important;
+    grid-template-columns: 76px minmax(0, 1fr) !important;
+    gap: 9px 10px !important;
+    align-items: start !important;
+    padding: 10px !important;
+  }
+
+  .movie-item .poster,
+  body.card-size-small .movie-item .poster,
+  body.card-size-large .movie-item .poster {
+    width: 76px !important;
+    height: 106px !important;
+  }
+
+  .movie-main-info {
+    min-width: 0 !important;
+  }
+
+  .movie-item h4 {
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+  }
+
+  .movie-desc {
+    -webkit-line-clamp: 2 !important;
+    font-size: 11px !important;
+  }
+
+  .movie-actors {
+    -webkit-line-clamp: 1 !important;
+    font-size: 9px !important;
+  }
+
+  .movie-score {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 38px auto minmax(0, 1fr) 38px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding-top: 8px !important;
+    margin-top: 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .match-info {
+    align-items: flex-start !important;
+    min-width: 0 !important;
+  }
+
+  .match-info strong {
+    font-size: 14px !important;
+  }
+
+  .match-info small {
+    font-size: 9px !important;
+  }
+
+  .movie-score .view-count {
+    justify-self: end !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 9px !important;
+    white-space: nowrap !important;
+  }
+
+  .movie-score .view-count .ui-icon {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .movie-fav-btn,
+  .play-circle {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+
+  /* Card size setting is visibly functional on mobile */
+  body.card-size-small .movie-item {
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+  }
+
+  body.card-size-small .movie-item .poster {
+    width: 64px !important;
+    height: 90px !important;
+  }
+
+  body.card-size-small .movie-item h4 {
+    font-size: 13px !important;
+  }
+
+  body.card-size-small .movie-desc {
+    -webkit-line-clamp: 1 !important;
+    font-size: 10px !important;
+  }
+
+  body.card-size-large .movie-item {
+    grid-template-columns: 92px minmax(0, 1fr) !important;
+    padding: 12px !important;
+  }
+
+  body.card-size-large .movie-item .poster {
+    width: 92px !important;
+    height: 128px !important;
+  }
+
+  body.card-size-large .movie-item h4 {
+    font-size: 17px !important;
+  }
+
+  body.card-size-large .movie-desc {
+    -webkit-line-clamp: 3 !important;
+    font-size: 12px !important;
+  }
+
+  body.card-size-small .explore-result-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  body.card-size-small .explore-info {
+    padding: 8px !important;
+  }
+
+  body.card-size-small .explore-info h4 {
+    font-size: 11px !important;
+    min-height: 32px !important;
+  }
+
+  body.card-size-large .explore-result-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.card-size-large .explore-movie-card {
+    display: grid !important;
+    grid-template-columns: 128px minmax(0, 1fr) !important;
+  }
+
+  body.card-size-large .explore-poster {
+    height: 190px !important;
+    aspect-ratio: auto !important;
+  }
+
+  body.card-size-large .explore-info h4 {
+    font-size: 17px !important;
+  }
+
+  /* Settings: prevent labels and switches from feeling disconnected */
+  .settings-panel .set-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  .settings-panel .set-row > span:first-child {
+    min-width: 0 !important;
+    line-height: 1.45 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .recommend-head {
+    grid-template-columns: 1fr !important;
+  }
+
+  #viewAllBtn {
+    justify-self: start !important;
+  }
+
+  .movie-item,
+  body.card-size-small .movie-item,
+  body.card-size-large .movie-item {
+    grid-template-columns: 68px minmax(0, 1fr) !important;
+  }
+
+  .movie-item .poster,
+  body.card-size-small .movie-item .poster,
+  body.card-size-large .movie-item .poster {
+    width: 68px !important;
+    height: 96px !important;
+  }
+
+  .movie-score {
+    grid-template-columns: 34px auto minmax(0, 1fr) 34px !important;
+    gap: 6px !important;
+  }
+
+  .movie-fav-btn,
+  .play-circle {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+  }
+}
+
+/* ===== Mobile v3: readable light mode ===== */
+
+body.light-mode {
+  color: #1d2a49 !important;
+  background:
+    radial-gradient(circle at 14% 8%, rgba(145, 140, 255, 0.16), transparent 34%),
+    radial-gradient(circle at 84% 10%, rgba(99, 214, 255, 0.18), transparent 34%),
+    linear-gradient(135deg, #eef3ff 0%, #e8efff 52%, #e6f8ff 100%) !important;
+}
+
+/* Direct text-color overrides are required because the old theme had span/small
+   selectors with !important. */
+body.light-mode .page-view p,
+body.light-mode .page-view span,
+body.light-mode .page-view small,
+body.light-mode .page-view label,
+body.light-mode .page-view li,
+body.light-mode .page-view .set-row,
+body.light-mode .page-view .setting-label,
+body.light-mode .page-view .setting-note,
+body.light-mode .page-view .movie-desc,
+body.light-mode .page-view .movie-actors,
+body.light-mode .page-view .db-status,
+body.light-mode .page-view .auth-desc,
+body.light-mode .page-view .feedback-status {
+  color: #50607f !important;
+}
+
+body.light-mode .page-view h1,
+body.light-mode .page-view h2,
+body.light-mode .page-view h3,
+body.light-mode .page-view h4,
+body.light-mode .page-view h5,
+body.light-mode .page-view h6,
+body.light-mode .page-view strong {
+  color: #192744 !important;
+  text-shadow: none !important;
+}
+
+/* Settings page: stronger selectors so every label remains readable. */
+body.light-mode #page-settings .settings-panel {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border-color: rgba(72, 91, 160, 0.20) !important;
+  box-shadow:
+    0 14px 36px rgba(73, 91, 156, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+}
+
+body.light-mode #page-settings .settings-panel h3,
+body.light-mode #page-settings .settings-panel strong {
+  color: #192744 !important;
+}
+
+body.light-mode #page-settings .settings-panel p,
+body.light-mode #page-settings .settings-panel span,
+body.light-mode #page-settings .settings-panel small,
+body.light-mode #page-settings .settings-panel label,
+body.light-mode #page-settings .settings-panel .set-row,
+body.light-mode #page-settings .settings-panel .setting-label,
+body.light-mode #page-settings .settings-panel .setting-note {
+  color: #465778 !important;
+}
+
+body.light-mode #page-settings .settings-panel .setting-label .ui-icon {
+  color: #5268a6 !important;
+}
+
+body.light-mode #page-settings .segmented-control {
+  background: rgba(225, 232, 249, 0.86) !important;
+  border-color: rgba(71, 89, 154, 0.16) !important;
+}
+
+body.light-mode #page-settings .seg-btn,
+body.light-mode #page-settings .list-btn {
+  color: #263858 !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  border-color: rgba(71, 89, 154, 0.18) !important;
+}
+
+body.light-mode #page-settings .seg-btn.active {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #918CFF, #63D6FF) !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+}
+
+body.light-mode #page-settings .list-btn:hover {
+  color: #1d2a49 !important;
+  background: rgba(225, 234, 255, 0.92) !important;
+}
+
+body.light-mode #page-settings .toggle-switch .slider {
+  background: #c4cee4 !important;
+  box-shadow: inset 0 0 0 1px rgba(66, 83, 145, 0.10) !important;
+}
+
+body.light-mode #page-settings .toggle-switch input:checked + .slider {
+  background: linear-gradient(135deg, #918CFF, #63D6FF) !important;
+}
+
+body.light-mode #page-settings .save-settings-btn,
+body.light-mode #page-settings .save-settings-btn span {
+  color: #ffffff !important;
+}
+
+/* Sidebar */
+body.light-mode .sidebar {
+  background: rgba(245, 248, 255, 0.90) !important;
+}
+
+body.light-mode .sidebar .brand h1 {
+  color: #1b2949 !important;
+  text-shadow: none !important;
+}
+
+body.light-mode .sidebar .brand p,
+body.light-mode .sidebar .nav-btn,
+body.light-mode .sidebar .nav-btn span {
+  color: #4a5b79 !important;
+}
+
+body.light-mode .sidebar .nav-btn.active,
+body.light-mode .sidebar .nav-btn.active span {
+  color: #233456 !important;
+}
+
+/* Home: older #page-home rules forced white text, so override them explicitly. */
+body.light-mode #page-home .recommend-card *,
+body.light-mode #page-home .how-card *,
+body.light-mode #page-home .hint-card * {
+  color: #4d5d7a !important;
+}
+
+body.light-mode #page-home .recommend-card h3,
+body.light-mode #page-home .recommend-card h4,
+body.light-mode #page-home .recommend-card strong,
+body.light-mode #page-home .how-card h3,
+body.light-mode #page-home .how-card strong,
+body.light-mode #page-home .hint-card h3,
+body.light-mode #page-home .hint-card strong {
+  color: #1a2948 !important;
+}
+
+body.light-mode #page-home .recommend-card,
+body.light-mode #page-home .how-card,
+body.light-mode #page-home .hint-card {
+  background: rgba(255, 255, 255, 0.68) !important;
+  border-color: rgba(69, 87, 154, 0.16) !important;
+}
+
+body.light-mode #page-home .recommend-list .movie-item,
+body.light-mode #page-home .recommend-list article {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(69, 87, 154, 0.14) !important;
+}
+
+body.light-mode #page-home .movie-meta span {
+  color: #425473 !important;
+}
+
+body.light-mode #page-home .movie-fav-btn,
+body.light-mode #page-home .play-circle {
+  color: #36517b !important;
+  border-color: rgba(69, 87, 154, 0.18) !important;
+}
+
+body.light-mode #page-home .play-circle {
+  color: #ffffff !important;
+}
+
+/* Selected tags */
+body.light-mode #page-home .selected-row {
+  background: rgba(255, 255, 255, 0.52) !important;
+  border-color: rgba(72, 91, 160, 0.16) !important;
+}
+
+body.light-mode #page-home .selected-row > span,
+body.light-mode #page-home .selected-tags .chip,
+body.light-mode #page-home .selected-tags .chip small,
+body.light-mode #page-home .selected-tags .chip button {
+  color: #354768 !important;
+}
+
+/* Explore / Collection / Group surfaces */
+body.light-mode #page-explore .explore-movie-card,
+body.light-mode #page-collection .collection-card,
+body.light-mode #page-party .group-panel,
+body.light-mode #page-party .role-select-panel,
+body.light-mode #page-party .member-card,
+body.light-mode #page-party .group-summary {
+  background: rgba(255, 255, 255, 0.70) !important;
+  border-color: rgba(72, 91, 160, 0.16) !important;
+}
+
+body.light-mode #page-explore .explore-info *,
+body.light-mode #page-collection .collection-content *,
+body.light-mode #page-party .group-panel * {
+  color: #4d5d7a !important;
+}
+
+body.light-mode #page-explore .explore-info h4,
+body.light-mode #page-collection h2,
+body.light-mode #page-collection h3,
+body.light-mode #page-party h2,
+body.light-mode #page-party h3,
+body.light-mode #page-party h4,
+body.light-mode #page-party strong {
+  color: #192744 !important;
+}
+
+/* Keep intentionally colorful elements readable */
+body.light-mode .mood-bubble *,
+body.light-mode .mood-bubble .icon,
+body.light-mode .mood-bubble .tag,
+body.light-mode .mood-bubble .kind,
+body.light-mode .search-box button,
+body.light-mode .explore-search-box button,
+body.light-mode .wide-btn,
+body.light-mode #addMemberBtn,
+body.light-mode #groupModeBtn,
+body.light-mode #joinRoomBtn,
+body.light-mode .auth-submit,
+body.light-mode .collection-empty .primary-btn,
+body.light-mode .temp-submit-btn,
+body.light-mode .play-circle,
+body.light-mode .save-settings-btn {
+  color: #ffffff !important;
+}
