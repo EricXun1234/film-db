@@ -49,15 +49,15 @@ const FIELD_MAP = {
   ],
   trailer: ["youtubeUrl", "youtube_url", "trailer", "trailerUrl", "trailer_url", "url", "YouTube URL", "YouTube 網址", "預告片"],
   youtubeId: ["youtubeId", "youtube_id", "videoId", "video_id", "ytId", "yt_id", "YouTube ID", "影片ID", "影片 ID"],
-  mainScene: ["mainScene", "primaryScene", "main_scene", "主要場景", "主場景"],
-  subScene: ["subScene", "secondaryScene", "sub_scene", "次要場景", "副場景"],
-  genre: ["genreKeywords", "genre_keywords", "genres", "genre", "類型關鍵字", "類型", "電影類型"],
-  mood: ["mood", "emotion", "emotions", "atmosphere", "feel", "feeling", "vibe", "情感／氛圍", "情感/氛圍", "情感", "氛圍", "情緒"],
+  mainScene: ["mainScene", "primaryScene", "main_scene", "primarySetting", "mainSetting", "setting", "settings", "location", "locations", "主要場景", "主場景", "故事場景", "背景地點"],
+  subScene: ["subScene", "secondaryScene", "sub_scene", "secondarySetting", "subSetting", "次要場景", "副場景", "其他場景"],
+  genre: ["genreKeywords", "genre_keywords", "genres", "genre", "filmGenre", "movieGenre", "category", "categories", "type", "types", "movieType", "subgenre", "subgenres", "類型關鍵字", "類型", "電影類型", "分類", "類別", "主類型", "次類型"],
+  mood: ["mood", "moods", "moodKeywords", "emotion", "emotions", "emotionKeywords", "atmosphere", "tone", "tones", "feel", "feeling", "vibe", "vibes", "情感／氛圍", "情感/氛圍", "情感", "氛圍", "情緒", "調性"],
   year: ["year", "releaseYear", "release_year", "年份", "上映年份"],
   duration: ["duration", "runtime", "length", "片長", "時長"],
   views: ["views", "viewCount", "view_count", "clicks", "clickCount", "瀏覽次數", "點擊次數", "觀看次數"],
   actors: ["actors", "actor", "cast", "casts","演員", "演員名單", "主演", "卡司"],
-  keywords: ["keywords", "keyword", "tags", "tag", "關鍵字", "標籤", "電影關鍵字"],
+  keywords: ["keywords", "keyword", "tags", "tag", "themes", "theme", "topics", "topic", "subjects", "subject", "motifs", "motif", "關鍵字", "標籤", "電影關鍵字", "主題", "題材", "元素"],
 };
 
 const FALLBACK_MOVIES = [
@@ -170,7 +170,10 @@ const KIND_META = {
 
 const BUBBLE_LIMIT = 10;
 const BUBBLE_SIZE = 92;
-const EXPLORE_RESULT_LIMIT = 36;
+const EXPLORE_RESULT_LIMIT = 72;
+const BUBBLE_HISTORY_KEY = "moodluma-recent-bubble-sets-v2";
+const BUBBLE_HISTORY_LIMIT = 12;
+const BUBBLE_STRICT_RECENT_SETS = 3;
 const BUBBLE_COLOR_PALETTE = [
   { colors: ["#F08A3E", "#F5C04E"], glow: "rgba(245,192,78,0.42)" },
   { colors: ["#B45CFF", "#EA6FCB"], glow: "rgba(234,111,203,0.42)" },
@@ -183,22 +186,22 @@ const BUBBLE_COLOR_PALETTE = [
   場景與簡介。這能涵蓋「愛情片／浪漫喜劇／rom-com」等不同標記方式。
 */
 const CATEGORY_RULES = {
-  "喜劇": ["喜劇", "喜劇片", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "詼諧", "黑色幽默", "comedy", "comic", "satire"],
-  "愛情": ["愛情", "愛情片", "爱情", "愛情故事", "浪漫", "浪漫愛情", "浪漫喜劇", "愛情喜劇", "戀愛", "戀曲", "愛戀", "戀人", "戀情", "初戀", "暗戀", "告白", "約會", "情侶", "伴侶", "婚姻", "夫妻", "感情", "情感", "情感糾葛", "關係探索", "兩性關係", "romance", "romantic", "rom-com", "romcom", "love story"],
-  "驚悚": ["驚悚", "惊悚", "心理驚悚", "緊張", "追殺", "逃亡", "危險", "生存戰", "thriller", "suspense"],
-  "科幻": ["科幻", "科幻片", "未來", "太空", "外星", "機器人", "人工智慧", "時空", "時間旅行", "多元宇宙", "高科技", "sci-fi", "scifi", "science fiction", "ai"],
-  "動作": ["動作", "動作片", "动作", "戰鬥", "武打", "功夫", "格鬥", "槍戰", "特務", "諜報", "英雄", "超級英雄", "追逐", "action", "martial arts"],
-  "動畫": ["動畫", "動畫片", "动画", "卡通", "動漫", "親子", "童趣", "動物主角", "animation", "animated", "anime"],
-  "劇情": ["劇情", "劇情片", "剧情", "人生", "家庭", "成長", "勵志", "人性", "社會寫實", "救贖", "drama", "dramatic"],
-  "懸疑": ["懸疑", "悬疑", "推理", "謎團", "偵探", "解謎", "神秘", "命案", "陰謀", "mystery", "detective", "whodunit"],
-  "恐怖": ["恐怖", "恐怖片", "心理恐怖", "鬼", "鬼屋", "靈異", "超自然", "詛咒", "惡魔", "惡靈", "驅魔", "血腥", "怪物", "horror", "haunted", "slasher"],
-  "犯罪": ["犯罪", "犯罪片", "黑幫", "警匪", "警察", "毒梟", "劫案", "謀殺案", "國際犯罪", "crime", "gangster", "heist"],
-  "冒險": ["冒險", "冒险", "探險", "探索", "旅程", "尋寶", "奇遇", "遺跡", "adventure", "quest"],
-  "奇幻": ["奇幻", "魔法", "魔幻", "精靈", "神話", "黑暗奇幻", "異空間", "fantasy", "fairy tale"],
-  "家庭": ["家庭", "家庭劇", "親子", "溫馨", "童趣", "社區生活", "family", "family-friendly"],
-  "戰爭": ["戰爭", "战争", "軍事", "軍隊", "戰場", "核子", "歷史戰爭", "war", "military"],
-  "歷史": ["歷史", "历史", "歷史劇", "時代劇", "傳記", "古裝", "復古", "history", "historical", "biography", "biopic"],
-  "音樂": ["音樂", "音乐", "音樂劇", "歌舞", "合唱團", "舞台", "music", "musical", "concert"]
+  "喜劇": ["喜劇", "喜剧", "喜劇片", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "荒誕", "詼諧", "黑色幽默", "諷刺", "鬧劇", "烏龍", "脫口秀", "comedy", "comedies", "comedic", "comic", "sitcom", "satire", "parody", "spoof", "funny"],
+  "愛情": ["愛情", "爱情", "愛情片", "愛情故事", "愛情電影", "浪漫", "浪漫愛情", "浪漫喜劇", "愛情喜劇", "戀愛", "恋爱", "戀曲", "愛戀", "戀人", "戀情", "初戀", "暗戀", "告白", "約會", "情侶", "伴侶", "婚姻", "夫妻", "婚禮", "相愛", "愛上", "墜入愛河", "邂逅", "心動", "追愛", "前任", "復合", "分手", "情感糾葛", "感情關係", "關係探索", "兩性關係", "青梅竹馬", "romance", "romances", "romantic", "rom-com", "romcom", "love story", "love stories", "fall in love", "couple", "relationship", "wedding", "marriage", "soulmate"],
+  "驚悚": ["驚悚", "惊悚", "心理驚悚", "緊張", "追殺", "逃亡", "危險", "生存戰", "綁架", "人質", "跟蹤", "致命", "生死", "高壓", "thriller", "thrillers", "suspense", "suspenseful", "survival", "hostage", "stalker", "cat and mouse"],
+  "科幻": ["科幻", "科幻片", "科學幻想", "未來", "太空", "宇宙", "星際", "外星", "機器人", "人工智慧", "時空", "時間旅行", "多元宇宙", "平行世界", "高科技", "賽博龐克", "末日世界", "反烏托邦", "基因改造", "複製人", "虛擬實境", "sci-fi", "scifi", "science fiction", "futuristic", "space", "alien", "robot", "android", "cyberpunk", "dystopia", "time travel", "virtual reality", "artificial intelligence", "ai"],
+  "動作": ["動作", "动作", "動作片", "戰鬥", "武打", "武術", "功夫", "格鬥", "槍戰", "爆破", "特務", "間諜", "諜報", "殺手", "傭兵", "英雄", "超級英雄", "追逐", "營救", "任務", "action", "action-packed", "martial arts", "kung fu", "gunfight", "spy", "assassin", "superhero", "chase"],
+  "動畫": ["動畫", "动画", "動畫片", "卡通", "動漫", "動畫電影", "親子動畫", "定格動畫", "電腦動畫", "手繪動畫", "童趣", "動物主角", "animation", "animations", "animated", "anime", "cartoon", "stop motion", "computer animation"],
+  "劇情": ["劇情", "剧情", "劇情片", "人生", "家庭人生", "成長", "勵志", "人性", "社會寫實", "現實題材", "救贖", "內心掙扎", "人物傳記", "文藝", "drama", "dramas", "dramatic", "coming of age", "character study", "social realism"],
+  "懸疑": ["懸疑", "悬疑", "推理", "謎團", "謎案", "偵探", "解謎", "神秘", "命案", "真相", "線索", "調查", "失蹤", "陰謀", "懸案", "mystery", "mysteries", "detective", "investigation", "whodunit", "conspiracy", "cold case", "missing person"],
+  "恐怖": ["恐怖", "恐怖片", "心理恐怖", "鬼", "鬼屋", "幽靈", "靈異", "超自然恐怖", "詛咒", "惡魔", "惡靈", "驅魔", "殭屍", "喪屍", "血腥", "怪物", "夢魘", "鬧鬼", "horror", "horrors", "haunted", "ghost", "demon", "possession", "exorcism", "zombie", "slasher", "gore", "nightmare"],
+  "犯罪": ["犯罪", "犯罪片", "黑幫", "幫派", "警匪", "警察", "刑警", "毒梟", "毒品", "劫案", "搶劫", "謀殺案", "連環殺手", "監獄", "國際犯罪", "crime", "crimes", "criminal", "gangster", "mafia", "heist", "robbery", "murder", "serial killer", "drug cartel", "prison"],
+  "冒險": ["冒險", "冒险", "探險", "探索", "遠征", "旅程", "尋寶", "奇遇", "遺跡", "荒野求生", "冒險旅程", "adventure", "adventures", "adventurous", "quest", "expedition", "treasure hunt", "journey", "voyage", "exploration"],
+  "奇幻": ["奇幻", "魔法", "魔幻", "魔術", "巫師", "女巫", "精靈", "仙境", "神話", "傳說", "龍", "黑暗奇幻", "異世界", "異空間", "童話", "fantasy", "fantasies", "magical", "magic", "wizard", "witch", "fairy tale", "mythology", "dragon", "alternate world"],
+  "家庭": ["家庭", "家庭劇", "親子", "親情", "家人", "父母", "父親", "母親", "兄弟", "姊妹", "手足", "祖孫", "育兒", "溫馨", "童趣", "社區生活", "family", "families", "family-friendly", "parent", "parents", "father", "mother", "siblings", "parent-child"],
+  "戰爭": ["戰爭", "战争", "軍事", "軍隊", "軍人", "士兵", "戰場", "前線", "空戰", "海戰", "反戰", "核戰", "歷史戰爭", "war", "wartime", "warfare", "military", "soldier", "army", "battlefield", "combat"],
+  "歷史": ["歷史", "历史", "歷史劇", "時代劇", "傳記", "古裝", "古代", "王朝", "宮廷", "年代", "殖民", "真實事件", "真人真事", "復古", "history", "historical", "period drama", "biography", "biographical", "biopic", "based on a true story", "ancient", "dynasty"],
+  "音樂": ["音樂", "音乐", "音樂劇", "歌舞", "歌曲", "歌手", "樂團", "樂隊", "演唱會", "合唱團", "舞蹈", "舞台表演", "作曲家", "music", "musical", "musicals", "concert", "singer", "band", "choir", "dance", "composer"]
 };
 
 let allMovies = [];
@@ -761,14 +764,26 @@ function toArray(value) {
   if (!value) return [];
   if (Array.isArray(value)) return value.map(cleanTag).filter(Boolean);
   if (typeof value === "object") return Object.values(value).flatMap(toArray);
-  return String(value)
-    .split(/[,，、|/／\n;；]+/)
+
+  const text = String(value).trim();
+  if (/^[\[{]/.test(text)) {
+    try {
+      return toArray(JSON.parse(text));
+    } catch {}
+  }
+
+  return text
+    .split(/[,，、|/／\n;；·•]+/)
     .map(cleanTag)
     .filter(Boolean);
 }
 
 function cleanTag(s) {
-  return String(s).trim().replace(/^#/, "").replace(/\s+/g, " ");
+  return String(s)
+    .trim()
+    .replace(/^#+/, "")
+    .replace(/^[\s"'`\[\]{}()（）]+|[\s"'`\[\]{}()（）]+$/g, "")
+    .replace(/\s+/g, " ");
 }
 
 function slug(s) {
@@ -929,7 +944,34 @@ function classifyTag(tag) {
   return "mood";
 }
 
-const recentBubbleSets = [];
+function loadRecentBubbleSets() {
+  try {
+    const parsed = JSON.parse(globalThis.sessionStorage?.getItem(BUBBLE_HISTORY_KEY) || "[]");
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter(entry => Array.isArray(entry?.keys) && entry.keys.length)
+      .slice(-BUBBLE_HISTORY_LIMIT)
+      .map(entry => ({
+        signature: String(entry.signature || [...entry.keys].sort().join("|")),
+        keys: new Set(entry.keys.map(normalizeBubbleTagKey).filter(Boolean))
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentBubbleSets() {
+  try {
+    const serializable = recentBubbleSets.map(entry => ({
+      signature: entry.signature,
+      keys: [...entry.keys]
+    }));
+    globalThis.sessionStorage?.setItem(BUBBLE_HISTORY_KEY, JSON.stringify(serializable));
+  } catch {}
+}
+
+const recentBubbleSets = loadRecentBubbleSets();
 
 function randomUnit() {
   if (globalThis.crypto?.getRandomValues) {
@@ -954,13 +996,23 @@ function getCandidateTagKey(item) {
 }
 
 function getRecentTagPenalty(tagKey, currentSet) {
-  if (currentSet.has(tagKey)) return 0.04;
+  if (currentSet.has(tagKey)) return 0.006;
 
   let penalty = 1;
   recentBubbleSets.forEach((entry, index) => {
     if (!entry.keys.has(tagKey)) return;
     const age = recentBubbleSets.length - 1 - index;
-    const recentPenalty = age === 0 ? 0.16 : age === 1 ? 0.32 : age === 2 ? 0.52 : 0.72;
+    const recentPenalty = age === 0
+      ? 0.025
+      : age === 1
+        ? 0.06
+        : age === 2
+          ? 0.13
+          : age === 3
+            ? 0.25
+            : age === 4
+              ? 0.45
+              : 0.7;
     penalty = Math.min(penalty, recentPenalty);
   });
 
@@ -987,13 +1039,34 @@ function weightedRandomSample(items, count, currentSet = new Set(), excludedKeys
 function sampleFreshFirst(items, count, currentSet, excludedKeys = new Set()) {
   if (count <= 0) return [];
 
-  const fresh = items.filter(item => !currentSet.has(getCandidateTagKey(item)));
-  const picked = weightedRandomSample(fresh, count, currentSet, excludedKeys);
-  const pickedKeys = new Set([...excludedKeys, ...picked.map(getCandidateTagKey)]);
+  const recentKeys = new Set();
+  recentBubbleSets
+    .slice(-BUBBLE_STRICT_RECENT_SETS)
+    .forEach(entry => entry.keys.forEach(key => recentKeys.add(key)));
 
-  if (picked.length < count) {
-    picked.push(...weightedRandomSample(items, count - picked.length, currentSet, pickedKeys));
-  }
+  const tiers = [
+    items.filter(item => {
+      const key = getCandidateTagKey(item);
+      return !currentSet.has(key) && !recentKeys.has(key);
+    }),
+    items.filter(item => !currentSet.has(getCandidateTagKey(item))),
+    items.filter(item => !recentKeys.has(getCandidateTagKey(item))),
+    items
+  ];
+
+  const picked = [];
+  const pickedKeys = new Set(excludedKeys);
+
+  tiers.forEach(pool => {
+    if (picked.length >= count) return;
+    const additions = weightedRandomSample(pool, count - picked.length, currentSet, pickedKeys);
+    additions.forEach(item => {
+      const key = getCandidateTagKey(item);
+      if (pickedKeys.has(key)) return;
+      pickedKeys.add(key);
+      picked.push(item);
+    });
+  });
 
   return picked;
 }
@@ -1013,7 +1086,8 @@ function buildRandomBalancedTagSet(candidates, currentTags = []) {
   const seen = new Set();
 
   kindOrder.forEach(kind => {
-    sampleFreshFirst(buckets[kind], quotas[kind], currentSet, seen).forEach(item => {
+    const freshInKind = buckets[kind].filter(item => !currentSet.has(getCandidateTagKey(item)));
+    sampleFreshFirst(freshInKind, quotas[kind], currentSet, seen).forEach(item => {
       const key = getCandidateTagKey(item);
       if (seen.has(key)) return;
       seen.add(key);
@@ -1044,7 +1118,7 @@ function pickBalancedTags(candidates, excludeTags = []) {
   const availableFreshCount = distinctCandidates.filter(item => !currentSet.has(getCandidateTagKey(item))).length;
   let selected = [];
 
-  for (let attempt = 0; attempt < 24; attempt += 1) {
+  for (let attempt = 0; attempt < 48; attempt += 1) {
     const candidateSet = buildRandomBalancedTagSet(distinctCandidates, excludeTags);
     const signature = candidateSet
       .map(getCandidateTagKey)
@@ -1053,7 +1127,7 @@ function pickBalancedTags(candidates, excludeTags = []) {
       .join("|");
 
     const changedCount = candidateSet.filter(item => !currentSet.has(getCandidateTagKey(item))).length;
-    const desiredChanged = Math.max(1, Math.ceil(candidateSet.length * 0.7));
+    const desiredChanged = Math.max(1, Math.ceil(candidateSet.length * 0.9));
     const minimumChanged = Math.min(candidateSet.length, availableFreshCount, desiredChanged);
     const recentlyUsed = recentBubbleSets.some(entry => entry.signature === signature);
 
@@ -1082,7 +1156,8 @@ function rememberBubbleSet(items, signature = "") {
     signature: signature || [...keys].sort().join("|"),
     keys
   });
-  while (recentBubbleSets.length > 8) recentBubbleSets.shift();
+  while (recentBubbleSets.length > BUBBLE_HISTORY_LIMIT) recentBubbleSets.shift();
+  saveRecentBubbleSets();
 }
 
 function createBubbles(items) {
@@ -2145,7 +2220,8 @@ function textContainsExploreAlias(text, alias) {
   const needle = normalizeExploreText(alias);
   if (!haystack || !needle) return false;
 
-  if (["ai", "war"].includes(needle)) {
+  // 英文別名以完整單字比對，避免 band 誤中 husband、parent 誤中 apparent。
+  if (/^[a-z0-9][a-z0-9 +.'-]*$/i.test(needle) && /[a-z]/i.test(needle)) {
     const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     return new RegExp(`(^|[^a-z0-9])${escaped}(?=$|[^a-z0-9])`, "i").test(haystack);
   }
