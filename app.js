@@ -49,15 +49,28 @@ const FIELD_MAP = {
   ],
   trailer: ["youtubeUrl", "youtube_url", "trailer", "trailerUrl", "trailer_url", "url", "YouTube URL", "YouTube 網址", "預告片"],
   youtubeId: ["youtubeId", "youtube_id", "videoId", "video_id", "ytId", "yt_id", "YouTube ID", "影片ID", "影片 ID"],
-  mainScene: ["mainScene", "primaryScene", "main_scene", "primarySetting", "mainSetting", "setting", "settings", "location", "locations", "主要場景", "主場景", "故事場景", "背景地點"],
-  subScene: ["subScene", "secondaryScene", "sub_scene", "secondarySetting", "subSetting", "次要場景", "副場景", "其他場景"],
-  genre: ["genreKeywords", "genre_keywords", "genres", "genre", "filmGenre", "movieGenre", "category", "categories", "type", "types", "movieType", "subgenre", "subgenres", "類型關鍵字", "類型", "電影類型", "分類", "類別", "主類型", "次類型"],
-  mood: ["mood", "moods", "moodKeywords", "emotion", "emotions", "emotionKeywords", "atmosphere", "tone", "tones", "feel", "feeling", "vibe", "vibes", "情感／氛圍", "情感/氛圍", "情感", "氛圍", "情緒", "調性"],
+  mainScene: [
+    "scenesMain", "sceneMain", "mainScenes", "mainScene", "primaryScene",
+    "scenes_main", "scene_main", "main_scenes", "main_scene", "scenes",
+    "主要場景", "主場景", "場景"
+  ],
+  subScene: [
+    "scenesSub", "sceneSub", "subScenes", "subScene", "secondaryScene",
+    "scenes_sub", "scene_sub", "sub_scenes", "sub_scene", "次要場景", "副場景"
+  ],
+  genre: [
+    "genreKeywords", "genre_keywords", "genres", "genre", "categories", "category", "types", "type",
+    "類型關鍵字", "類型", "電影類型", "分類"
+  ],
+  mood: [
+    "moodKeywords", "mood_keywords", "moods", "mood", "emotion", "emotions", "atmosphere",
+    "feel", "feeling", "vibe", "情感／氛圍", "情感/氛圍", "情感", "氛圍", "情緒"
+  ],
   year: ["year", "releaseYear", "release_year", "年份", "上映年份"],
   duration: ["duration", "runtime", "length", "片長", "時長"],
   views: ["views", "viewCount", "view_count", "clicks", "clickCount", "瀏覽次數", "點擊次數", "觀看次數"],
   actors: ["actors", "actor", "cast", "casts","演員", "演員名單", "主演", "卡司"],
-  keywords: ["keywords", "keyword", "tags", "tag", "themes", "theme", "topics", "topic", "subjects", "subject", "motifs", "motif", "關鍵字", "標籤", "電影關鍵字", "主題", "題材", "元素"],
+  keywords: ["keywords", "keyword", "tags", "tag", "關鍵字", "標籤", "電影關鍵字"],
 };
 
 const FALLBACK_MOVIES = [
@@ -161,6 +174,30 @@ const TAG_KIND_RULES = {
   genre: ["恐怖", "愛情", "科幻", "犯罪", "喜劇", "動作", "劇情", "動畫", "紀錄", "懸疑", "驚悚", "青春", "冒險"]
 };
 
+/*
+  探索頁熱門分類的同義標籤。
+  FilmDB 中常會出現「愛情片／浪漫喜劇」、「警匪／劫盜」等複合寫法，
+  所以分類不能只靠按鈕上的兩個字做完全比對。
+*/
+const CATEGORY_RULES = {
+  "喜劇": ["喜劇", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "荒唐", "惡搞", "無厘頭", "鬧劇", "詼諧", "黑色幽默", "輕鬆", "comedy"],
+  "愛情": ["愛情", "浪漫", "戀愛", "愛戀", "戀情", "情侶", "婚姻", "心動", "甜蜜", "虐戀", "禁忌之戀", "情感糾葛", "關係探索", "romance"],
+  "驚悚": ["驚悚", "心理驚悚", "驚險", "緊張", "追殺", "逃亡", "逃生", "追捕", "高壓", "危險", "生存戰", "倒數計時", "綁架", "thriller"],
+  "科幻": ["科幻", "未來", "太空", "宇宙", "外星", "機器人", "機甲", "人工智慧", "虛擬實境", "高科技", "時空", "時間旅行", "時空旅行", "多元宇宙", "多重宇宙", "sci-fi", "scifi"],
+  "動作": ["動作", "戰鬥", "武打", "武術", "武俠", "功夫", "格鬥", "槍戰", "爆破", "特務", "間諜", "諜報", "警匪", "英雄", "超級英雄", "追逐", "救援", "復仇", "賽車", "action"],
+  "動畫": ["動畫", "卡通", "動漫", "擬人化", "動物主角", "童趣", "親子動畫", "3d動畫", "animation", "anime", "pixar"],
+  "劇情": ["劇情", "人生", "家庭", "成長", "勵志", "人性", "親情", "友情", "職場", "女性視角", "社會寫實", "傳記", "文學", "政治", "救贖", "drama"],
+  "懸疑": ["懸疑", "推理", "謎團", "偵探", "偵查", "調查", "解謎", "神秘", "命案", "懸案", "陰謀", "目擊者", "法醫", "燒腦", "真相", "mystery"],
+  "恐怖": ["恐怖", "鬼片", "鬼屋", "鬼怪", "鬼魂", "靈異", "超自然恐怖", "詛咒", "惡魔", "惡靈", "驅魔", "喪屍", "活屍", "血腥", "怪獸", "怪物", "食人", "陰森", "horror"],
+  "犯罪": ["犯罪", "黑幫", "幫派", "警匪", "警察", "警方", "毒梟", "毒販", "盜竊", "劫盜", "劫案", "竊賊", "謀殺", "命案", "監獄", "crime"],
+  "冒險": ["冒險", "探險", "探索", "旅程", "旅行", "公路電影", "生存", "漂流", "尋寶", "考古", "奇遇", "遺跡", "英雄旅程", "adventure"],
+  "奇幻": ["奇幻", "魔法", "魔幻", "精靈", "神話", "童話", "神燈", "異世界", "異空間", "靈魂出竅", "黑暗奇幻", "fantasy"],
+  "家庭": ["家庭", "家庭向", "家庭電影", "親子", "親情", "家人", "父子", "母愛", "姐妹", "溫馨", "童趣", "闔家", "兒童", "社區生活", "family"],
+  "戰爭": ["戰爭", "戰場", "戰役", "軍事", "軍隊", "軍營", "士兵", "戰俘", "軍官", "核武", "war"],
+  "歷史": ["歷史", "歷史劇", "時代劇", "時代", "傳記", "古裝", "古羅馬", "三國", "宮廷", "戒嚴", "真實事件改編", "history"],
+  "音樂": ["音樂", "音樂劇", "歌舞", "歌舞劇", "合唱團", "歌手", "樂團", "樂器", "歌曲", "舞蹈", "演唱", "舞台", "表演", "偶像", "music"]
+};
+
 const KIND_META = {
   mood: { label: "情緒", icon: "♡", colors: ["#9b5cff", "#f06ba7"], glow: "rgba(240,107,167,0.45)" },
   atmosphere: { label: "氛圍", icon: "☾", colors: ["#406dff", "#7d5cff"], glow: "rgba(79,140,255,0.42)" },
@@ -170,10 +207,56 @@ const KIND_META = {
 
 const BUBBLE_LIMIT = 10;
 const BUBBLE_SIZE = 92;
-const EXPLORE_RESULT_LIMIT = 72;
-const BUBBLE_HISTORY_KEY = "moodluma-recent-bubble-sets-v2";
-const BUBBLE_HISTORY_LIMIT = 12;
-const BUBBLE_STRICT_RECENT_SETS = 3;
+
+/*
+  展覽模式（刮刮卡標籤版）
+  - 標籤來源固定為客戶提供的《刮刮卡標籤》PDF
+  - PDF 原始共 120 個欄位；氛圍「神秘」重複一次，因此同類別去重後為 119 個分類標籤項目
+  - 每次顯示 10 個
+  - 連續 4 組共 40 個可見標籤不重複
+  - 第 4 組結束後重新洗牌，開始下一輪
+  - 每組：2 類型 + 3 情緒 + 3 氛圍 + 2 場景
+*/
+const BUBBLE_MODE_KEY = "moodluma-bubble-mode";
+const EXHIBITION_ROUND_COUNT = 4;
+const EXHIBITION_KIND_QUOTAS = {
+  genre: 2,
+  mood: 3,
+  atmosphere: 3,
+  scene: 2
+};
+
+const EXHIBITION_TAGS_BY_KIND = {
+  scene: [
+    "監獄", "停車場", "校園", "實驗室", "醫院", "圖書館", "火車", "沙漠", "雪地", "廢墟",
+    "博物館", "戲院", "荒野", "住宅", "森林", "公園", "體育場", "海邊", "餐廳", "太空",
+    "教室", "地下室", "倉庫", "浴室", "健身房", "辦公室", "島嶼", "墓地", "公路", "飯店"
+  ],
+  genre: [
+    "科幻", "恐怖", "神秘", "喜劇", "懸疑", "犯罪", "動作", "冒險", "靈異", "諷刺",
+    "家庭", "友誼", "復仇", "間諜", "災難", "血腥", "生存", "青春", "愛情", "解謎",
+    "救援", "戰爭", "音樂", "浪漫", "懷舊", "活屍", "勵志", "史詩", "神話", "謀殺"
+  ],
+  mood: [
+    "緊張", "恐懼", "溫馨", "好奇", "感動", "焦慮", "熱血", "刺激", "幽默", "憂鬱",
+    "驚嚇", "憤怒", "絕望", "壓迫", "不安", "哀傷", "希望", "歡樂", "興奮", "揪心",
+    "震撼", "驚嘆", "沉重", "矛盾", "甜蜜", "心動", "荒謬", "爆笑", "壓抑", "同情"
+  ],
+  atmosphere: [
+    "詼諧", "華麗", "爆裂", "迷幻", "寫實", "溫暖", "明亮", "樸實", "歡快", "神秘",
+    "浮華", "輕鬆", "夢幻", "繽紛", "活潑", "奇幻", "黑暗", "危險", "暴力", "混亂",
+    "陰森", "柔和", "療癒", "動感", "復古", "現代", "宏偉", "璀璨", "清新"
+  ]
+};
+
+const EXHIBITION_TAG_POOL = Object.entries(EXHIBITION_TAGS_BY_KIND)
+  .flatMap(([kind, tags]) => tags.map(tag => ({ tag, kind, score: 1 })));
+
+let bubbleMode = localStorage.getItem(BUBBLE_MODE_KEY) === "exhibition"
+  ? "exhibition"
+  : "normal";
+let exhibitionRounds = [];
+let exhibitionRoundIndex = 0;
 const BUBBLE_COLOR_PALETTE = [
   { colors: ["#F08A3E", "#F5C04E"], glow: "rgba(245,192,78,0.42)" },
   { colors: ["#B45CFF", "#EA6FCB"], glow: "rgba(234,111,203,0.42)" },
@@ -181,32 +264,11 @@ const BUBBLE_COLOR_PALETTE = [
   { colors: ["#35C6B0", "#5ED39A"], glow: "rgba(53,198,176,0.38)" }
 ];
 
-/*
-  熱門分類的別名集中管理，除了資料庫類型欄，也會比對情緒、關鍵字、
-  場景與簡介。這能涵蓋「愛情片／浪漫喜劇／rom-com」等不同標記方式。
-*/
-const CATEGORY_RULES = {
-  "喜劇": ["喜劇", "喜剧", "喜劇片", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "荒誕", "詼諧", "黑色幽默", "諷刺", "鬧劇", "烏龍", "脫口秀", "comedy", "comedies", "comedic", "comic", "sitcom", "satire", "parody", "spoof", "funny"],
-  "愛情": ["愛情", "爱情", "愛情片", "愛情故事", "愛情電影", "浪漫", "浪漫愛情", "浪漫喜劇", "愛情喜劇", "戀愛", "恋爱", "戀曲", "愛戀", "戀人", "戀情", "初戀", "暗戀", "告白", "約會", "情侶", "伴侶", "婚姻", "夫妻", "婚禮", "相愛", "愛上", "墜入愛河", "邂逅", "心動", "追愛", "前任", "復合", "分手", "情感糾葛", "感情關係", "關係探索", "兩性關係", "青梅竹馬", "romance", "romances", "romantic", "rom-com", "romcom", "love story", "love stories", "fall in love", "couple", "relationship", "wedding", "marriage", "soulmate"],
-  "驚悚": ["驚悚", "惊悚", "心理驚悚", "緊張", "追殺", "逃亡", "危險", "生存戰", "綁架", "人質", "跟蹤", "致命", "生死", "高壓", "thriller", "thrillers", "suspense", "suspenseful", "survival", "hostage", "stalker", "cat and mouse"],
-  "科幻": ["科幻", "科幻片", "科學幻想", "未來", "太空", "宇宙", "星際", "外星", "機器人", "人工智慧", "時空", "時間旅行", "多元宇宙", "平行世界", "高科技", "賽博龐克", "末日世界", "反烏托邦", "基因改造", "複製人", "虛擬實境", "sci-fi", "scifi", "science fiction", "futuristic", "space", "alien", "robot", "android", "cyberpunk", "dystopia", "time travel", "virtual reality", "artificial intelligence", "ai"],
-  "動作": ["動作", "动作", "動作片", "戰鬥", "武打", "武術", "功夫", "格鬥", "槍戰", "爆破", "特務", "間諜", "諜報", "殺手", "傭兵", "英雄", "超級英雄", "追逐", "營救", "任務", "action", "action-packed", "martial arts", "kung fu", "gunfight", "spy", "assassin", "superhero", "chase"],
-  "動畫": ["動畫", "动画", "動畫片", "卡通", "動漫", "動畫電影", "親子動畫", "定格動畫", "電腦動畫", "手繪動畫", "童趣", "動物主角", "animation", "animations", "animated", "anime", "cartoon", "stop motion", "computer animation"],
-  "劇情": ["劇情", "剧情", "劇情片", "人生", "家庭人生", "成長", "勵志", "人性", "社會寫實", "現實題材", "救贖", "內心掙扎", "人物傳記", "文藝", "drama", "dramas", "dramatic", "coming of age", "character study", "social realism"],
-  "懸疑": ["懸疑", "悬疑", "推理", "謎團", "謎案", "偵探", "解謎", "神秘", "命案", "真相", "線索", "調查", "失蹤", "陰謀", "懸案", "mystery", "mysteries", "detective", "investigation", "whodunit", "conspiracy", "cold case", "missing person"],
-  "恐怖": ["恐怖", "恐怖片", "心理恐怖", "鬼", "鬼屋", "幽靈", "靈異", "超自然恐怖", "詛咒", "惡魔", "惡靈", "驅魔", "殭屍", "喪屍", "血腥", "怪物", "夢魘", "鬧鬼", "horror", "horrors", "haunted", "ghost", "demon", "possession", "exorcism", "zombie", "slasher", "gore", "nightmare"],
-  "犯罪": ["犯罪", "犯罪片", "黑幫", "幫派", "警匪", "警察", "刑警", "毒梟", "毒品", "劫案", "搶劫", "謀殺案", "連環殺手", "監獄", "國際犯罪", "crime", "crimes", "criminal", "gangster", "mafia", "heist", "robbery", "murder", "serial killer", "drug cartel", "prison"],
-  "冒險": ["冒險", "冒险", "探險", "探索", "遠征", "旅程", "尋寶", "奇遇", "遺跡", "荒野求生", "冒險旅程", "adventure", "adventures", "adventurous", "quest", "expedition", "treasure hunt", "journey", "voyage", "exploration"],
-  "奇幻": ["奇幻", "魔法", "魔幻", "魔術", "巫師", "女巫", "精靈", "仙境", "神話", "傳說", "龍", "黑暗奇幻", "異世界", "異空間", "童話", "fantasy", "fantasies", "magical", "magic", "wizard", "witch", "fairy tale", "mythology", "dragon", "alternate world"],
-  "家庭": ["家庭", "家庭劇", "親子", "親情", "家人", "父母", "父親", "母親", "兄弟", "姊妹", "手足", "祖孫", "育兒", "溫馨", "童趣", "社區生活", "family", "families", "family-friendly", "parent", "parents", "father", "mother", "siblings", "parent-child"],
-  "戰爭": ["戰爭", "战争", "軍事", "軍隊", "軍人", "士兵", "戰場", "前線", "空戰", "海戰", "反戰", "核戰", "歷史戰爭", "war", "wartime", "warfare", "military", "soldier", "army", "battlefield", "combat"],
-  "歷史": ["歷史", "历史", "歷史劇", "時代劇", "傳記", "古裝", "古代", "王朝", "宮廷", "年代", "殖民", "真實事件", "真人真事", "復古", "history", "historical", "period drama", "biography", "biographical", "biopic", "based on a true story", "ancient", "dynasty"],
-  "音樂": ["音樂", "音乐", "音樂劇", "歌舞", "歌曲", "歌手", "樂團", "樂隊", "演唱會", "合唱團", "舞蹈", "舞台表演", "作曲家", "music", "musical", "musicals", "concert", "singer", "band", "choir", "dance", "composer"]
-};
-
 let allMovies = [];
 let bubbles = [];
 let allTagCandidates = [];
+let cachedNormalBubbleCandidates = null;
+let cachedPopularityMaxViews = null;
 let selectedTags = new Map();
 let searchKeyword = "";
 let viewCounts = loadViews();
@@ -274,7 +336,7 @@ async function init() {
   activeMemberId = groupMembers[0]?.id || null;
 
   ensureDefaultMembers();
-  buildDynamicBubbles();
+  buildBubbleModeInitialState();
   renderMembers();
   renderGroupTags();
   renderRoleOptions();
@@ -313,9 +375,22 @@ function bindUI() {
     renderRecommendations();
   });
 
+  $("normalModeBtn")?.addEventListener("click", () => {
+    switchBubbleMode("normal");
+  });
+
+  $("exhibitionModeBtn")?.addEventListener("click", () => {
+    switchBubbleMode("exhibition");
+  });
+
   $("shuffleBtn").addEventListener("click", () => {
+    if (bubbleMode === "exhibition") {
+      showNextExhibitionRound();
+      return;
+    }
+
     if (!allTagCandidates || allTagCandidates.length === 0) return;
-    
+
     const currentTags = bubbles.map(b => b.tag);
     const newSelected = pickBalancedTags(allTagCandidates, currentTags);
     createBubbles(newSelected);
@@ -513,9 +588,8 @@ async function loadMoviesFromFilmDB() {
       }
 
       if (list.length) {
-        const uniqueList = dedupeMovies(list);
-        $("dbStatus").textContent = `已連接 FilmDB：成功讀取 ${uniqueList.length} 部電影，圓圈與搜尋皆由資料庫生成。`;
-        return uniqueList;
+        $("dbStatus").textContent = `已連接 FilmDB：成功讀取 ${list.length} 部電影，圓圈與搜尋皆由資料庫生成。`;
+        return list;
       }
     } catch (err) {
       console.warn("FilmDB 讀取失敗：", url, err);
@@ -523,7 +597,7 @@ async function loadMoviesFromFilmDB() {
   }
 
   $("dbStatus").textContent = "FilmDB 目前無法由瀏覽器直接讀取，可能是 API 路徑或 CORS 尚未開放。現在先使用本地示範資料。";
-  return dedupeMovies(FALLBACK_MOVIES.map((m, i) => normalizeMovie(m, i)));
+  return FALLBACK_MOVIES.map((m, i) => normalizeMovie(m, i));
 }
 
 function extractJsonFromText(text) {
@@ -624,7 +698,7 @@ function parseMoviesFromHtml(html, sourceUrl) {
     });
   }
 
-  return dedupeMovies(movies.filter(m => m.title));
+  return movies.filter(m => m.title);
 }
 
 function absolutize(url, baseUrl) {
@@ -650,7 +724,7 @@ function normalizeMovieList(data) {
     arr = p.movies || p.films || p.data || p.items || [];
   }
 
-  return dedupeMovies(arr.map((item, idx) => normalizeMovie(item, idx)).filter(m => m.title));
+  return arr.map((item, idx) => normalizeMovie(item, idx)).filter(m => m.title);
 }
 
 
@@ -764,131 +838,235 @@ function toArray(value) {
   if (!value) return [];
   if (Array.isArray(value)) return value.map(cleanTag).filter(Boolean);
   if (typeof value === "object") return Object.values(value).flatMap(toArray);
-
-  const text = String(value).trim();
-  if (/^[\[{]/.test(text)) {
-    try {
-      return toArray(JSON.parse(text));
-    } catch {}
-  }
-
-  return text
-    .split(/[,，、|/／\n;；·•]+/)
+  return String(value)
+    .split(/[,，、|/／\n;；]+/)
     .map(cleanTag)
     .filter(Boolean);
 }
 
 function cleanTag(s) {
-  return String(s)
-    .trim()
-    .replace(/^#+/, "")
-    .replace(/^[\s"'`\[\]{}()（）]+|[\s"'`\[\]{}()（）]+$/g, "")
-    .replace(/\s+/g, " ");
+  return String(s).trim().replace(/^#/, "").replace(/\s+/g, " ");
+}
+
+function getTagIdentity(tag) {
+  let key = cleanTag(tag)
+    .toLowerCase()
+    .replace(/[\s_\-—–・·,，、|/／;；:：()（）\[\]【】]/g, "")
+    .replace(/(?:電影|影片|片)$/u, "");
+
+  // 常見資料會同時放入「孤獨」與「孤獨感」，視覺上應視為同一個標籤。
+  if (key.length > 2 && key.endsWith("感")) key = key.slice(0, -1);
+
+  return key;
 }
 
 function slug(s) {
   return String(s).toLowerCase().replace(/[^\w\u4e00-\u9fa5]+/g, "-");
 }
 
-function normalizeIdentityText(value) {
-  return String(value || "")
-    .normalize("NFKC")
-    .toLowerCase()
-    .replace(/[\s\p{P}\p{S}]+/gu, "");
+
+function shuffleCopy(items) {
+  const list = [...items];
+
+  for (let i = list.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(randomUnit() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+
+  return list;
 }
 
-function uniqueTagValues(...lists) {
-  const values = [];
-  const seen = new Set();
-
-  lists.flat().forEach(value => {
-    const tag = cleanTag(value);
-    const key = normalizeIdentityText(tag);
-    if (!tag || !key || seen.has(key)) return;
-    seen.add(key);
-    values.push(tag);
-  });
-
-  return values;
-}
-
-function getPreferredText(first, second, placeholder = "") {
-  const a = String(first || "").trim();
-  const b = String(second || "").trim();
-  const isPlaceholder = value => !value || value === placeholder || value.includes("尚未提供完整簡介");
-
-  if (isPlaceholder(a) && !isPlaceholder(b)) return b;
-  if (isPlaceholder(b)) return a;
-  return b.length > a.length ? b : a;
-}
-
-function mergeMovieRecords(primary, duplicate) {
-  return {
-    ...primary,
-    desc: getPreferredText(primary.desc, duplicate.desc, "目前資料庫尚未提供完整簡介。"),
-    poster: getPreferredText(primary.poster, duplicate.poster),
-    trailer: getPreferredText(primary.trailer, duplicate.trailer),
-    year: primary.year || duplicate.year || "",
-    duration: getPreferredText(primary.duration, duplicate.duration),
-    actors: getPreferredText(primary.actors, duplicate.actors),
-    views: Math.max(Number(primary.views || 0), Number(duplicate.views || 0)),
-    genre: uniqueTagValues(primary.genre || [], duplicate.genre || []),
-    mood: uniqueTagValues(primary.mood || [], duplicate.mood || []),
-    mainScene: uniqueTagValues(primary.mainScene || [], duplicate.mainScene || []),
-    subScene: uniqueTagValues(primary.subScene || [], duplicate.subScene || []),
-    keywords: uniqueTagValues(primary.keywords || [], duplicate.keywords || []),
-    raw: { ...(duplicate.raw || {}), ...(primary.raw || {}) }
+function buildExhibitionRounds() {
+  const kindOrder = ["genre", "mood", "atmosphere", "scene"];
+  const previousCycleTagKeys = new Set(
+    exhibitionRounds.flatMap(round => round.map(item => getTagIdentity(item.tag)))
+  );
+  const buckets = {
+    genre: [],
+    mood: [],
+    atmosphere: [],
+    scene: []
   };
-}
 
-function dedupeMovies(movies) {
-  const unique = [];
-  const titleBuckets = new Map();
-  const videoIndex = new Map();
-
-  (Array.isArray(movies) ? movies : []).forEach(movie => {
-    if (!movie?.title) return;
-
-    const titleKey = normalizeIdentityText(movie.title);
-    const yearKey = normalizeIdentityText(movie.year);
-    const videoKey = getYoutubeIdFromUrl(movie.trailer);
-    const bucket = titleBuckets.get(titleKey) || [];
-
-    let duplicateIndex = videoKey ? videoIndex.get(videoKey) : undefined;
-    if (duplicateIndex === undefined) {
-      duplicateIndex = bucket.find(index => {
-        const existingYear = normalizeIdentityText(unique[index]?.year);
-        return !yearKey || !existingYear || yearKey === existingYear;
-      });
-    }
-
-    if (duplicateIndex === undefined) {
-      const nextIndex = unique.length;
-      unique.push(movie);
-      titleBuckets.set(titleKey, [...bucket, nextIndex]);
-      if (videoKey) videoIndex.set(videoKey, nextIndex);
-      return;
-    }
-
-    unique[duplicateIndex] = mergeMovieRecords(unique[duplicateIndex], movie);
-    if (videoKey) videoIndex.set(videoKey, duplicateIndex);
+  EXHIBITION_TAG_POOL.forEach(item => {
+    if (buckets[item.kind]) buckets[item.kind].push({ ...item });
   });
 
-  return unique;
+  // 每一個新循環都重新洗牌，並先避開上一個循環出現過的標籤。
+  // 因此第 4 組換回第 1 組時，也不會立刻看到上一輪的內容。
+  const shuffledBuckets = {};
+  kindOrder.forEach(kind => {
+    const freshItems = buckets[kind].filter(item => !previousCycleTagKeys.has(getTagIdentity(item.tag)));
+    const recentItems = buckets[kind].filter(item => previousCycleTagKeys.has(getTagIdentity(item.tag)));
+    shuffledBuckets[kind] = [
+      ...shuffleCopy(freshItems),
+      ...shuffleCopy(recentItems)
+    ];
+  });
+
+  const usedVisibleTags = new Set();
+  const cursorByKind = { genre: 0, mood: 0, atmosphere: 0, scene: 0 };
+
+  const takeUniqueFromKind = (kind, count) => {
+    const picked = [];
+    const bucket = shuffledBuckets[kind];
+
+    while (picked.length < count && cursorByKind[kind] < bucket.length) {
+      const item = bucket[cursorByKind[kind]];
+      cursorByKind[kind] += 1;
+
+      // 「神秘」同時存在於類型與氛圍；四輪防重複以畫面標籤的正規化文字為準。
+      const tagKey = getTagIdentity(item.tag);
+      if (!tagKey || usedVisibleTags.has(tagKey)) continue;
+
+      usedVisibleTags.add(tagKey);
+      picked.push(item);
+    }
+
+    return picked;
+  };
+
+  exhibitionRounds = Array.from({ length: EXHIBITION_ROUND_COUNT }, () => {
+    const items = [];
+
+    kindOrder.forEach(kind => {
+      items.push(...takeUniqueFromKind(kind, EXHIBITION_KIND_QUOTAS[kind]));
+    });
+
+    return items.sort(
+      (a, b) => kindOrder.indexOf(a.kind) - kindOrder.indexOf(b.kind)
+    );
+  });
+
+  exhibitionRoundIndex = 0;
+}
+function renderBubbleModeUI() {
+  const normalBtn = $("normalModeBtn");
+  const exhibitionBtn = $("exhibitionModeBtn");
+  const roundBadge = $("exhibitionRoundBadge");
+  const title = $("moodStageTitle");
+  const desc = $("moodStageDesc");
+  const shuffleBtn = $("shuffleBtn");
+
+  const isExhibition = bubbleMode === "exhibition";
+
+  normalBtn?.classList.toggle("active", !isExhibition);
+  exhibitionBtn?.classList.toggle("active", isExhibition);
+  normalBtn?.setAttribute("aria-pressed", String(!isExhibition));
+  exhibitionBtn?.setAttribute("aria-pressed", String(isExhibition));
+
+  if (title) {
+    title.textContent = isExhibition
+      ? "展覽模式｜今天想看什麼感覺？"
+      : "今天想看什麼感覺的電影？";
+  }
+
+  if (desc) {
+    desc.textContent = isExhibition
+      ? ""
+      : "圓圈由資料庫中的「類型關鍵字」與「情感／氛圍」欄位統計產生，並混合場景標籤。";
+  }
+
+  if (roundBadge) {
+    roundBadge.hidden = !isExhibition;
+    roundBadge.textContent = `展覽刷新 ${exhibitionRoundIndex + 1} / ${EXHIBITION_ROUND_COUNT}`;
+  }
+
+  if (shuffleBtn) {
+    shuffleBtn.textContent = isExhibition ? "⟳ 換下一組" : "⟳ 換個排列";
+  }
+
+  document.body.classList.toggle("exhibition-mode", isExhibition);
 }
 
-function normalizeBubbleTagKey(tag) {
-  const normalized = String(tag || "")
-    .normalize("NFKC")
-    .toLowerCase()
-    .replace(/^#/, "")
-    .replace(/[\s\p{P}\p{S}]+/gu, "")
-    .replace(/(?:電影|影片|片)$/u, "");
+function clearBubbleSelectionForModeSwitch() {
+  selectedTags.clear();
+  searchKeyword = "";
 
-  return normalized || normalizeIdentityText(tag);
+  const searchInput = $("searchInput");
+  if (searchInput) searchInput.value = "";
+
+  bubbles.forEach(bubble => {
+    bubble.weight = 0;
+    bubble.el?.classList.remove("selected");
+  });
+
+  renderSelectedTags();
+}
+
+function showExhibitionRound(roundIndex = exhibitionRoundIndex) {
+  if (!exhibitionRounds.length) buildExhibitionRounds();
+
+  exhibitionRoundIndex = Math.max(
+    0,
+    Math.min(EXHIBITION_ROUND_COUNT - 1, Number(roundIndex) || 0)
+  );
+
+  createBubbles(exhibitionRounds[exhibitionRoundIndex]);
+  renderBubbleModeUI();
+}
+
+function showNextExhibitionRound() {
+  if (!exhibitionRounds.length) {
+    buildExhibitionRounds();
+    showExhibitionRound(0);
+    return;
+  }
+
+  const nextIndex = exhibitionRoundIndex + 1;
+
+  if (nextIndex >= EXHIBITION_ROUND_COUNT) {
+    buildExhibitionRounds();
+    showExhibitionRound(0);
+    return;
+  }
+
+  showExhibitionRound(nextIndex);
+}
+
+function switchBubbleMode(nextMode) {
+  const normalizedMode = nextMode === "exhibition" ? "exhibition" : "normal";
+
+  if (bubbleMode === normalizedMode) {
+    renderBubbleModeUI();
+    return;
+  }
+
+  bubbleMode = normalizedMode;
+  localStorage.setItem(BUBBLE_MODE_KEY, bubbleMode);
+  clearBubbleSelectionForModeSwitch();
+
+  if (bubbleMode === "exhibition") {
+    buildExhibitionRounds();
+    showExhibitionRound(0);
+  } else {
+    buildDynamicBubbles();
+    renderBubbleModeUI();
+  }
+
+  renderRecommendations();
+}
+
+function buildBubbleModeInitialState() {
+  if (bubbleMode === "exhibition") {
+    buildExhibitionRounds();
+    showExhibitionRound(0);
+    return;
+  }
+
+  buildDynamicBubbles();
+  renderBubbleModeUI();
 }
 
 function buildDynamicBubbles() {
+  // 資料庫本身沒有改變時，候選標籤統計只需要做一次。
+  if (cachedNormalBubbleCandidates?.length) {
+    allTagCandidates = cachedNormalBubbleCandidates;
+    const selected = pickBalancedTags(allTagCandidates, []);
+    createBubbles(selected);
+    return;
+  }
+
   const counts = new Map();
 
   allMovies.forEach(movie => {
@@ -896,21 +1074,24 @@ function buildDynamicBubbles() {
       { list: movie.mood, base: 5.2 },
       { list: movie.genre, base: 2.2 },
       { list: movie.mainScene, base: 3.1 },
-      { list: movie.subScene, base: 2.2 }
+      { list: movie.subScene, base: 2.2 },
+      { list: movie.keywords, base: 1.8 }
     ];
 
     fieldGroups.forEach(({ list, base }) => {
-      list.forEach(tag => {
-        const kind = classifyTag(tag);
-        const key = normalizeBubbleTagKey(tag);
-        if (!key) return;
+      (list || []).forEach(tag => {
+        const clean = cleanTag(tag);
+        const tagKey = getTagIdentity(clean);
+        if (!tagKey) return;
 
-        const prev = counts.get(key) || { tag, key, score: 0, kind, count: 0 };
+        const kind = classifyTag(clean);
+        const prev = counts.get(tagKey) || { tag: clean, score: 0, kind, count: 0 };
         prev.score += base + (kind === "mood" ? 1.4 : 0);
         prev.count += 1;
         prev.kind = kind;
-        if (String(tag).length < String(prev.tag).length) prev.tag = tag;
-        counts.set(key, prev);
+        // 同時有「愛情」與「愛情片」時，畫面保留較精簡的名稱。
+        if (clean.length < prev.tag.length) prev.tag = clean;
+        counts.set(tagKey, prev);
       });
     });
   });
@@ -926,12 +1107,13 @@ function buildDynamicBubbles() {
       ["恐怖片", "genre"], ["愛情片", "genre"]
     ];
     fallbackTags.forEach(([tag, kind]) => {
-      const key = normalizeBubbleTagKey(tag);
-      if (!counts.has(key)) candidates.push({ tag, key, score: 1, kind, count: 1 });
+      if (!counts.has(getTagIdentity(tag))) candidates.push({ tag, score: 1, kind, count: 1 });
     });
   }
 
-  allTagCandidates = candidates;
+  cachedNormalBubbleCandidates = candidates;
+  allTagCandidates = cachedNormalBubbleCandidates;
+
   const selected = pickBalancedTags(allTagCandidates, []);
   createBubbles(selected);
 }
@@ -944,34 +1126,9 @@ function classifyTag(tag) {
   return "mood";
 }
 
-function loadRecentBubbleSets() {
-  try {
-    const parsed = JSON.parse(globalThis.sessionStorage?.getItem(BUBBLE_HISTORY_KEY) || "[]");
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed
-      .filter(entry => Array.isArray(entry?.keys) && entry.keys.length)
-      .slice(-BUBBLE_HISTORY_LIMIT)
-      .map(entry => ({
-        signature: String(entry.signature || [...entry.keys].sort().join("|")),
-        keys: new Set(entry.keys.map(normalizeBubbleTagKey).filter(Boolean))
-      }));
-  } catch {
-    return [];
-  }
-}
-
-function saveRecentBubbleSets() {
-  try {
-    const serializable = recentBubbleSets.map(entry => ({
-      signature: entry.signature,
-      keys: [...entry.keys]
-    }));
-    globalThis.sessionStorage?.setItem(BUBBLE_HISTORY_KEY, JSON.stringify(serializable));
-  } catch {}
-}
-
-const recentBubbleSets = loadRecentBubbleSets();
+const recentBubbleSetSignatures = [];
+const recentNormalBubbleTagRounds = [];
+const NORMAL_BUBBLE_HISTORY_ROUNDS = 4;
 
 function randomUnit() {
   if (globalThis.crypto?.getRandomValues) {
@@ -982,51 +1139,13 @@ function randomUnit() {
   return Math.random();
 }
 
-function shuffledCopy(items) {
-  const copy = [...items];
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(randomUnit() * (index + 1));
-    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
-  }
-  return copy;
-}
-
-function getCandidateTagKey(item) {
-  return item?.key || normalizeBubbleTagKey(item?.tag);
-}
-
-function getRecentTagPenalty(tagKey, currentSet) {
-  if (currentSet.has(tagKey)) return 0.006;
-
-  let penalty = 1;
-  recentBubbleSets.forEach((entry, index) => {
-    if (!entry.keys.has(tagKey)) return;
-    const age = recentBubbleSets.length - 1 - index;
-    const recentPenalty = age === 0
-      ? 0.025
-      : age === 1
-        ? 0.06
-        : age === 2
-          ? 0.13
-          : age === 3
-            ? 0.25
-            : age === 4
-              ? 0.45
-              : 0.7;
-    penalty = Math.min(penalty, recentPenalty);
-  });
-
-  return penalty;
-}
-
-function weightedRandomSample(items, count, currentSet = new Set(), excludedKeys = new Set()) {
+function weightedRandomSample(items, count, discouragedTags = new Set()) {
   if (!items.length || count <= 0) return [];
 
   return items
-    .filter(item => !excludedKeys.has(getCandidateTagKey(item)))
     .map(item => {
       const baseScore = Math.max(0.25, Math.log2(2 + Number(item.score || 0)));
-      const repeatPenalty = getRecentTagPenalty(getCandidateTagKey(item), currentSet);
+      const repeatPenalty = discouragedTags.has(getTagIdentity(item.tag)) ? 0.06 : 1;
       const weight = Math.max(0.08, baseScore * repeatPenalty);
       const key = Math.pow(randomUnit(), 1 / weight);
       return { item, key };
@@ -1036,46 +1155,10 @@ function weightedRandomSample(items, count, currentSet = new Set(), excludedKeys
     .map(entry => entry.item);
 }
 
-function sampleFreshFirst(items, count, currentSet, excludedKeys = new Set()) {
-  if (count <= 0) return [];
-
-  const recentKeys = new Set();
-  recentBubbleSets
-    .slice(-BUBBLE_STRICT_RECENT_SETS)
-    .forEach(entry => entry.keys.forEach(key => recentKeys.add(key)));
-
-  const tiers = [
-    items.filter(item => {
-      const key = getCandidateTagKey(item);
-      return !currentSet.has(key) && !recentKeys.has(key);
-    }),
-    items.filter(item => !currentSet.has(getCandidateTagKey(item))),
-    items.filter(item => !recentKeys.has(getCandidateTagKey(item))),
-    items
-  ];
-
-  const picked = [];
-  const pickedKeys = new Set(excludedKeys);
-
-  tiers.forEach(pool => {
-    if (picked.length >= count) return;
-    const additions = weightedRandomSample(pool, count - picked.length, currentSet, pickedKeys);
-    additions.forEach(item => {
-      const key = getCandidateTagKey(item);
-      if (pickedKeys.has(key)) return;
-      pickedKeys.add(key);
-      picked.push(item);
-    });
-  });
-
-  return picked;
-}
-
-function buildRandomBalancedTagSet(candidates, currentTags = []) {
+function buildRandomBalancedTagSet(candidates, discouragedTagKeys = new Set(), currentTagKeys = new Set()) {
   const kindOrder = ["genre", "mood", "atmosphere", "scene"];
   const quotas = { genre: 2, mood: 3, atmosphere: 3, scene: 2 };
   const buckets = { mood: [], atmosphere: [], scene: [], genre: [] };
-  const currentSet = new Set(currentTags.map(normalizeBubbleTagKey));
 
   candidates.forEach(item => {
     const kind = buckets[item.kind] ? item.kind : "mood";
@@ -1085,23 +1168,54 @@ function buildRandomBalancedTagSet(candidates, currentTags = []) {
   const picked = [];
   const seen = new Set();
 
-  kindOrder.forEach(kind => {
-    const freshInKind = buckets[kind].filter(item => !currentSet.has(getCandidateTagKey(item)));
-    sampleFreshFirst(freshInKind, quotas[kind], currentSet, seen).forEach(item => {
-      const key = getCandidateTagKey(item);
-      if (seen.has(key)) return;
-      seen.add(key);
+  const addItems = items => {
+    items.forEach(item => {
+      const tagKey = getTagIdentity(item.tag);
+      if (!tagKey || seen.has(tagKey)) return;
+      seen.add(tagKey);
       picked.push(item);
     });
+  };
+
+  kindOrder.forEach(kind => {
+    const freshItems = buckets[kind].filter(item => !discouragedTagKeys.has(getTagIdentity(item.tag)));
+    addItems(weightedRandomSample(freshItems, quotas[kind]));
+
+    let missingCount = quotas[kind] - picked.filter(item => item.kind === kind).length;
+    if (missingCount > 0) {
+      // 候選池不足時先重用較早輪次的標籤，仍避開畫面上一輪正在顯示的標籤。
+      const olderItems = buckets[kind].filter(item => {
+        const tagKey = getTagIdentity(item.tag);
+        return !seen.has(tagKey) && !currentTagKeys.has(tagKey);
+      });
+      addItems(weightedRandomSample(olderItems, missingCount, discouragedTagKeys));
+    }
+
+    missingCount = quotas[kind] - picked.filter(item => item.kind === kind).length;
+    if (missingCount > 0) {
+      const currentItems = buckets[kind].filter(item => !seen.has(getTagIdentity(item.tag)));
+      addItems(weightedRandomSample(currentItems, missingCount, discouragedTagKeys));
+    }
   });
 
-  const remaining = candidates.filter(item => !seen.has(getCandidateTagKey(item)));
-  sampleFreshFirst(remaining, BUBBLE_LIMIT - picked.length, currentSet, seen).forEach(item => {
-    const key = getCandidateTagKey(item);
-    if (seen.has(key)) return;
-    seen.add(key);
-    picked.push(item);
+  const freshRemaining = candidates.filter(item => {
+    const tagKey = getTagIdentity(item.tag);
+    return !seen.has(tagKey) && !discouragedTagKeys.has(tagKey);
   });
+  addItems(weightedRandomSample(freshRemaining, BUBBLE_LIMIT - picked.length));
+
+  if (picked.length < BUBBLE_LIMIT) {
+    const olderRemaining = candidates.filter(item => {
+      const tagKey = getTagIdentity(item.tag);
+      return !seen.has(tagKey) && !currentTagKeys.has(tagKey);
+    });
+    addItems(weightedRandomSample(olderRemaining, BUBBLE_LIMIT - picked.length, discouragedTagKeys));
+  }
+
+  if (picked.length < BUBBLE_LIMIT) {
+    const repeatedRemaining = candidates.filter(item => !seen.has(getTagIdentity(item.tag)));
+    addItems(weightedRandomSample(repeatedRemaining, BUBBLE_LIMIT - picked.length, discouragedTagKeys));
+  }
 
   return picked
     .slice(0, BUBBLE_LIMIT)
@@ -1111,53 +1225,52 @@ function buildRandomBalancedTagSet(candidates, currentTags = []) {
 function pickBalancedTags(candidates, excludeTags = []) {
   if (!Array.isArray(candidates) || !candidates.length) return [];
 
-  const distinctCandidates = [...new Map(
-    candidates.map(item => [getCandidateTagKey(item), item])
-  ).values()];
-  const currentSet = new Set(excludeTags.map(normalizeBubbleTagKey));
-  const availableFreshCount = distinctCandidates.filter(item => !currentSet.has(getCandidateTagKey(item))).length;
+  const currentTagKeys = new Set(excludeTags.map(getTagIdentity).filter(Boolean));
+  const recentTagKeys = new Set(
+    recentNormalBubbleTagRounds.flatMap(round => [...round])
+  );
+  const discouragedTagKeys = new Set([...currentTagKeys, ...recentTagKeys]);
   let selected = [];
 
-  for (let attempt = 0; attempt < 48; attempt += 1) {
-    const candidateSet = buildRandomBalancedTagSet(distinctCandidates, excludeTags);
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const candidateSet = buildRandomBalancedTagSet(candidates, discouragedTagKeys, currentTagKeys);
     const signature = candidateSet
-      .map(getCandidateTagKey)
+      .map(item => getTagIdentity(item.tag))
       .slice()
       .sort()
       .join("|");
 
-    const changedCount = candidateSet.filter(item => !currentSet.has(getCandidateTagKey(item))).length;
-    const desiredChanged = Math.max(1, Math.ceil(candidateSet.length * 0.9));
-    const minimumChanged = Math.min(candidateSet.length, availableFreshCount, desiredChanged);
-    const recentlyUsed = recentBubbleSets.some(entry => entry.signature === signature);
+    const changedCount = candidateSet.filter(item => !currentTagKeys.has(getTagIdentity(item.tag))).length;
+    const availableFreshCount = candidates.filter(item => !currentTagKeys.has(getTagIdentity(item.tag))).length;
+    const minimumChanged = Math.min(candidateSet.length, availableFreshCount, Math.ceil(candidateSet.length * 0.7));
+    const recentlyUsed = recentBubbleSetSignatures.includes(signature);
 
     selected = candidateSet;
 
-    if (!recentlyUsed && (excludeTags.length === 0 || changedCount >= minimumChanged)) {
-      rememberBubbleSet(selected, signature);
-      return selected;
+    if (!recentlyUsed && changedCount >= minimumChanged) {
+      break;
     }
   }
 
-  const fallbackSignature = selected
-    .map(getCandidateTagKey)
+  const selectedSignature = selected
+    .map(item => getTagIdentity(item.tag))
     .slice()
     .sort()
     .join("|");
 
-  if (fallbackSignature) rememberBubbleSet(selected, fallbackSignature);
+  if (selectedSignature) {
+    recentBubbleSetSignatures.push(selectedSignature);
+    while (recentBubbleSetSignatures.length > 8) recentBubbleSetSignatures.shift();
+
+    recentNormalBubbleTagRounds.push(
+      new Set(selected.map(item => getTagIdentity(item.tag)).filter(Boolean))
+    );
+    while (recentNormalBubbleTagRounds.length > NORMAL_BUBBLE_HISTORY_ROUNDS) {
+      recentNormalBubbleTagRounds.shift();
+    }
+  }
 
   return selected;
-}
-
-function rememberBubbleSet(items, signature = "") {
-  const keys = new Set(items.map(getCandidateTagKey));
-  recentBubbleSets.push({
-    signature: signature || [...keys].sort().join("|"),
-    keys
-  });
-  while (recentBubbleSets.length > BUBBLE_HISTORY_LIMIT) recentBubbleSets.shift();
-  saveRecentBubbleSets();
 }
 
 function createBubbles(items) {
@@ -1392,15 +1505,29 @@ function renderSelectedTags() {
 function renderRecommendations(showAll = false) {
   const list = $("recommendList");
   const criteriaActive = hasRecommendationCriteria();
+  const needsPopularity = appSettings.prefPop || appSettings.prefNiche;
+
+  // maxViews 只在需要熱門/冷門偏好時算一次。
+  const maxViews = needsPopularity
+    ? Math.max(1, ...allMovies.map(movie => Math.max(0, Number(getViewCount(movie) || 0))))
+    : 1;
 
   let scored = allMovies
     .filter(moviePassesPreferenceFilters)
     .filter(movie => getFeedback(movie) !== "dislike")
-    .map(movie => ({
-      movie,
-      score: computeScore(movie),
-      rankScore: computeRankingScore(movie)
-    }));
+    .map(movie => {
+      // 切換模式時會清空選擇；沒有任何推薦條件時，完全不需要跑標籤相似度。
+      const score = criteriaActive ? computeScore(movie) : 0;
+      const popularityRatio = needsPopularity
+        ? Math.max(0, Math.min(1, Number(getViewCount(movie) || 0) / maxViews))
+        : 0;
+
+      return {
+        movie,
+        score,
+        rankScore: computeRankingScore(movie, score, popularityRatio)
+      };
+    });
 
   scored.sort((a, b) => {
     const av = getViewCount(a.movie);
@@ -1498,11 +1625,17 @@ function moviePassesPreferenceFilters(movie) {
 }
 
 function getPopularityRatio(movie) {
-  const maxViews = Math.max(
-    1,
-    ...allMovies.map(item => Math.max(0, Number(getViewCount(item) || 0)))
+  if (cachedPopularityMaxViews === null) {
+    cachedPopularityMaxViews = Math.max(
+      1,
+      ...allMovies.map(item => Math.max(0, Number(getViewCount(item) || 0)))
+    );
+  }
+
+  return Math.max(
+    0,
+    Math.min(1, Number(getViewCount(movie) || 0) / cachedPopularityMaxViews)
   );
-  return Math.max(0, Math.min(1, Number(getViewCount(movie) || 0) / maxViews));
 }
 
 function normalizeMatchText(value) {
@@ -1618,8 +1751,9 @@ function computeScore(movie) {
   return Math.max(0, Math.min(1, weightedScore));
 }
 
-function computeRankingScore(movie) {
-  let rankScore = computeScore(movie);
+function computeRankingScore(movie, baseScore = null, popularityRatio = null) {
+  // 呼叫端如果已經算過 computeScore，就直接重用，不再重算第二次。
+  let rankScore = baseScore === null ? computeScore(movie) : baseScore;
 
   const feedback = feedbacks[getMovieKey(movie)] || {};
   if (typeof feedback.temperature === "number") {
@@ -1629,9 +1763,14 @@ function computeRankingScore(movie) {
     rankScore += 0.08;
   }
 
-  const popularity = getPopularityRatio(movie);
-  if (appSettings.prefPop) rankScore += popularity * 0.12;
-  if (appSettings.prefNiche) rankScore += (1 - popularity) * 0.12;
+  if (appSettings.prefPop || appSettings.prefNiche) {
+    const popularity = popularityRatio === null
+      ? getPopularityRatio(movie)
+      : popularityRatio;
+
+    if (appSettings.prefPop) rankScore += popularity * 0.12;
+    if (appSettings.prefNiche) rankScore += (1 - popularity) * 0.12;
+  }
 
   return rankScore;
 }
@@ -2207,70 +2346,10 @@ function bindExploreUI() {
   });
 }
 
-function normalizeExploreText(value) {
-  return String(value || "")
-    .normalize("NFKC")
-    .toLowerCase()
-    .replace(/[\s\u3000]+/g, " ")
-    .trim();
-}
-
-function textContainsExploreAlias(text, alias) {
-  const haystack = normalizeExploreText(text);
-  const needle = normalizeExploreText(alias);
-  if (!haystack || !needle) return false;
-
-  // 英文別名以完整單字比對，避免 band 誤中 husband、parent 誤中 apparent。
-  if (/^[a-z0-9][a-z0-9 +.'-]*$/i.test(needle) && /[a-z]/i.test(needle)) {
-    const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return new RegExp(`(^|[^a-z0-9])${escaped}(?=$|[^a-z0-9])`, "i").test(haystack);
-  }
-
-  return haystack.includes(needle);
-}
-
-function flattenExploreValues(value) {
-  if (value === null || value === undefined) return [];
-  if (Array.isArray(value)) return value.flatMap(flattenExploreValues);
-  if (typeof value === "object") return Object.values(value).flatMap(flattenExploreValues);
-  return [String(value)];
-}
-
-function getMovieExploreValues(movie, includeRaw = true) {
-  const values = [
-    movie.title,
-    movie.desc,
-    movie.actors,
-    ...(movie.genre || []),
-    ...(movie.mood || []),
-    ...(movie.mainScene || []),
-    ...(movie.subScene || []),
-    ...(movie.keywords || [])
-  ];
-
-  if (includeRaw) values.push(...flattenExploreValues(movie.raw || {}));
-  return values.filter(Boolean);
-}
-
-function getExploreAliases(keyword) {
-  const normalizedKeyword = normalizeExploreText(keyword);
-  if (!normalizedKeyword) return [];
-
-  const category = Object.entries(CATEGORY_RULES).find(([name, aliases]) => {
-    if (normalizeExploreText(name) === normalizedKeyword) return true;
-    return aliases.some(alias => normalizeExploreText(alias) === normalizedKeyword);
-  });
-
-  return category ? category[1] : [keyword];
-}
-
-function movieMatchesExploreAliases(movie, aliases = []) {
-  const values = getMovieExploreValues(movie);
-  return aliases.some(alias => values.some(value => textContainsExploreAlias(value, alias)));
-}
-
 function computeExploreMatchScore(movie, aliases = []) {
-  const needles = aliases.map(normalizeExploreText).filter(Boolean);
+  const needles = aliases
+    .map(alias => String(alias || "").trim().toLowerCase())
+    .filter(Boolean);
 
   if (!needles.length) return null;
 
@@ -2287,12 +2366,12 @@ function computeExploreMatchScore(movie, aliases = []) {
   let best = 0;
 
   fields.forEach(field => {
-    const haystack = field.values.join(" ");
+    const haystack = field.values.join(" ").toLowerCase();
     if (!haystack) return;
 
     needles.forEach(needle => {
       if (!needle) return;
-      if (textContainsExploreAlias(haystack, needle)) {
+      if (haystack.includes(needle)) {
         best = Math.max(best, field.score);
       }
     });
@@ -2305,11 +2384,23 @@ function renderExploreResults(keyword = "") {
   const list = $("exploreResultList");
   if (!list) return;
 
-  let targetMovies = dedupeMovies(allMovies);
-  const key = normalizeExploreText(keyword);
-  const activeAliases = getExploreAliases(key);
+  let targetMovies = [...allMovies];
+  const key = String(keyword || "").trim().toLowerCase();
   if (key) {
-    targetMovies = targetMovies.filter(movie => movieMatchesExploreAliases(movie, activeAliases));
+    const aliases = CATEGORY_RULES[key] || [key];
+    targetMovies = targetMovies.filter(movie => {
+      const movieText = [
+        movie.title,
+        movie.desc,
+        movie.actors,
+        ...(movie.genre || []),
+        ...(movie.mood || []),
+        ...(movie.mainScene || []),
+        ...(movie.subScene || []),
+        ...(movie.keywords || [])
+      ].join(" ").toLowerCase();
+      return aliases.some(alias => movieText.includes(String(alias).toLowerCase()));
+    });
   }
 
   if (appSettings.noHorror) {
@@ -2323,10 +2414,10 @@ function renderExploreResults(keyword = "") {
   } else if (appSettings.prefNiche) {
     targetMovies.sort((a, b) => getViewCount(a) - getViewCount(b));
   } else {
-    targetMovies = shuffledCopy(targetMovies);
+    targetMovies.sort(() => Math.random() - 0.5);
   }
 
-  const displayMovies = targetMovies.slice(0, key ? EXPLORE_RESULT_LIMIT : 18);
+  const displayMovies = targetMovies.slice(0, 18);
   if (!displayMovies.length) {
     list.innerHTML = `<div class="empty-state">找不到相關電影，試試其他分類吧！</div>`;
     return;
@@ -2338,7 +2429,8 @@ function renderExploreResults(keyword = "") {
     const card = document.createElement("article");
     card.className = "explore-movie-card";
     const tags = topTags(movie).slice(0, 5).map(t => `<span>${escapeHtml(t)}</span>`).join("");
-    const exploreScore = computeExploreMatchScore(movie, activeAliases);
+    const aliases = key ? (CATEGORY_RULES[key] || [key]) : [];
+    const exploreScore = computeExploreMatchScore(movie, aliases);
     const collected = isFavorite(movie);
     const scoreBadge = exploreScore === null ? "探索" : `${exploreScore}% 匹配`;
     card.innerHTML = `
@@ -3015,10 +3107,16 @@ function updateTemperaturePreview(value) {
 
 function getNextRecommendedMovie(currentMovieId) {
   const currentKey = String(currentMovieId || "");
+  const criteriaActive = hasRecommendationCriteria();
+  const needsPopularity = appSettings.prefPop || appSettings.prefNiche;
 
   const ratedKeys = new Set(
     Object.keys(feedbacks || {}).map(key => String(key))
   );
+
+  const maxViews = needsPopularity
+    ? Math.max(1, ...allMovies.map(movie => Math.max(0, Number(getViewCount(movie) || 0))))
+    : 1;
 
   const scored = allMovies
     .filter(movie => {
@@ -3028,18 +3126,25 @@ function getNextRecommendedMovie(currentMovieId) {
       if (!moviePassesPreferenceFilters(movie)) return false;
       return true;
     })
-    .map(movie => ({
-      movie,
-      score: computeScore(movie),
-      rankScore: computeRankingScore(movie)
-    }))
+    .map(movie => {
+      const score = criteriaActive ? computeScore(movie) : 0;
+      const popularityRatio = needsPopularity
+        ? Math.max(0, Math.min(1, Number(getViewCount(movie) || 0) / maxViews))
+        : 0;
+
+      return {
+        movie,
+        score,
+        rankScore: computeRankingScore(movie, score, popularityRatio)
+      };
+    })
     .sort((a, b) => {
       const av = getViewCount(a.movie);
       const bv = getViewCount(b.movie);
       return b.rankScore - a.rankScore || bv - av;
     });
 
-  if (hasRecommendationCriteria()) {
+  if (criteriaActive) {
     return scored.find(item => item.score > 0) || scored[0] || null;
   }
 
@@ -3196,7 +3301,7 @@ function getViewCount(movie) {
 
 function incrementView(movie) {
   viewCounts[movie.id] = Number(viewCounts[movie.id] || 0) + 1;
-  saveViews();
+  saveViews();  cachedPopularityMaxViews = null;
 }
 
 function escapeHtml(s) {

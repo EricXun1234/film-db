@@ -78,11 +78,20 @@
         <section class="hero-layout">
           <section class="mood-stage-card">
             <div class="stage-head">
-              <div>
-                <h3>今天想看什麼感覺的電影？</h3>
-                <p>圓圈由資料庫中的「類型關鍵字」與「情感／氛圍」欄位統計產生，並混合場景標籤。</p>
+              <div class="stage-title-wrap">
+                <h3 id="moodStageTitle">今天想看什麼感覺的電影？</h3>
+                <p id="moodStageDesc">圓圈由資料庫中的「類型關鍵字」與「情感／氛圍」欄位統計產生，並混合場景標籤。</p>
+
+                <div class="bubble-mode-switch" role="group" aria-label="圓圈模式">
+                  <button id="normalModeBtn" class="bubble-mode-btn active" type="button" aria-pressed="true">一般模式</button>
+                  <button id="exhibitionModeBtn" class="bubble-mode-btn" type="button" aria-pressed="false">展覽模式</button>
+                </div>
               </div>
-              <button id="shuffleBtn">⟳ 換個排列</button>
+
+              <div class="stage-head-actions">
+                <span id="exhibitionRoundBadge" class="exhibition-round-badge" hidden>展覽刷新 1 / 4</span>
+                <button id="shuffleBtn">⟳ 換個排列</button>
+              </div>
             </div>
 
             <div class="mood-stage" id="moodStage">
@@ -158,8 +167,8 @@
 
           <article class="hint-card">
             <h3>小提醒</h3>
-            <p>這個版本的圓圈不是固定寫死，而是從資料庫電影資料中整理常出現的標籤。</p>
-            <p>情緒、氛圍、心理感受會優先顯示，傳統電影類型只保留少數。</p>
+            <p>一般模式會從電影資料庫整理常見標籤；展覽模式只使用《刮刮卡標籤》提供的固定標籤池。</p>
+            <p>展覽模式每次顯示 10 個，連續四次刷新內不重複；第四組後重新洗牌開始下一輪。</p>
           </article>
         </section>
       </div>

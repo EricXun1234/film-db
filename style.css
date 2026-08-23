@@ -7043,3 +7043,162 @@ body.light-mode .play-circle,
 body.light-mode .save-settings-btn {
   color: #ffffff !important;
 }
+
+/* ===== 展覽模式｜方案 A ===== */
+.stage-title-wrap {
+  min-width: 0;
+}
+
+.stage-head-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bubble-mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 14px;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(18, 30, 82, 0.30);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.bubble-mode-btn {
+  appearance: none;
+  border: 0;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: transparent;
+  color: rgba(244, 248, 255, 0.68);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+
+.bubble-mode-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bubble-mode-btn.active {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(145, 140, 255, 0.94), rgba(99, 214, 255, 0.88));
+  box-shadow: 0 8px 20px rgba(71, 89, 210, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.36);
+}
+
+.exhibition-round-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 214, 255, 0.24);
+  background: rgba(99, 214, 255, 0.10);
+  color: rgba(235, 249, 255, 0.92);
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.exhibition-round-badge[hidden] {
+  display: none !important;
+}
+
+body.exhibition-mode .mood-stage {
+  box-shadow: inset 0 0 0 1px rgba(99, 214, 255, 0.10), 0 18px 44px rgba(50, 83, 200, 0.08);
+}
+
+body.exhibition-mode .drop-zone::after {
+  content: "EXHIBITION";
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  opacity: 0.34;
+  pointer-events: none;
+}
+
+body.light-mode .bubble-mode-switch {
+  border-color: rgba(58, 78, 150, 0.16) !important;
+  background: rgba(224, 232, 250, 0.72) !important;
+}
+
+body.light-mode .bubble-mode-btn {
+  color: #53617c !important;
+}
+
+body.light-mode .bubble-mode-btn:hover {
+  color: #243354 !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+
+body.light-mode .bubble-mode-btn.active {
+  color: #fff !important;
+  background: linear-gradient(135deg, #918CFF, #63D6FF) !important;
+}
+
+body.light-mode .exhibition-round-badge {
+  color: #31466f !important;
+  border-color: rgba(76, 108, 191, 0.18) !important;
+  background: rgba(99, 214, 255, 0.16) !important;
+}
+
+@media (max-width: 760px) {
+  .stage-head-actions {
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+
+  .bubble-mode-switch {
+    width: 100%;
+    max-width: 330px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bubble-mode-btn {
+    width: 100%;
+    min-height: 42px;
+    padding-inline: 12px;
+  }
+
+  .exhibition-round-badge {
+    min-height: 42px;
+    padding-inline: 14px;
+  }
+
+  body.exhibition-mode #shuffleBtn {
+    min-width: 128px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .stage-head-actions {
+    display: grid !important;
+    grid-template-columns: auto 1fr !important;
+    gap: 8px !important;
+  }
+
+  .exhibition-round-badge {
+    padding-inline: 10px;
+    font-size: 11px;
+  }
+
+  body.exhibition-mode #shuffleBtn {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+}
