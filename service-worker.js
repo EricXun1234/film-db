@@ -1,4 +1,4 @@
-const CACHE_NAME = "moodluma-exhibition-scratch-tags-v3";
+const CACHE_NAME = "moodluma-all-category-results-v8";
 
 const CORE_FILES = [
   "./",

@@ -63,8 +63,13 @@ const FIELD_MAP = {
     "類型關鍵字", "類型", "電影類型", "分類"
   ],
   mood: [
-    "moodKeywords", "mood_keywords", "moods", "mood", "emotion", "emotions", "atmosphere",
-    "feel", "feeling", "vibe", "情感／氛圍", "情感/氛圍", "情感", "氛圍", "情緒"
+    "emotions", "emotion", "emotionKeywords", "emotion_keywords",
+    "moodKeywords", "mood_keywords", "moods", "mood",
+    "feel", "feeling", "情感", "情緒"
+  ],
+  atmosphere: [
+    "atmospheres", "atmosphere", "atmosphereKeywords", "atmosphere_keywords",
+    "vibes", "vibe", "ambience", "ambiance", "情感／氛圍", "情感/氛圍", "氛圍"
   ],
   year: ["year", "releaseYear", "release_year", "年份", "上映年份"],
   duration: ["duration", "runtime", "length", "片長", "時長"],
@@ -180,22 +185,38 @@ const TAG_KIND_RULES = {
   所以分類不能只靠按鈕上的兩個字做完全比對。
 */
 const CATEGORY_RULES = {
-  "喜劇": ["喜劇", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "荒唐", "惡搞", "無厘頭", "鬧劇", "詼諧", "黑色幽默", "輕鬆", "comedy"],
-  "愛情": ["愛情", "浪漫", "戀愛", "愛戀", "戀情", "情侶", "婚姻", "心動", "甜蜜", "虐戀", "禁忌之戀", "情感糾葛", "關係探索", "romance"],
-  "驚悚": ["驚悚", "心理驚悚", "驚險", "緊張", "追殺", "逃亡", "逃生", "追捕", "高壓", "危險", "生存戰", "倒數計時", "綁架", "thriller"],
-  "科幻": ["科幻", "未來", "太空", "宇宙", "外星", "機器人", "機甲", "人工智慧", "虛擬實境", "高科技", "時空", "時間旅行", "時空旅行", "多元宇宙", "多重宇宙", "sci-fi", "scifi"],
-  "動作": ["動作", "戰鬥", "武打", "武術", "武俠", "功夫", "格鬥", "槍戰", "爆破", "特務", "間諜", "諜報", "警匪", "英雄", "超級英雄", "追逐", "救援", "復仇", "賽車", "action"],
-  "動畫": ["動畫", "卡通", "動漫", "擬人化", "動物主角", "童趣", "親子動畫", "3d動畫", "animation", "anime", "pixar"],
-  "劇情": ["劇情", "人生", "家庭", "成長", "勵志", "人性", "親情", "友情", "職場", "女性視角", "社會寫實", "傳記", "文學", "政治", "救贖", "drama"],
-  "懸疑": ["懸疑", "推理", "謎團", "偵探", "偵查", "調查", "解謎", "神秘", "命案", "懸案", "陰謀", "目擊者", "法醫", "燒腦", "真相", "mystery"],
-  "恐怖": ["恐怖", "鬼片", "鬼屋", "鬼怪", "鬼魂", "靈異", "超自然恐怖", "詛咒", "惡魔", "惡靈", "驅魔", "喪屍", "活屍", "血腥", "怪獸", "怪物", "食人", "陰森", "horror"],
-  "犯罪": ["犯罪", "黑幫", "幫派", "警匪", "警察", "警方", "毒梟", "毒販", "盜竊", "劫盜", "劫案", "竊賊", "謀殺", "命案", "監獄", "crime"],
-  "冒險": ["冒險", "探險", "探索", "旅程", "旅行", "公路電影", "生存", "漂流", "尋寶", "考古", "奇遇", "遺跡", "英雄旅程", "adventure"],
-  "奇幻": ["奇幻", "魔法", "魔幻", "精靈", "神話", "童話", "神燈", "異世界", "異空間", "靈魂出竅", "黑暗奇幻", "fantasy"],
-  "家庭": ["家庭", "家庭向", "家庭電影", "親子", "親情", "家人", "父子", "母愛", "姐妹", "溫馨", "童趣", "闔家", "兒童", "社區生活", "family"],
-  "戰爭": ["戰爭", "戰場", "戰役", "軍事", "軍隊", "軍營", "士兵", "戰俘", "軍官", "核武", "war"],
-  "歷史": ["歷史", "歷史劇", "時代劇", "時代", "傳記", "古裝", "古羅馬", "三國", "宮廷", "戒嚴", "真實事件改編", "history"],
-  "音樂": ["音樂", "音樂劇", "歌舞", "歌舞劇", "合唱團", "歌手", "樂團", "樂器", "歌曲", "舞蹈", "演唱", "舞台", "表演", "偶像", "music"]
+  "喜劇": ["喜劇", "喜劇片", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "荒誕", "荒唐", "惡搞", "無厘頭", "鬧劇", "詼諧", "黑色幽默", "黑色喜劇", "諷刺喜劇", "浪漫喜劇", "動作喜劇", "家庭喜劇", "校園喜劇", "犯罪喜劇", "冒險喜劇", "輕喜劇", "喜劇劇情", "喜劇動畫", "脫口秀", "輕鬆", "comedy"],
+  "愛情": ["愛情", "愛情片", "浪漫", "浪漫愛情", "戀愛", "愛戀", "戀情", "情侶", "婚姻", "婚戀", "心動", "甜蜜", "初戀", "純愛", "三角戀", "青春愛情", "浪漫喜劇", "虐戀", "禁忌之戀", "跨國戀情", "愛情故事", "愛情悲劇", "情感糾葛", "關係探索", "伴侶關係", "romance"],
+  "驚悚": ["驚悚", "驚悚片", "心理驚悚", "犯罪驚悚", "政治驚悚", "動作驚悚", "科幻驚悚", "生存驚悚", "驚險", "緊張", "追殺", "逃亡", "逃生", "追捕", "高壓", "危險", "生存戰", "生存遊戲", "密室逃脫", "連環殺手", "人性考驗", "倒數計時", "綁架", "陰謀論", "心理戰", "thriller"],
+  "科幻": ["科幻", "科幻片", "科幻驚悚", "科幻冒險", "未來", "未來世界", "近未來", "太空", "太空歌劇", "宇宙", "外星", "外星生物", "機器人", "機甲", "人工智慧", "賽博龐克", "反烏托邦", "虛擬實境", "高科技", "時空", "時間旅行", "時間循環", "時空旅行", "多元宇宙", "多重宇宙", "末日", "末日生存", "基因工程", "克隆", "火星", "月球", "sci-fi", "scifi"],
+  "動作": ["動作", "動作片", "動作喜劇", "動作驚悚", "動作冒險", "戰鬥", "武打", "武術", "武俠", "功夫", "格鬥", "刀劍", "槍戰", "爆破", "軍事動作", "特務", "間諜", "諜報", "諜戰", "警匪", "臥底", "英雄", "英雄主義", "超級英雄", "追逐", "追逐戰", "大逃殺", "救援", "復仇", "競技", "賽車", "action"],
+  "動畫": ["動畫", "動畫片", "動畫電影", "喜劇動畫", "親子動畫", "兒童動畫", "成人動畫", "定格動畫", "2d動畫", "3d動畫", "cg動畫", "卡通", "動漫", "擬人化", "動物主角", "童趣", "迪士尼", "皮克斯", "animation", "anime", "pixar"],
+  "劇情": ["劇情", "劇情片", "心理劇", "家庭劇", "人生", "家庭倫理", "家庭關係", "成長", "成長故事", "青春成長", "女性成長", "勵志", "人性", "人性探討", "道德困境", "身份認同", "親情", "友情", "職場", "女性視角", "社會寫實", "社會議題", "底層", "獨立製片", "藝術電影", "文藝", "傳記", "文學", "政治", "救贖", "真實事件改編", "drama"],
+  "懸疑": ["懸疑", "懸疑片", "犯罪懸疑", "推理", "推理劇", "謎團", "謀殺謎案", "偵探", "偵查", "調查", "查案", "追查", "解謎", "神秘", "命案", "失蹤案", "懸案", "陰謀", "陰謀論", "政治陰謀", "目擊者", "法醫", "連環殺手", "密室", "心理戰", "燒腦", "真相", "mystery"],
+  "恐怖": ["恐怖", "恐怖片", "心理恐怖", "超自然恐怖", "鬼片", "鬼屋", "鬼怪", "鬼魂", "靈異", "詛咒", "附身", "降頭", "惡魔", "惡靈", "驅魔", "喪屍", "殭屍", "活屍", "生化危機", "血腥", "怪獸", "怪物", "怪物電影", "變異", "食人", "陰森", "哥德式", "克蘇魯", "邪典", "驚嚇", "horror"],
+  "犯罪": ["犯罪", "犯罪片", "犯罪喜劇", "犯罪驚悚", "黑色電影", "黑幫", "幫派", "警匪", "警察", "警方", "臥底", "毒梟", "毒販", "盜竊", "劫盜", "劫案", "竊賊", "詐騙", "洗錢", "謀殺", "謀殺謎案", "連環殺手", "命案", "綁架", "監獄", "司法", "法庭犯罪", "crime"],
+  "冒險": ["冒險", "冒險片", "奇幻冒險", "動作冒險", "科幻冒險", "探險", "探索", "旅程", "旅行", "公路片", "公路電影", "生存", "求生", "漂流", "尋寶", "考古", "奇遇", "遺跡", "遠征", "航海", "海洋冒險", "叢林冒險", "英雄旅程", "冒險喜劇", "adventure"],
+  "奇幻": ["奇幻", "奇幻片", "奇幻冒險", "史詩奇幻", "黑暗奇幻", "魔法", "魔法世界", "魔幻", "精靈", "神話", "神話改編", "童話", "童話改編", "神燈", "異世界", "異空間", "妖怪", "靈魂出竅", "超自然奇幻", "東方奇幻", "fantasy"],
+  "家庭": ["家庭", "家庭向", "家庭電影", "家庭劇", "家庭喜劇", "家庭倫理", "家庭關係", "家庭危機", "親子", "親子動畫", "親情", "家人", "父子", "父女", "母子", "母女", "母愛", "姐妹", "兄弟姐妹", "祖孫", "溫馨", "童趣", "闔家", "兒童", "兒童電影", "青少年", "社區生活", "成長故事", "family"],
+  "戰爭": ["戰爭", "戰爭片", "戰爭史詩", "反戰", "戰場", "戰役", "戰地", "戰火", "軍事", "軍旅", "軍隊", "軍營", "士兵", "戰俘", "軍官", "空戰", "海戰", "陸戰", "內戰", "一戰", "二戰", "越戰", "太平洋戰爭", "核武", "軍事衝突", "war"],
+  "歷史": ["歷史", "歷史片", "歷史劇", "歷史傳記", "歷史事件", "時代劇", "年代劇", "時代", "傳記", "古裝", "古代", "古典", "古羅馬", "三國", "戰國", "王朝", "帝國", "宮廷", "日治時期", "民國", "戰後", "戒嚴", "真實事件改編", "真人真事", "history"],
+  "音樂": ["音樂", "音樂片", "音樂劇", "音樂紀錄", "音樂傳記", "歌舞", "歌舞片", "歌舞劇", "合唱團", "歌手", "樂團", "樂隊", "樂器", "歌曲", "舞蹈", "舞蹈電影", "演唱", "演唱會", "舞台", "表演", "偶像", "音樂人", "搖滾", "饒舌", "嘻哈", "古典音樂", "歌劇", "music"],
+  "紀錄": ["紀錄", "紀錄片", "人物紀錄", "音樂紀錄", "自然紀錄", "社會紀錄", "歷史紀錄", "調查報導", "真實紀錄", "documentary"],
+  "青春": ["青春", "青少年", "青春片", "校園青春", "青春成長", "青春愛情", "青春喜劇", "少年", "少女", "teen", "coming-of-age"],
+  "成長": ["成長", "成長故事", "青春成長", "女性成長", "自我成長", "自我探索", "成熟", "追夢", "人生轉折", "coming-of-age"],
+  "友情": ["友情", "友誼", "朋友", "夥伴", "團隊合作", "兄弟情", "姐妹情", "同伴", "摯友", "friendship"],
+  "親情": ["親情", "家人", "父子", "父女", "母子", "母女", "兄弟姐妹", "祖孫", "家庭關係", "family bond"],
+  "勵志": ["勵志", "鼓舞", "追夢", "奮鬥", "逆襲", "希望", "勇氣", "堅持", "自我實現", "inspirational"],
+  "傳記": ["傳記", "人物傳記", "音樂傳記", "歷史傳記", "真人傳記", "名人故事", "biography", "biographical"],
+  "社會寫實": ["社會寫實", "寫實", "社會議題", "社會問題", "底層", "階級", "貧富差距", "人權", "現實主義", "social realism"],
+  "職場": ["職場", "辦公室", "公司", "企業", "創業", "商戰", "娛樂圈", "職場鬥爭", "工作", "workplace"],
+  "女性視角": ["女性視角", "女性主角", "女性議題", "女性成長", "女力", "女性友誼", "母職", "性別議題", "女權", "feminist"],
+  "校園": ["校園", "學校", "教室", "學生", "大學", "高中", "校園青春", "校園生活", "校園愛情", "school"],
+  "運動": ["運動", "運動片", "競技", "球隊", "足球", "籃球", "棒球", "拳擊", "賽車", "體育", "sports"],
+  "災難": ["災難", "災難片", "天災", "地震", "海嘯", "洪水", "風暴", "空難", "火災", "末日災難", "disaster"],
+  "復仇": ["復仇", "報仇", "復仇者", "復仇計畫", "復仇之路", "以暴制暴", "血債", "revenge"],
+  "生存": ["生存", "求生", "生存戰", "生存遊戲", "末日生存", "荒野求生", "逃生", "漂流", "人性考驗", "survival"],
+  "超自然": ["超自然", "靈異", "鬼魂", "惡靈", "通靈", "附身", "神秘力量", "靈魂", "paranormal", "supernatural"]
 };
 
 const KIND_META = {
@@ -207,6 +228,13 @@ const KIND_META = {
 
 const BUBBLE_LIMIT = 10;
 const BUBBLE_SIZE = 92;
+const EXPLORE_INITIAL_RESULT_LIMIT = 54;
+const NORMAL_BUBBLE_POOL_LIMITS = {
+  genre: 240,
+  mood: 180,
+  atmosphere: 180,
+  scene: 240
+};
 
 /*
   展覽模式（刮刮卡標籤版）
@@ -219,38 +247,83 @@ const BUBBLE_SIZE = 92;
 */
 const BUBBLE_MODE_KEY = "moodluma-bubble-mode";
 const EXHIBITION_ROUND_COUNT = 4;
-const EXHIBITION_KIND_QUOTAS = {
-  genre: 2,
-  mood: 3,
-  atmosphere: 3,
-  scene: 2
-};
 
-const EXHIBITION_TAGS_BY_KIND = {
-  scene: [
-    "監獄", "停車場", "校園", "實驗室", "醫院", "圖書館", "火車", "沙漠", "雪地", "廢墟",
-    "博物館", "戲院", "荒野", "住宅", "森林", "公園", "體育場", "海邊", "餐廳", "太空",
-    "教室", "地下室", "倉庫", "浴室", "健身房", "辦公室", "島嶼", "墓地", "公路", "飯店"
+/*
+  展覽模式｜固定四輪
+
+  固定循環：
+  第 1 輪 → 第 2 輪 → 第 3 輪 → 第 4 輪 → 第 1 輪 → ...
+
+  重點：
+  - 不再每四輪重新隨機抽標籤。
+  - 四輪內容完全固定。
+  - 同一輪再次出現時，陣列順序也固定，
+    因此標籤、類別顏色、圓圈位置都會一樣。
+  - 每輪 10 顆：
+    2 類型 + 3 情緒 + 3 氛圍 + 2 場景。
+*/
+const EXHIBITION_FIXED_ROUNDS = [
+  [
+    { tag: "動作", kind: "genre", score: 1 },
+    { tag: "懸疑", kind: "genre", score: 1 },
+
+    { tag: "緊張", kind: "mood", score: 1 },
+    { tag: "絕望", kind: "mood", score: 1 },
+    { tag: "刺激", kind: "mood", score: 1 },
+
+    { tag: "神秘", kind: "atmosphere", score: 1 },
+    { tag: "陰森", kind: "atmosphere", score: 1 },
+    { tag: "明亮", kind: "atmosphere", score: 1 },
+
+    { tag: "辦公室", kind: "scene", score: 1 },
+    { tag: "森林", kind: "scene", score: 1 }
   ],
-  genre: [
-    "科幻", "恐怖", "神秘", "喜劇", "懸疑", "犯罪", "動作", "冒險", "靈異", "諷刺",
-    "家庭", "友誼", "復仇", "間諜", "災難", "血腥", "生存", "青春", "愛情", "解謎",
-    "救援", "戰爭", "音樂", "浪漫", "懷舊", "活屍", "勵志", "史詩", "神話", "謀殺"
+  [
+    { tag: "喜劇", kind: "genre", score: 1 },
+    { tag: "家庭", kind: "genre", score: 1 },
+
+    { tag: "焦慮", kind: "mood", score: 1 },
+    { tag: "感動", kind: "mood", score: 1 },
+    { tag: "希望", kind: "mood", score: 1 },
+
+    { tag: "黑暗", kind: "atmosphere", score: 1 },
+    { tag: "夢幻", kind: "atmosphere", score: 1 },
+    { tag: "復古", kind: "atmosphere", score: 1 },
+
+    { tag: "餐廳", kind: "scene", score: 1 },
+    { tag: "醫院", kind: "scene", score: 1 }
   ],
-  mood: [
-    "緊張", "恐懼", "溫馨", "好奇", "感動", "焦慮", "熱血", "刺激", "幽默", "憂鬱",
-    "驚嚇", "憤怒", "絕望", "壓迫", "不安", "哀傷", "希望", "歡樂", "興奮", "揪心",
-    "震撼", "驚嘆", "沉重", "矛盾", "甜蜜", "心動", "荒謬", "爆笑", "壓抑", "同情"
+  [
+    { tag: "冒險", kind: "genre", score: 1 },
+    { tag: "恐怖", kind: "genre", score: 1 },
+
+    { tag: "恐懼", kind: "mood", score: 1 },
+    { tag: "壓抑", kind: "mood", score: 1 },
+    { tag: "溫馨", kind: "mood", score: 1 },
+
+    { tag: "寫實", kind: "atmosphere", score: 1 },
+    { tag: "危險", kind: "atmosphere", score: 1 },
+    { tag: "奇幻", kind: "atmosphere", score: 1 },
+
+    { tag: "停車場", kind: "scene", score: 1 },
+    { tag: "公園", kind: "scene", score: 1 }
   ],
-  atmosphere: [
-    "詼諧", "華麗", "爆裂", "迷幻", "寫實", "溫暖", "明亮", "樸實", "歡快", "神秘",
-    "浮華", "輕鬆", "夢幻", "繽紛", "活潑", "奇幻", "黑暗", "危險", "暴力", "混亂",
-    "陰森", "柔和", "療癒", "動感", "復古", "現代", "宏偉", "璀璨", "清新"
+  [
+    { tag: "犯罪", kind: "genre", score: 1 },
+    { tag: "愛情", kind: "genre", score: 1 },
+
+    { tag: "憤怒", kind: "mood", score: 1 },
+    { tag: "不安", kind: "mood", score: 1 },
+    { tag: "興奮", kind: "mood", score: 1 },
+
+    { tag: "溫暖", kind: "atmosphere", score: 1 },
+    { tag: "混亂", kind: "atmosphere", score: 1 },
+    { tag: "華麗", kind: "atmosphere", score: 1 },
+
+    { tag: "住宅", kind: "scene", score: 1 },
+    { tag: "地下室", kind: "scene", score: 1 }
   ]
-};
-
-const EXHIBITION_TAG_POOL = Object.entries(EXHIBITION_TAGS_BY_KIND)
-  .flatMap(([kind, tags]) => tags.map(tag => ({ tag, kind, score: 1 })));
+];
 
 let bubbleMode = localStorage.getItem(BUBBLE_MODE_KEY) === "exhibition"
   ? "exhibition"
@@ -812,11 +885,12 @@ function normalizeMovie(raw, idx = 0) {
     duration: String(get("duration") || ""),
     views: Number(get("views") || 0),
     actors: String(get("actors") || ""),
-    genre: toArray(get("genre")),
-    mood: toArray(get("mood")),
-    mainScene: toArray(get("mainScene")),
-    subScene: toArray(get("subScene")),
-    keywords: toArray(get("keywords")),
+    genre: uniqueTags(toArray(get("genre"))),
+    mood: uniqueTags(toArray(get("mood"))),
+    atmosphere: uniqueTags(toArray(get("atmosphere"))),
+    mainScene: uniqueTags(toArray(get("mainScene"))),
+    subScene: uniqueTags(toArray(get("subScene"))),
+    keywords: uniqueTags(toArray(get("keywords"))),
     raw
   };
 }
@@ -848,6 +922,18 @@ function cleanTag(s) {
   return String(s).trim().replace(/^#/, "").replace(/\s+/g, " ");
 }
 
+function uniqueTags(values) {
+  const seen = new Set();
+
+  return (values || []).filter(value => {
+    const clean = cleanTag(value);
+    const key = getTagIdentity(clean);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).map(cleanTag);
+}
+
 function getTagIdentity(tag) {
   let key = cleanTag(tag)
     .toLowerCase()
@@ -877,73 +963,18 @@ function shuffleCopy(items) {
 }
 
 function buildExhibitionRounds() {
-  const kindOrder = ["genre", "mood", "atmosphere", "scene"];
-  const previousCycleTagKeys = new Set(
-    exhibitionRounds.flatMap(round => round.map(item => getTagIdentity(item.tag)))
+  exhibitionRounds = EXHIBITION_FIXED_ROUNDS.map(round =>
+    round.map(item => ({ ...item }))
   );
-  const buckets = {
-    genre: [],
-    mood: [],
-    atmosphere: [],
-    scene: []
-  };
-
-  EXHIBITION_TAG_POOL.forEach(item => {
-    if (buckets[item.kind]) buckets[item.kind].push({ ...item });
-  });
-
-  // 每一個新循環都重新洗牌，並先避開上一個循環出現過的標籤。
-  // 因此第 4 組換回第 1 組時，也不會立刻看到上一輪的內容。
-  const shuffledBuckets = {};
-  kindOrder.forEach(kind => {
-    const freshItems = buckets[kind].filter(item => !previousCycleTagKeys.has(getTagIdentity(item.tag)));
-    const recentItems = buckets[kind].filter(item => previousCycleTagKeys.has(getTagIdentity(item.tag)));
-    shuffledBuckets[kind] = [
-      ...shuffleCopy(freshItems),
-      ...shuffleCopy(recentItems)
-    ];
-  });
-
-  const usedVisibleTags = new Set();
-  const cursorByKind = { genre: 0, mood: 0, atmosphere: 0, scene: 0 };
-
-  const takeUniqueFromKind = (kind, count) => {
-    const picked = [];
-    const bucket = shuffledBuckets[kind];
-
-    while (picked.length < count && cursorByKind[kind] < bucket.length) {
-      const item = bucket[cursorByKind[kind]];
-      cursorByKind[kind] += 1;
-
-      // 「神秘」同時存在於類型與氛圍；四輪防重複以畫面標籤的正規化文字為準。
-      const tagKey = getTagIdentity(item.tag);
-      if (!tagKey || usedVisibleTags.has(tagKey)) continue;
-
-      usedVisibleTags.add(tagKey);
-      picked.push(item);
-    }
-
-    return picked;
-  };
-
-  exhibitionRounds = Array.from({ length: EXHIBITION_ROUND_COUNT }, () => {
-    const items = [];
-
-    kindOrder.forEach(kind => {
-      items.push(...takeUniqueFromKind(kind, EXHIBITION_KIND_QUOTAS[kind]));
-    });
-
-    return items.sort(
-      (a, b) => kindOrder.indexOf(a.kind) - kindOrder.indexOf(b.kind)
-    );
-  });
 
   exhibitionRoundIndex = 0;
 }
+
 function renderBubbleModeUI() {
   const normalBtn = $("normalModeBtn");
   const exhibitionBtn = $("exhibitionModeBtn");
   const roundBadge = $("exhibitionRoundBadge");
+  const normalMovieCountBadge = $("normalMovieCountBadge");
   const title = $("moodStageTitle");
   const desc = $("moodStageDesc");
   const shuffleBtn = $("shuffleBtn");
@@ -963,17 +994,23 @@ function renderBubbleModeUI() {
 
   if (desc) {
     desc.textContent = isExhibition
-      ? ""
-      : "圓圈由資料庫中的「類型關鍵字」與「情感／氛圍」欄位統計產生，並混合場景標籤。";
+      ? "固定 4 組標籤循環；每次刷新換下一組，第 4 組後回到完全相同的第 1 組。"
+      : `一般模式由資料庫標籤動態產生；目前資料庫共 ${allMovies.length.toLocaleString("zh-TW")} 部電影。`;
   }
 
   if (roundBadge) {
     roundBadge.hidden = !isExhibition;
-    roundBadge.textContent = `展覽刷新 ${exhibitionRoundIndex + 1} / ${EXHIBITION_ROUND_COUNT}`;
+    roundBadge.textContent = `固定循環 ${exhibitionRoundIndex + 1} / ${EXHIBITION_ROUND_COUNT}`;
+  }
+
+  if (normalMovieCountBadge) {
+    normalMovieCountBadge.hidden = isExhibition;
+    normalMovieCountBadge.textContent =
+      `目前資料庫 ${allMovies.length.toLocaleString("zh-TW")} 部電影`;
   }
 
   if (shuffleBtn) {
-    shuffleBtn.textContent = isExhibition ? "⟳ 換下一組" : "⟳ 換個排列";
+    shuffleBtn.textContent = "⟳ 換個排列";
   }
 
   document.body.classList.toggle("exhibition-mode", isExhibition);
@@ -1009,19 +1046,12 @@ function showExhibitionRound(roundIndex = exhibitionRoundIndex) {
 function showNextExhibitionRound() {
   if (!exhibitionRounds.length) {
     buildExhibitionRounds();
-    showExhibitionRound(0);
-    return;
   }
 
-  const nextIndex = exhibitionRoundIndex + 1;
+  exhibitionRoundIndex =
+    (exhibitionRoundIndex + 1) % EXHIBITION_ROUND_COUNT;
 
-  if (nextIndex >= EXHIBITION_ROUND_COUNT) {
-    buildExhibitionRounds();
-    showExhibitionRound(0);
-    return;
-  }
-
-  showExhibitionRound(nextIndex);
+  showExhibitionRound(exhibitionRoundIndex);
 }
 
 function switchBubbleMode(nextMode) {
@@ -1067,36 +1097,9 @@ function buildDynamicBubbles() {
     return;
   }
 
-  const counts = new Map();
-
-  allMovies.forEach(movie => {
-    const fieldGroups = [
-      { list: movie.mood, base: 5.2 },
-      { list: movie.genre, base: 2.2 },
-      { list: movie.mainScene, base: 3.1 },
-      { list: movie.subScene, base: 2.2 },
-      { list: movie.keywords, base: 1.8 }
-    ];
-
-    fieldGroups.forEach(({ list, base }) => {
-      (list || []).forEach(tag => {
-        const clean = cleanTag(tag);
-        const tagKey = getTagIdentity(clean);
-        if (!tagKey) return;
-
-        const kind = classifyTag(clean);
-        const prev = counts.get(tagKey) || { tag: clean, score: 0, kind, count: 0 };
-        prev.score += base + (kind === "mood" ? 1.4 : 0);
-        prev.count += 1;
-        prev.kind = kind;
-        // 同時有「愛情」與「愛情片」時，畫面保留較精簡的名稱。
-        if (clean.length < prev.tag.length) prev.tag = clean;
-        counts.set(tagKey, prev);
-      });
-    });
-  });
-
-  let candidates = [...counts.values()];
+  let candidates = buildNormalBubbleCandidatePool(
+    collectDynamicTagCandidates(allMovies)
+  );
 
   // 若資料庫標籤太少，補一些偏「感受型」的圓圈，避免畫面空。
   if (candidates.length < 10) {
@@ -1106,8 +1109,13 @@ function buildDynamicBubbles() {
       ["校園", "scene"], ["海邊", "scene"], ["咖啡館", "scene"], ["老屋", "scene"],
       ["恐怖片", "genre"], ["愛情片", "genre"]
     ];
+    const candidateKeys = new Set(candidates.map(item => getTagIdentity(item.tag)));
     fallbackTags.forEach(([tag, kind]) => {
-      if (!counts.has(getTagIdentity(tag))) candidates.push({ tag, score: 1, kind, count: 1 });
+      const tagKey = getTagIdentity(tag);
+      if (!candidateKeys.has(tagKey)) {
+        candidates.push({ tag, score: 1, kind, count: 1 });
+        candidateKeys.add(tagKey);
+      }
     });
   }
 
@@ -1116,6 +1124,86 @@ function buildDynamicBubbles() {
 
   const selected = pickBalancedTags(allTagCandidates, []);
   createBubbles(selected);
+}
+
+const TAG_KIND_PRIORITY = { genre: 4, mood: 3, atmosphere: 2, scene: 1 };
+
+function collectDynamicTagCandidates(movies) {
+  const counts = new Map();
+
+  (movies || []).forEach(movie => {
+    // 類別直接沿用 FilmDB 的原始欄位，不再從標籤文字猜測。
+    const fieldGroups = [
+      { list: movie.genre, base: 4.8, kind: "genre" },
+      { list: movie.mood, base: 5.2, kind: "mood" },
+      { list: movie.atmosphere, base: 4.6, kind: "atmosphere" },
+      { list: movie.mainScene, base: 3.1, kind: "scene" },
+      { list: movie.subScene, base: 2.2, kind: "scene" },
+      { list: movie.keywords, base: 1.8, kind: null }
+    ];
+
+    fieldGroups.forEach(({ list, base, kind }) => {
+      uniqueTags(list).forEach(tag => {
+        const clean = cleanTag(tag);
+        const tagKey = getTagIdentity(clean);
+        if (!tagKey || !isUsableBubbleTag(clean)) return;
+
+        const sourceKind = kind || classifyTag(clean);
+        const prev = counts.get(tagKey) || {
+          tag: clean,
+          score: 0,
+          count: 0,
+          kindCounts: { genre: 0, mood: 0, atmosphere: 0, scene: 0 }
+        };
+
+        prev.score += base;
+        prev.count += 1;
+        prev.kindCounts[sourceKind] = (prev.kindCounts[sourceKind] || 0) + 1;
+
+        // 同時有「愛情」與「愛情片」時，畫面保留較精簡的名稱。
+        if (clean.length < prev.tag.length) prev.tag = clean;
+        counts.set(tagKey, prev);
+      });
+    });
+  });
+
+  return [...counts.values()].map(item => {
+    const kind = Object.entries(item.kindCounts)
+      .sort((a, b) =>
+        b[1] - a[1] ||
+        (TAG_KIND_PRIORITY[b[0]] || 0) - (TAG_KIND_PRIORITY[a[0]] || 0)
+      )[0]?.[0] || "mood";
+
+    return {
+      tag: item.tag,
+      score: item.score,
+      count: item.count,
+      kind
+    };
+  });
+}
+
+function buildNormalBubbleCandidatePool(candidates) {
+  const kindOrder = ["genre", "mood", "atmosphere", "scene"];
+
+  return kindOrder.flatMap(kind => {
+    const sorted = (candidates || [])
+      .filter(item => item.kind === kind)
+      .sort((a, b) => b.count - a.count || b.score - a.score || a.tag.localeCompare(b.tag, "zh-Hant"));
+
+    const recurring = sorted.filter(item => item.count >= 2);
+    const requiredCount = Math.max(10, NORMAL_BUBBLE_POOL_LIMITS[kind] || 100);
+    const source = recurring.length >= 10 ? recurring : sorted;
+
+    return source.slice(0, requiredCount);
+  });
+}
+
+function isUsableBubbleTag(tag) {
+  const clean = cleanTag(tag);
+  if (!clean || clean.length > 18) return false;
+  if (/^https?:\/\//i.test(clean) || /^\d+$/.test(clean)) return false;
+  return true;
 }
 
 function classifyTag(tag) {
@@ -1603,11 +1691,13 @@ function hasRecommendationCriteria() {
 function moviePassesPreferenceFilters(movie) {
   const genreText = (movie.genre || []).join(" ").toLowerCase();
   const moodText = (movie.mood || []).join(" ").toLowerCase();
+  const atmosphereText = (movie.atmosphere || []).join(" ").toLowerCase();
   const allText = [
     movie.title,
     movie.desc,
     genreText,
     moodText,
+    atmosphereText,
     ...(movie.keywords || [])
   ].join(" ").toLowerCase();
 
@@ -1648,6 +1738,7 @@ function normalizeMatchText(value) {
 function getMovieFeatureGroups(movie) {
   return [
     { values: movie.mood || [], strength: 1.00 },
+    { values: movie.atmosphere || [], strength: 0.96 },
     { values: movie.genre || [], strength: 0.92 },
     { values: movie.mainScene || [], strength: 0.86 },
     { values: movie.subScene || [], strength: 0.78 },
@@ -1798,6 +1889,7 @@ function topTags(movie) {
   const values = [
     ...(movie.genre || []),
     ...(movie.mood || []),
+    ...(movie.atmosphere || []),
     ...(movie.mainScene || []),
     ...(movie.subScene || []),
     ...(movie.keywords || [])
@@ -2147,6 +2239,7 @@ function movieSnapshot(movie, score = 0) {
     actors: movie.actors || "",
     genre: Array.isArray(movie.genre) ? movie.genre : toArray(movie.genre),
     mood: Array.isArray(movie.mood) ? movie.mood : toArray(movie.mood),
+    atmosphere: Array.isArray(movie.atmosphere) ? movie.atmosphere : toArray(movie.atmosphere),
     mainScene: Array.isArray(movie.mainScene) ? movie.mainScene : toArray(movie.mainScene),
     subScene: Array.isArray(movie.subScene) ? movie.subScene : toArray(movie.subScene),
     score,
@@ -2163,6 +2256,7 @@ function hydrateMovie(item) {
     ...item,
     genre: Array.isArray(item.genre) ? item.genre : toArray(item.genre),
     mood: Array.isArray(item.mood) ? item.mood : toArray(item.mood),
+    atmosphere: Array.isArray(item.atmosphere) ? item.atmosphere : toArray(item.atmosphere),
     mainScene: Array.isArray(item.mainScene) ? item.mainScene : toArray(item.mainScene),
     subScene: Array.isArray(item.subScene) ? item.subScene : toArray(item.subScene),
     views: item.views || 0,
@@ -2330,7 +2424,7 @@ function bindExploreUI() {
   document.querySelectorAll(".cat-btn, .tag-pills button").forEach(btn => {
     btn.addEventListener("click", () => {
       const rawText = btn.textContent || "";
-      const cleanedText = rawText.replace(/[^a-zA-Z\u4e00-\u9fa5]/g, "").trim();
+      const cleanedText = btn.dataset.category || rawText.replace(/[^a-zA-Z\u4e00-\u9fa5]/g, "").trim();
       const intentMap = {
         "想放鬆一下": "放鬆",
         "想哭一場": "感人",
@@ -2357,6 +2451,7 @@ function computeExploreMatchScore(movie, aliases = []) {
     { values: [movie.title], score: 100 },
     { values: movie.genre || [], score: 96 },
     { values: movie.mood || [], score: 92 },
+    { values: movie.atmosphere || [], score: 91 },
     { values: movie.keywords || [], score: 90 },
     { values: [...(movie.mainScene || []), ...(movie.subScene || [])], score: 86 },
     { values: [movie.desc], score: 74 },
@@ -2380,27 +2475,44 @@ function computeExploreMatchScore(movie, aliases = []) {
   return best || 60;
 }
 
+function movieMatchesExploreAliases(movie, aliases = []) {
+  const movieText = [
+    movie.title,
+    movie.desc,
+    movie.actors,
+    ...(movie.genre || []),
+    ...(movie.mood || []),
+    ...(movie.atmosphere || []),
+    ...(movie.mainScene || []),
+    ...(movie.subScene || []),
+    ...(movie.keywords || [])
+  ].join(" ").toLowerCase();
+
+  return aliases.some(alias => movieText.includes(String(alias || "").toLowerCase()));
+}
+
+function dedupeMoviesForDisplay(movies) {
+  const seen = new Set();
+
+  return (movies || []).filter(movie => {
+    const titleKey = normalizeMatchText(movie.title);
+    const yearKey = normalizeMatchText(movie.year);
+    const key = titleKey ? `${titleKey}|${yearKey}` : String(movie.id || "");
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function renderExploreResults(keyword = "") {
   const list = $("exploreResultList");
   if (!list) return;
 
-  let targetMovies = [...allMovies];
+  let targetMovies = dedupeMoviesForDisplay(allMovies);
   const key = String(keyword || "").trim().toLowerCase();
+  const aliases = key ? (CATEGORY_RULES[key] || [key]) : [];
   if (key) {
-    const aliases = CATEGORY_RULES[key] || [key];
-    targetMovies = targetMovies.filter(movie => {
-      const movieText = [
-        movie.title,
-        movie.desc,
-        movie.actors,
-        ...(movie.genre || []),
-        ...(movie.mood || []),
-        ...(movie.mainScene || []),
-        ...(movie.subScene || []),
-        ...(movie.keywords || [])
-      ].join(" ").toLowerCase();
-      return aliases.some(alias => movieText.includes(String(alias).toLowerCase()));
-    });
+    targetMovies = targetMovies.filter(movie => movieMatchesExploreAliases(movie, aliases));
   }
 
   if (appSettings.noHorror) {
@@ -2417,7 +2529,18 @@ function renderExploreResults(keyword = "") {
     targetMovies.sort(() => Math.random() - 0.5);
   }
 
-  const displayMovies = targetMovies.slice(0, 18);
+  // 選擇分類或輸入搜尋後顯示全部符合結果；只有尚未選條件時保留隨機預覽數量。
+  const displayMovies = key
+    ? targetMovies
+    : targetMovies.slice(0, EXPLORE_INITIAL_RESULT_LIMIT);
+  const resultTitle = $("exploreResultTitle");
+  if (resultTitle) {
+    const shownCount = Math.min(targetMovies.length, EXPLORE_INITIAL_RESULT_LIMIT);
+    resultTitle.textContent = key
+      ? `${keyword}｜共 ${targetMovies.length.toLocaleString("zh-TW")} 部`
+      : `探索結果｜隨機顯示 ${shownCount} 部`;
+  }
+
   if (!displayMovies.length) {
     list.innerHTML = `<div class="empty-state">找不到相關電影，試試其他分類吧！</div>`;
     return;
@@ -2429,7 +2552,6 @@ function renderExploreResults(keyword = "") {
     const card = document.createElement("article");
     card.className = "explore-movie-card";
     const tags = topTags(movie).slice(0, 5).map(t => `<span>${escapeHtml(t)}</span>`).join("");
-    const aliases = key ? (CATEGORY_RULES[key] || [key]) : [];
     const exploreScore = computeExploreMatchScore(movie, aliases);
     const collected = isFavorite(movie);
     const scoreBadge = exploreScore === null ? "探索" : `${exploreScore}% 匹配`;
@@ -2971,10 +3093,11 @@ function computeGroupScore(movie) {
   const movieText = [
     movie.title,
     movie.desc,
-    ...movie.genre,
-    ...movie.mood,
-    ...movie.mainScene,
-    ...movie.subScene
+    ...(movie.genre || []),
+    ...(movie.mood || []),
+    ...(movie.atmosphere || []),
+    ...(movie.mainScene || []),
+    ...(movie.subScene || [])
   ].join(" ").toLowerCase();
 
   let score = 0;
