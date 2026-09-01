@@ -229,12 +229,6 @@ const KIND_META = {
 const BUBBLE_LIMIT = 10;
 const BUBBLE_SIZE = 92;
 const EXPLORE_INITIAL_RESULT_LIMIT = 54;
-const NORMAL_BUBBLE_POOL_LIMITS = {
-  genre: 240,
-  mood: 180,
-  atmosphere: 180,
-  scene: 240
-};
 
 /*
   展覽模式（刮刮卡標籤版）
@@ -1191,11 +1185,9 @@ function buildNormalBubbleCandidatePool(candidates) {
       .filter(item => item.kind === kind)
       .sort((a, b) => b.count - a.count || b.score - a.score || a.tag.localeCompare(b.tag, "zh-Hant"));
 
-    const recurring = sorted.filter(item => item.count >= 2);
-    const requiredCount = Math.max(10, NORMAL_BUBBLE_POOL_LIMITS[kind] || 100);
-    const source = recurring.length >= 10 ? recurring : sorted;
-
-    return source.slice(0, requiredCount);
+    // 所有在資料庫中至少出現 2 次的有效標籤都保留在候選池，
+    // 不再依分類截斷數量，讓每個重複標籤都有機會被抽到。
+    return sorted.filter(item => item.count >= 2);
   });
 }
 
