@@ -1,4 +1,4 @@
-const CACHE_NAME = "moodluma-all-category-results-v8";
+const CACHE_NAME = "moodluma-semantic-bubble-categories-v5";
 
 const CORE_FILES = [
   "./",

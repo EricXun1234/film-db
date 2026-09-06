@@ -32,8 +32,8 @@ const ROOM_PREFIX = "ROOM-";
 
 /*
   支援中英文欄位名稱。
-  資料庫若有「主要場景、次要場景、類型關鍵字、情感／氛圍」，
-  這裡會自動抓來統整成圓圈標籤。
+  資料庫若有「主要場景、次要場景、類型、情緒、氛圍」，
+  首頁圓圈只使用對應欄位；類型關鍵字仍保留給搜尋 / 推薦，不拿來生成圓圈。
 */
 const FIELD_MAP = {
   title: ["title", "name", "movieName", "movie_title", "電影名稱", "片名", "名稱"],
@@ -58,9 +58,16 @@ const FIELD_MAP = {
     "scenesSub", "sceneSub", "subScenes", "subScene", "secondaryScene",
     "scenes_sub", "scene_sub", "sub_scenes", "sub_scene", "次要場景", "副場景"
   ],
+  // 「電影類型」與「類型關鍵字」分開處理。
+  // 圓圈上標示為「類型」的內容，只能來自真正的電影類型欄位，
+  // 避免像「韓國電影／善惡對決」這種語意關鍵字被誤當成電影類型。
   genre: [
-    "genreKeywords", "genre_keywords", "genres", "genre", "categories", "category", "types", "type",
-    "類型關鍵字", "類型", "電影類型", "分類"
+    "genres", "genre", "movieGenres", "movieGenre", "movie_genres", "movie_genre",
+    "categories", "category", "types", "type",
+    "電影類型", "類型", "分類"
+  ],
+  genreKeywords: [
+    "genreKeywords", "genre_keywords", "類型關鍵字"
   ],
   mood: [
     "emotions", "emotion", "emotionKeywords", "emotion_keywords",
@@ -172,12 +179,156 @@ const FALLBACK_MOVIES = [
   }
 ];
 
+/*
+  一般模式首頁圓圈的「顯示用分類規則」。
+
+  重要：
+  1. 不修改 FilmDB 原始資料。
+  2. 搜尋 / 推薦仍可使用完整 keywords。
+  3. 只有首頁四大類圓圈會經過這層語意過濾。
+  4. 資料庫欄位仍是第一來源；這裡主要負責：
+     - 擋掉太模糊、不是四大類的詞。
+     - 把明顯放錯欄位的情緒 / 氛圍移回正確類別。
+     - genre 只保留真正像電影類型 / 子類型的詞。
+*/
+
+const BUBBLE_TAG_BLOCKLIST = new Set([
+  // 太模糊、程度詞或風格描述，單獨出現時不適合當「情緒」或「類型」。
+  "強烈",
+  "電影感",
+  "想像力豐富",
+  "塵土",
+
+  // 故事題材 / 敘事元素，不應被當成正式電影類型。
+  "旅程",
+  "善惡對決",
+  "韓國電影"
+]);
+
+// 少數需要明確指定的詞。
+// 使用 getTagIdentity() 後的文字比對，因此「節日喜悅」會穩定歸在情緒。
+const BUBBLE_TAG_KIND_OVERRIDES = new Map([
+  ["節日喜悅", "mood"],
+  ["新黑色電影", "genre"],
+  ["黑色電影", "genre"],
+  ["詭異神秘", "atmosphere"],
+  ["蕭瑟", "atmosphere"],
+  ["動盪", "atmosphere"]
+]);
+
+// 電影「類型 / 子類型」核心詞。
+// 不把「旅程、賭博、復仇、善惡對決」等題材直接當 genre。
+const BUBBLE_GENRE_ROOTS = [
+  "劇情", "喜劇", "愛情", "浪漫喜劇", "恐怖", "驚悚", "懸疑", "犯罪",
+  "動作", "冒險", "科幻", "奇幻", "動畫", "紀錄", "紀錄片", "傳記",
+  "歷史", "戰爭", "音樂", "歌舞", "家庭", "兒童", "青春", "校園",
+  "西部", "黑色電影", "新黑色電影", "災難", "運動", "武俠", "警匪",
+  "間諜", "諜報", "超級英雄", "實驗電影", "短片", "神秘"
+];
+
+// 情緒：以「觀眾 / 角色會感受到什麼」為原則。
+// 也納入客戶刮刮卡分類中原本就定義為情緒的詞。
+const BUBBLE_MOOD_ROOTS = [
+  "緊張", "恐懼", "溫馨", "好奇", "感動", "焦慮", "熱血", "刺激",
+  "幽默", "憂鬱", "驚嚇", "憤怒", "絕望", "壓迫", "不安", "哀傷",
+  "希望", "歡樂", "興奮", "揪心", "震撼", "驚嘆", "沉重", "矛盾",
+  "甜蜜", "心動", "荒謬", "爆笑", "壓抑", "同情",
+  "喜悅", "驚喜", "悲傷", "孤獨", "孤單", "寂寞", "失落", "心碎",
+  "愉快", "快樂", "開心", "幸福", "珍惜", "療癒", "治癒", "浪漫",
+  "放鬆", "感人", "悵然", "疏離", "空虛", "自由"
+];
+
+// 氛圍：以「整體氣氛 / 調性 / 視覺感」為原則。
+// 也納入客戶刮刮卡分類中原本就定義為氛圍的詞。
+const BUBBLE_ATMOSPHERE_ROOTS = [
+  "詼諧", "華麗", "爆裂", "迷幻", "寫實", "溫暖", "明亮", "樸實",
+  "歡快", "神秘", "浮華", "輕鬆", "夢幻", "繽紛", "活潑", "奇幻",
+  "黑暗", "危險", "暴力", "混亂", "陰森", "柔和", "療癒", "動感",
+  "復古", "現代", "宏偉", "璀璨", "清新",
+  "詭異", "蕭瑟", "動盪", "寧靜", "灰暗", "冷調", "暖色", "霓虹",
+  "末日", "未來感", "慢節奏", "黑色幽默", "深夜", "雨夜", "夜晚"
+];
+
+// 舊 classifyTag() 仍保留給相容用途，但不再「猜不到就一律當情緒」。
 const TAG_KIND_RULES = {
-  mood: ["孤獨", "療癒", "浪漫", "放鬆", "歡樂", "壓迫", "不安", "溫柔", "懷舊", "熱血", "空虛", "疏離", "感人", "悲傷", "焦慮", "沉重", "自由", "安靜", "悵然", "心碎", "陰鬱", "愉快", "舒服", "夢幻", "治癒", "致鬱", "恐懼", "孤單", "寂寞", "失落", "希望"],
-  atmosphere: ["深夜", "雨夜", "夕陽", "冷調", "暖色", "迷幻", "黑色幽默", "未來感", "復古", "慢節奏", "海風", "詭異", "神秘", "寧靜", "末日", "霓虹", "夜晚", "夏天", "冬天", "灰暗", "明亮"],
-  scene: ["校園", "海邊", "小鎮", "城市", "老屋", "咖啡館", "醫院", "森林", "實驗室", "公路", "夜市", "辦公室", "家庭", "港口", "山區", "雨中", "餐廳", "酒吧", "房間", "車站"],
-  genre: ["恐怖", "愛情", "科幻", "犯罪", "喜劇", "動作", "劇情", "動畫", "紀錄", "懸疑", "驚悚", "青春", "冒險"]
+  mood: BUBBLE_MOOD_ROOTS,
+  atmosphere: BUBBLE_ATMOSPHERE_ROOTS,
+  scene: [
+    "校園", "海邊", "小鎮", "城市", "老屋", "咖啡館", "醫院", "森林",
+    "實驗室", "公路", "夜市", "辦公室", "家庭", "港口", "山區", "雨中",
+    "餐廳", "酒吧", "房間", "車站", "家中", "庭院", "計程車", "小徑"
+  ],
+  genre: BUBBLE_GENRE_ROOTS
 };
+
+function normalizeBubbleSemanticText(tag) {
+  return String(tag || "")
+    .trim()
+    .replace(/^#/, "")
+    .replace(/\s+/g, "")
+    .replace(/臺/g, "台")
+    .replace(/祕/g, "秘");
+}
+
+function bubbleTextMatchesRoot(tag, roots) {
+  const text = normalizeBubbleSemanticText(tag);
+  if (!text) return false;
+
+  return roots.some(root => {
+    const r = normalizeBubbleSemanticText(root);
+    return r && (text === r || text.includes(r));
+  });
+}
+
+function isCanonicalGenreBubbleTag(tag) {
+  return bubbleTextMatchesRoot(tag, BUBBLE_GENRE_ROOTS);
+}
+
+function resolveBubbleTagKind(tag, sourceKind) {
+  const clean = cleanTag(tag);
+  const normalized = normalizeBubbleSemanticText(clean);
+
+  if (!normalized) return null;
+
+  const blocked = [...BUBBLE_TAG_BLOCKLIST]
+    .some(item => normalizeBubbleSemanticText(item) === normalized);
+  if (blocked) return null;
+
+  for (const [overrideTag, overrideKind] of BUBBLE_TAG_KIND_OVERRIDES.entries()) {
+    if (normalizeBubbleSemanticText(overrideTag) === normalized) {
+      return overrideKind;
+    }
+  }
+
+  // 類型最嚴格：只接受真正像 genre / subgenre 的詞。
+  if (sourceKind === "genre") {
+    return isCanonicalGenreBubbleTag(clean) ? "genre" : null;
+  }
+
+  // 場景欄位維持以資料庫欄位為準。
+  // 因為場景名稱很多（店名、道路、室內外空間），不適合硬做小型白名單。
+  if (sourceKind === "scene") {
+    return "scene";
+  }
+
+  const looksMood = bubbleTextMatchesRoot(clean, BUBBLE_MOOD_ROOTS);
+  const looksAtmosphere = bubbleTextMatchesRoot(clean, BUBBLE_ATMOSPHERE_ROOTS);
+
+  if (sourceKind === "mood") {
+    if (looksMood) return "mood";
+    if (looksAtmosphere) return "atmosphere";
+    return null;
+  }
+
+  if (sourceKind === "atmosphere") {
+    if (looksAtmosphere) return "atmosphere";
+    if (looksMood) return "mood";
+    return null;
+  }
+
+  return null;
+}
+
 
 /*
   探索頁熱門分類的同義標籤。
@@ -884,7 +1035,11 @@ function normalizeMovie(raw, idx = 0) {
     atmosphere: uniqueTags(toArray(get("atmosphere"))),
     mainScene: uniqueTags(toArray(get("mainScene"))),
     subScene: uniqueTags(toArray(get("subScene"))),
-    keywords: uniqueTags(toArray(get("keywords"))),
+    // 類型關鍵字仍保留給推薦/搜尋，但不參與「類型」圓圈分類。
+    keywords: uniqueTags([
+      ...toArray(get("keywords")),
+      ...toArray(get("genreKeywords"))
+    ]),
     raw
   };
 }
@@ -989,7 +1144,7 @@ function renderBubbleModeUI() {
   if (desc) {
     desc.textContent = isExhibition
       ? "固定 4 組標籤循環；每次刷新換下一組，第 4 組後回到完全相同的第 1 組。"
-      : `一般模式由資料庫標籤動態產生；目前資料庫共 ${allMovies.length.toLocaleString("zh-TW")} 部電影。`;
+      : `一般模式依資料庫分類動態產生（類型直接讀取電影類型欄位）；目前資料庫共 ${allMovies.length.toLocaleString("zh-TW")} 部電影。`;
   }
 
   if (roundBadge) {
@@ -1126,14 +1281,15 @@ function collectDynamicTagCandidates(movies) {
   const counts = new Map();
 
   (movies || []).forEach(movie => {
-    // 類別直接沿用 FilmDB 的原始欄位，不再從標籤文字猜測。
+    // 一般模式的四種圓圈只從各自對應的資料庫欄位取值。
+    // 不再把 keywords / genreKeywords 拿來猜分類，確保：
+    // 類型=真正電影類型、場景=場景、情緒=情緒、氛圍=氛圍。
     const fieldGroups = [
       { list: movie.genre, base: 4.8, kind: "genre" },
       { list: movie.mood, base: 5.2, kind: "mood" },
       { list: movie.atmosphere, base: 4.6, kind: "atmosphere" },
       { list: movie.mainScene, base: 3.1, kind: "scene" },
-      { list: movie.subScene, base: 2.2, kind: "scene" },
-      { list: movie.keywords, base: 1.8, kind: null }
+      { list: movie.subScene, base: 2.2, kind: "scene" }
     ];
 
     fieldGroups.forEach(({ list, base, kind }) => {
@@ -1142,7 +1298,12 @@ function collectDynamicTagCandidates(movies) {
         const tagKey = getTagIdentity(clean);
         if (!tagKey || !isUsableBubbleTag(clean)) return;
 
-        const sourceKind = kind || classifyTag(clean);
+        const sourceKind = resolveBubbleTagKind(clean, kind);
+
+        // 無法明確歸入四大類的詞，不顯示在首頁圓圈。
+        // 原始資料與推薦 / 搜尋用途不受影響。
+        if (!sourceKind) return;
+
         const prev = counts.get(tagKey) || {
           tag: clean,
           score: 0,
@@ -1199,11 +1360,13 @@ function isUsableBubbleTag(tag) {
 }
 
 function classifyTag(tag) {
-  const t = String(tag);
+  const clean = cleanTag(tag);
+
   for (const [kind, words] of Object.entries(TAG_KIND_RULES)) {
-    if (words.some(w => t.includes(w) || w.includes(t))) return kind;
+    if (bubbleTextMatchesRoot(clean, words)) return kind;
   }
-  return "mood";
+
+  return null;
 }
 
 const recentBubbleSetSignatures = [];
