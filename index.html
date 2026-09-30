@@ -3,9 +3,16 @@
 
 <head>
   <meta charset="UTF-8" />
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=ai-legible&utm_source=comment&utm_medium=referral&utm_id=b1196f9f-b6c9-4ea8-afdd-1371768cecf0
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+<meta name="hosting-provider" content="Netlify">
+<meta name="netlify-deploy" content="https://netlify.new/?utm_campaign=ai-legible&amp;utm_source=meta&amp;utm_medium=referral&amp;utm_id=b1196f9f-b6c9-4ea8-afdd-1371768cecf0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>用感覺找電影｜Moodluma</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="opening.css" />
+  <link rel="stylesheet" href="password-toggle.css" />
   <link rel="icon" type="image/png" href="moodluma-icon.png">
   <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#5669D7">
@@ -16,6 +23,21 @@
 </head>
 
 <body>
+  <!-- Moodluma opening animation: isolated from existing app functionality -->
+  <div id="moodlumaOpening" class="moodluma-opening" aria-hidden="true">
+    <div class="opening-ambient opening-ambient-one"></div>
+    <div class="opening-ambient opening-ambient-two"></div>
+    <div class="opening-content">
+      <div class="opening-logo-wrap">
+        <span class="opening-ring opening-ring-one"></span>
+        <span class="opening-ring opening-ring-two"></span>
+        <img class="opening-logo" src="moodluma-icon.png" alt="">
+      </div>
+      <div class="opening-wordmark">Moodluma</div>
+      <div class="opening-tagline">用感覺，找到你的電影</div>
+      <div class="opening-line"><span></span></div>
+    </div>
+  </div>
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand">
@@ -190,7 +212,7 @@
 
         <div class="explore-content">
           <section class="explore-section">
-            <h3>熱門分類（32 類）</h3>
+            <h3>熱門分類</h3>
             <div class="category-grid">
               <button class="cat-btn" style="--c: #406dff;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 10h.01M15.5 10h.01M8 14c1.2 1.4 2.5 2 4 2s2.8-.6 4-2"/></svg></span>喜劇</button>
               <button class="cat-btn" style="--c: #f06ba7;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></span>愛情</button>
@@ -208,22 +230,6 @@
               <button class="cat-btn" style="--c: #b36a45;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.8 7.8 7 10 4.2-2.2 7-5.5 7-10V6l-7-3Z"/><path d="M12 7v10M8 12h8"/></svg></span>戰爭</button>
               <button class="cat-btn" style="--c: #c59a56;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h18M5 9V7l7-4 7 4v2M5 20h14M7 9v8M11 9v8M15 9v8M19 9v8"/></svg></span>歷史</button>
               <button class="cat-btn" style="--c: #ea6fcb;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></span>音樂</button>
-              <button class="cat-btn" data-category="紀錄" style="--c: #36a3d9;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3V9Z"/></svg></span>紀錄</button>
-              <button class="cat-btn" data-category="青春" style="--c: #7fcf72;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21V9M7 4c3 0 5 2 5 5-3 0-5-2-5-5ZM17 4c-3 0-5 2-5 5 3 0 5-2 5-5Z"/></svg></span>青春</button>
-              <button class="cat-btn" data-category="成長" style="--c: #69b76d;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg></span>成長</button>
-              <button class="cat-btn" data-category="友情" style="--c: #55b8c5;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M3 20c0-4 2-6 5-6M21 20c0-4-2-6-5-6M8 18h8"/></svg></span>友情</button>
-              <button class="cat-btn" data-category="親情" style="--c: #ef8fa8;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 3l9 8v9h-6v-6H9v6H3v-9Z"/></svg></span>親情</button>
-              <button class="cat-btn" data-category="勵志" style="--c: #f0b643;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 2Z"/></svg></span>勵志</button>
-              <button class="cat-btn" data-category="傳記" style="--c: #9b7bd5;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Z"/><path d="M8 4v16M11 8h5M11 12h5"/></svg></span>傳記</button>
-              <button class="cat-btn" data-category="社會寫實" style="--c: #64748b;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10l8-6 8 6v10M8 20v-6h8v6"/></svg></span>社會寫實</button>
-              <button class="cat-btn" data-category="職場" style="--c: #6687b8;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3M3 12h18"/></svg></span>職場</button>
-              <button class="cat-btn" data-category="女性視角" style="--c: #e76ba8;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M12 13v8M8.5 17h7"/></svg></span>女性視角</button>
-              <button class="cat-btn" data-category="校園" style="--c: #4f8fda;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-5 9 5-9 5-9-5Z"/><path d="M7 13v4c3 2 7 2 10 0v-4"/></svg></span>校園</button>
-              <button class="cat-btn" data-category="運動" style="--c: #ef704f;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M7 5c4 3 6 7 6 14M17 5c-4 3-6 7-6 14M3 12h18"/></svg></span>運動</button>
-              <button class="cat-btn" data-category="災難" style="--c: #e2554f;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 9v4M12 17h.01"/></svg></span>災難</button>
-              <button class="cat-btn" data-category="復仇" style="--c: #a84f5f;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 8h14M7 8l-3 6h6L7 8ZM17 8l-3 6h6l-3-6Z"/></svg></span>復仇</button>
-              <button class="cat-btn" data-category="生存" style="--c: #4c9d73;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4v5c0 5-3 8-8 10-5-2-8-5-8-10V7l8-4Z"/><path d="m8 13 3 3 5-6"/></svg></span>生存</button>
-              <button class="cat-btn" data-category="超自然" style="--c: #8d62d8;"><span class="icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10a7 7 0 0 1 14 0v10l-2-1.5L15 20l-3-1.5L9 20l-2-1.5L5 20Z"/><path d="M9 11h.01M15 11h.01"/></svg></span>超自然</button>
             </div>
           </section>
 
@@ -240,7 +246,7 @@
           </section>
 
           <section class="explore-section">
-            <h3 id="exploreResultTitle">探索結果</h3>
+            <h3>探索結果</h3>
             <div id="exploreResultList" class="recommend-list">
                <div class="empty-state">點擊上方的分類或標籤，馬上開始探索電影！</div>
             </div>
@@ -307,9 +313,11 @@
           </div>
 
           <div class="join-room-box">
-            <input id="joinRoomInput" type="text" placeholder="輸入房間代碼，例如：ROOM-4821" />
+            <input id="joinRoomInput" type="text" placeholder="輸入房間代碼，例如：ROOM-G72NSS" />
             <button id="joinRoomBtn" type="button">加入房間</button>
           </div>
+
+          <div id="memberList" class="member-list"></div>
 
           <div class="role-select-panel">
             <div class="role-select-head">
@@ -344,8 +352,6 @@
               </button>
             </div>
           </div>
-
-          <div id="memberList" class="member-list"></div>
 
           <div class="group-summary">
             <div>
@@ -455,7 +461,13 @@
         </label>
         <label>
           <span>密碼</span>
-          <input id="authPassword" type="password" autocomplete="current-password" placeholder="請輸入密碼">
+          <div class="password-input-wrap">
+            <input id="authPassword" type="password" autocomplete="current-password" placeholder="請輸入密碼">
+            <button class="password-toggle" type="button" data-password-toggle="authPassword" aria-label="顯示密碼" aria-pressed="false">
+              <svg class="password-eye password-eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.6"/></svg>
+              <svg class="password-eye password-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16.8 16.8 0 0 1-3 3.7M6.1 6.1C3.8 7.8 2.5 12 2.5 12s3.5 6 9.5 6c1.4 0 2.7-.3 3.8-.8"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+            </button>
+          </div>
         </label>
         <button id="authSubmit" class="wide-btn" type="button">登入</button>
         <button id="forgotPasswordBtn" class="forgot-password-btn" type="button">忘記密碼？</button>
@@ -599,6 +611,8 @@
   </div>
 
   <script src="app.js"></script>
+  <script src="opening.js"></script>
+  <script src="password-toggle.js"></script>
 </body>
 
-</html>
+</html><script async src="/.netlify/scripts/hud?variant=public" data-nf-variant="public" data-netlify-site-id="b1196f9f-b6c9-4ea8-afdd-1371768cecf0" data-app-host="app.netlify.com"></script>

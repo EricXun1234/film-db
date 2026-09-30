@@ -1,0 +1,143 @@
+/* Moodluma opening animation — intentionally isolated from the existing UI. */
+.moodluma-opening {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(86, 105, 215, .20), transparent 32%),
+    linear-gradient(145deg, #080a12 0%, #101426 48%, #070810 100%);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  isolation: isolate;
+}
+
+.moodluma-opening.is-leaving {
+  animation: moodluma-opening-out .30s cubic-bezier(.7, 0, .25, 1) forwards;
+}
+
+.moodluma-opening.is-finished { display: none; }
+
+.opening-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(10px);
+}
+
+.opening-logo-wrap {
+  position: relative;
+  width: clamp(112px, 13vw, 158px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(.58);
+  animation: moodluma-logo-in .38s .04s cubic-bezier(.16, 1, .3, 1) forwards;
+}
+
+.opening-logo {
+  position: relative;
+  z-index: 2;
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 24px rgba(100, 126, 255, .42));
+}
+
+.opening-ring {
+  position: absolute;
+  inset: 4%;
+  border: 1px solid rgba(126, 146, 255, .28);
+  border-radius: 50%;
+  animation: moodluma-ring 1.8s .25s ease-out infinite;
+}
+
+.opening-ring-two { animation-delay: .72s; }
+
+.opening-wordmark {
+  margin-top: 19px;
+  color: #fff;
+  font: 800 clamp(31px, 4.2vw, 48px)/1.05 system-ui, -apple-system, "Segoe UI", sans-serif;
+  letter-spacing: .025em;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: moodluma-text-in .28s .24s ease-out forwards;
+  text-shadow: 0 0 32px rgba(105, 125, 255, .28);
+}
+
+.opening-tagline {
+  margin-top: 10px;
+  color: rgba(235, 239, 255, .68);
+  font: 500 clamp(12px, 1.5vw, 15px)/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  letter-spacing: .16em;
+  opacity: 0;
+  transform: translateY(9px);
+  animation: moodluma-text-in .24s .36s ease-out forwards;
+}
+
+.opening-line {
+  width: min(180px, 42vw);
+  height: 1px;
+  margin-top: 24px;
+  overflow: hidden;
+  background: rgba(255,255,255,.08);
+  opacity: 0;
+  animation: moodluma-fade-in .18s .42s ease forwards;
+}
+
+.opening-line span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #8292ff, transparent);
+  transform: translateX(-100%);
+  animation: moodluma-line .42s .44s cubic-bezier(.4,0,.2,1) forwards;
+}
+
+.opening-ambient {
+  position: absolute;
+  width: 42vmax;
+  height: 42vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .12;
+  background: #6577f2;
+  animation: moodluma-float 4s ease-in-out infinite alternate;
+}
+.opening-ambient-one { left: -20vmax; top: -22vmax; }
+.opening-ambient-two { right: -22vmax; bottom: -24vmax; animation-delay: -2s; }
+
+@keyframes moodluma-logo-in { to { opacity: 1; transform: scale(1); } }
+@keyframes moodluma-text-in { to { opacity: 1; transform: translateY(0); } }
+@keyframes moodluma-fade-in { to { opacity: 1; } }
+@keyframes moodluma-ring {
+  0% { opacity: .65; transform: scale(.7); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+@keyframes moodluma-line { to { transform: translateX(100%); } }
+@keyframes moodluma-float { to { transform: translate(5vmax, 3vmax) scale(1.08); } }
+@keyframes moodluma-opening-out {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.035); visibility: hidden; }
+}
+
+@media (max-width: 600px) {
+  .opening-logo-wrap { width: 118px; }
+  .opening-wordmark { margin-top: 16px; }
+  .opening-tagline { letter-spacing: .11em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opening-ring, .opening-ambient { animation: none; }
+  .opening-logo-wrap, .opening-wordmark, .opening-tagline, .opening-line {
+    animation-duration: .01ms;
+    animation-delay: 0s;
+  }
+  .moodluma-opening.is-leaving { animation-duration: .18s; }
+}
