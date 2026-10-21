@@ -10,7 +10,7 @@
 <meta name="netlify-deploy" content="https://netlify.new/?utm_campaign=ai-legible&amp;utm_source=meta&amp;utm_medium=referral&amp;utm_id=b1196f9f-b6c9-4ea8-afdd-1371768cecf0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>用感覺找電影｜Moodluma</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=personalized" />
   <link rel="stylesheet" href="opening.css" />
   <link rel="stylesheet" href="password-toggle.css" />
   <link rel="icon" type="image/png" href="moodluma-icon.png">
@@ -140,7 +140,7 @@
             <div class="recommend-head">
               <div>
                 <h3>為你推薦</h3>
-                <p>適合度綜合目前感覺權重、偏好命中程度與電影本身特徵比例即時計算；未選擇感覺時不顯示百分比。</p>
+                <p>登入後依你的評分自動推送個人片單；也可即時依目前感覺權重計算適合度。</p>
               </div>
               <button id="viewAllBtn">查看全部 ›</button>
             </div>
@@ -286,79 +286,99 @@
       </div>
 
       <div id="page-party" class="page-view">
-        <header class="topbar">
+        <header class="topbar party-topbar">
           <div>
             <p class="eyebrow">Group Movie Night</p>
             <h2>多人一起選電影</h2>
-            <p>加入成員後，每個人選擇自己的感覺，系統會整理出最適合大家的電影。</p>
+            <p>先開房間、加入成員，再各自選感覺；最後可看共同心情與每人片單。</p>
+          </div>
+          <div class="party-room-chip" aria-label="目前房間">
+            <span>房間代碼</span>
+            <strong id="roomCode">ROOM----</strong>
+            <button id="newRoomBtn" class="room-small-btn" type="button">產生新房間</button>
           </div>
         </header>
-        
-        <section class="group-panel">
-          <div class="group-head">
-            <div>
+
+        <section class="group-panel party-layout">
+          <div class="party-setup">
+            <div class="party-setup-block">
+              <h3>加入房間</h3>
+              <div class="join-room-box party-join-row">
+                <input id="joinRoomInput" type="text" placeholder="輸入房間代碼，例如：ROOM-G72NSS" />
+                <button id="joinRoomBtn" type="button">加入房間</button>
+              </div>
+            </div>
+
+            <div class="party-setup-block">
               <h3>加入成員</h3>
-            </div>
-            <div class="room-box">
-              <span>目前房間代碼</span>
-              <strong id="roomCode">ROOM----</strong>
-              <button id="newRoomBtn" class="room-small-btn" type="button">產生新房間</button>
-            </div>
-          </div>
-
-          <div class="group-controls">
-            <input id="memberNameInput" type="text" placeholder="請輸入成員名稱，例如：小明" />
-            <button id="addMemberBtn">＋ 加入成員</button>
-            <button id="groupModeBtn">開啟多人模式</button>
-          </div>
-
-          <div class="join-room-box">
-            <input id="joinRoomInput" type="text" placeholder="輸入房間代碼，例如：ROOM-G72NSS" />
-            <button id="joinRoomBtn" type="button">加入房間</button>
-          </div>
-
-          <div id="memberList" class="member-list"></div>
-
-          <div class="role-select-panel">
-            <div class="role-select-head">
-              <h3>選擇角色</h3>
-              <p>先點選成員，再點選想套用的角色。</p>
-            </div>
-
-            <div class="role-list" id="roleList">
-              <button class="role-option" type="button" data-role="role-1">
-                <img src="roles/role-1.png" alt="角色 1">
-                <span>角色 1</span>
-              </button>
-
-              <button class="role-option" type="button" data-role="role-2">
-                <img src="roles/role-2.png" alt="角色 2">
-                <span>角色 2</span>
-              </button>
-
-              <button class="role-option" type="button" data-role="role-3">
-                <img src="roles/role-3.png" alt="角色 3">
-                <span>角色 3</span>
-              </button>
-
-              <button class="role-option" type="button" data-role="role-4">
-                <img src="roles/role-4.png" alt="角色 4">
-                <span>角色 4</span>
-              </button>
-
-              <button class="role-option" type="button" data-role="role-5">
-                <img src="roles/role-5.png" alt="角色 5">
-                <span>角色 5</span>
-              </button>
+              <div class="group-controls party-add-row">
+                <input id="memberNameInput" type="text" placeholder="請輸入成員名稱，例如：小明" />
+                <button id="addMemberBtn" type="button">＋ 加入成員</button>
+                <button id="groupModeBtn" type="button">開啟多人模式</button>
+              </div>
             </div>
           </div>
 
-          <div class="group-summary">
-            <div>
-              <h4>共同感覺</h4>
-              <p>系統會把每位成員選到的標籤加總，找出大家最接近的共同心情。</p>
+          <div class="party-main-grid">
+            <div class="party-col party-col-members">
+              <div class="party-section-head">
+                <h3>成員</h3>
+                <p>點選成員後，可在右側套用角色，再到首頁幫他選感覺。</p>
+              </div>
+              <div id="memberList" class="member-list"></div>
             </div>
-            <div id="groupTags" class="group-tags"></div>
+
+            <div class="party-col party-col-roles">
+              <div class="role-select-panel">
+                <div class="role-select-head">
+                  <h3>選擇角色</h3>
+                  <p>先點選成員，再點選想套用的角色。</p>
+                </div>
+                <div class="role-list" id="roleList">
+                  <button class="role-option" type="button" data-role="role-1">
+                    <img src="roles/role-1.png" alt="角色 1">
+                    <span>角色 1</span>
+                  </button>
+                  <button class="role-option" type="button" data-role="role-2">
+                    <img src="roles/role-2.png" alt="角色 2">
+                    <span>角色 2</span>
+                  </button>
+                  <button class="role-option" type="button" data-role="role-3">
+                    <img src="roles/role-3.png" alt="角色 3">
+                    <span>角色 3</span>
+                  </button>
+                  <button class="role-option" type="button" data-role="role-4">
+                    <img src="roles/role-4.png" alt="角色 4">
+                    <span>角色 4</span>
+                  </button>
+                  <button class="role-option" type="button" data-role="role-5">
+                    <img src="roles/role-5.png" alt="角色 5">
+                    <span>角色 5</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="party-results-grid">
+            <div class="group-summary party-shared-mood">
+              <div>
+                <h4>共同感覺</h4>
+                <p>把每位成員的標籤加總，找出大家最接近的共同心情。</p>
+              </div>
+              <div id="groupTags" class="group-tags"></div>
+            </div>
+
+            <div class="group-summary member-recommend-summary party-member-recs">
+              <div class="party-rec-head">
+                <div>
+                  <h4>成員各自推薦</h4>
+                  <p>依每人標籤或帳號喜好，分別產生一份片單。</p>
+                </div>
+                <button id="roomMemberRecommendBtn" class="wide-btn" type="button">產生個人片單</button>
+              </div>
+              <div id="memberRecommendPanel" class="member-recommend-panel"></div>
+            </div>
           </div>
         </section>
       </div>
@@ -459,7 +479,7 @@
           <span>Email</span>
           <input id="authEmail" type="email" autocomplete="email" placeholder="請輸入 Email">
         </label>
-        <label>
+<label>
           <span>密碼</span>
           <div class="password-input-wrap">
             <input id="authPassword" type="password" autocomplete="current-password" placeholder="請輸入密碼">
@@ -610,7 +630,7 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=personalized"></script>
   <script src="opening.js"></script>
   <script src="password-toggle.js"></script>
 </body>

@@ -1,4 +1,17 @@
-const FILMDB_BASE = "https://filmdb-68z4.onrender.com";
+const FILMDB_BASE = (() => {
+  try {
+    const host = String(location.hostname || "").toLowerCase();
+    // 與後端同站時走同源，避免跨域／設備登入同步被擋
+    if (
+      host.includes("onrender.com") ||
+      host === "localhost" ||
+      host === "127.0.0.1"
+    ) {
+      return location.origin;
+    }
+  } catch (_) {}
+  return "https://filmdb-68z4.onrender.com";
+})();
 
 /*
   這裡會自動嘗試多個常見資料路徑。
@@ -24,16 +37,131 @@ const API_CANDIDATES = [
 
 const AUTH_USERS_KEY = "moodluma-users";
 const CURRENT_USER_KEY = "moodluma-current-user";
+const AUTH_TOKEN_KEY = "moodluma-auth-token";
 const HISTORY_PREFIX = "moodluma-history";
 const FAVORITE_PREFIX = "moodluma-favorites";
 const GUEST_ID = "guest";
 const ROOM_KEY = "moodluma-current-room";
 const ROOM_PREFIX = "ROOM-";
+const MY_MEMBER_NAME_KEY = "moodluma-my-member-name";
+let roomPollTimer = null;
+
+function backendRoomCode(code) {
+  return String(code || "").trim().toUpperCase().replace(/^ROOM-/, "").replace(/\s+/g, "");
+}
+
+function formatRoomCodeDisplay(code) {
+  const c = backendRoomCode(code);
+  return c ? `${ROOM_PREFIX}${c}` : `${ROOM_PREFIX}----`;
+}
+
+async function apiRoomCreate(roomName = "Moodluma") {
+  const res = await fetch(`${FILMDB_BASE}/api/room/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ roomName }),
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "建立房間失敗");
+  return data.room;
+}
+
+async function apiRoomJoin(roomCode, userName) {
+  const res = await fetch(`${FILMDB_BASE}/api/room/join`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ roomCode: backendRoomCode(roomCode), userName }),
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "加入房間失敗");
+  return data.room;
+}
+
+async function apiRoomGet(roomCode) {
+  const code = backendRoomCode(roomCode);
+  const res = await fetch(`${FILMDB_BASE}/api/room?code=${encodeURIComponent(code)}`);
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || "查詢房間失敗");
+  return data.room;
+}
+
+function applyServerMembers(room) {
+  const names = Array.isArray(room?.members) ? room.members : [];
+  const byName = new Map(groupMembers.map(m => [m.name, m]));
+  groupMembers = names.map((name, i) => {
+    const ex = byName.get(name);
+    if (ex) return ex;
+    return {
+      id: `member-${backendRoomCode(getCurrentRoomCode())}-${i}-${String(name).replace(/\s+/g, "_")}`,
+      name,
+      tags: {},
+      role: `role-${Math.min(i + 1, 5)}`,
+    };
+  });
+  if (!activeMemberId || !groupMembers.some(m => m.id === activeMemberId)) {
+    activeMemberId = groupMembers[0]?.id || null;
+  }
+  saveGroupMembers();
+  renderMembers();
+  renderGroupTags();
+  renderRoleOptions();
+}
+
+function stopRoomPoll() {
+  if (roomPollTimer) {
+    clearInterval(roomPollTimer);
+    roomPollTimer = null;
+  }
+}
+
+function startRoomPoll() {
+  stopRoomPoll();
+  roomPollTimer = setInterval(async () => {
+    try {
+      const room = await apiRoomGet(getCurrentRoomCode());
+      applyServerMembers(room);
+    } catch (_) { /* ignore transient errors */ }
+  }, 3000);
+}
+
+async function refreshRoomFromServer() {
+  const room = await apiRoomGet(getCurrentRoomCode());
+  applyServerMembers(room);
+  return room;
+}
+
+async function initRoomFromServer() {
+  let code = backendRoomCode(localStorage.getItem(ROOM_KEY));
+  if (!code) {
+    const created = await apiRoomCreate("Moodluma");
+    code = created.code;
+    localStorage.setItem(ROOM_KEY, code);
+  } else {
+    try {
+      await apiRoomGet(code);
+    } catch (_) {
+      const created = await apiRoomCreate("Moodluma");
+      code = created.code;
+      localStorage.setItem(ROOM_KEY, code);
+    }
+  }
+  updateRoomUI();
+  groupVotes = loadGroupVotes();
+  try {
+    await refreshRoomFromServer();
+  } catch (_) {
+    groupMembers = [];
+    activeMemberId = null;
+    saveGroupMembers();
+    renderMembers();
+  }
+  startRoomPoll();
+}
 
 /*
   支援中英文欄位名稱。
-  資料庫若有「主要場景、次要場景、類型、情緒、氛圍」，
-  首頁圓圈只使用對應欄位；類型關鍵字仍保留給搜尋 / 推薦，不拿來生成圓圈。
+  資料庫若有「主要場景、次要場景、類型關鍵字、情感／氛圍」，
+  這裡會自動抓來統整成圓圈標籤。
 */
 const FIELD_MAP = {
   title: ["title", "name", "movieName", "movie_title", "電影名稱", "片名", "名稱"],
@@ -178,19 +306,6 @@ const FALLBACK_MOVIES = [
     trailer: ""
   }
 ];
-
-/*
-  一般模式首頁圓圈的「顯示用分類規則」。
-
-  重要：
-  1. 不修改 FilmDB 原始資料。
-  2. 搜尋 / 推薦仍可使用完整 keywords。
-  3. 只有首頁四大類圓圈會經過這層語意過濾。
-  4. 資料庫欄位仍是第一來源；這裡主要負責：
-     - 擋掉太模糊、不是四大類的詞。
-     - 把明顯放錯欄位的情緒 / 氛圍移回正確類別。
-     - genre 只保留真正像電影類型 / 子類型的詞。
-*/
 
 const BUBBLE_TAG_BLOCKLIST = new Set([
   // 太模糊、程度詞或風格描述，單獨出現時不適合當「情緒」或「類型」。
@@ -500,6 +615,11 @@ let authMode = "login";
 let libraryMode = "favorites";
 let pendingMovie = null;
 let currentTab = "全部收藏";
+/** 登入帳號的後端個人推薦（push_feed / recommend/me） */
+let serverRecommendCards = [];
+/** 房間成員各自推薦：{ [memberName]: { cards, source, ... } } */
+let memberRecommendByName = {};
+let memberRecommendMeta = null;
 const DEFAULT_APP_SETTINGS = {
   themeDark: true,
   anim: true,
@@ -538,6 +658,7 @@ function getBubblePaletteByGroup(index, total) {
 
 function saveAppSettings() {
   saveJson("moodluma_settings", appSettings);
+  scheduleUserStatePush();
 }
 
 const $ = (id) => document.getElementById(id);
@@ -548,12 +669,16 @@ async function init() {
   bindUI();
   allMovies = await loadMoviesFromFilmDB();
 
-  updateRoomUI();
-  groupMembers = loadGroupMembers();
-  groupVotes = loadGroupVotes();
-  activeMemberId = groupMembers[0]?.id || null;
-
-  ensureDefaultMembers();
+  try {
+    await initRoomFromServer();
+  } catch (e) {
+    console.warn("room init fallback", e);
+    updateRoomUI();
+    groupMembers = loadGroupMembers();
+    groupVotes = loadGroupVotes();
+    activeMemberId = groupMembers[0]?.id || null;
+    ensureDefaultMembers();
+  }
   buildBubbleModeInitialState();
   renderMembers();
   renderGroupTags();
@@ -564,6 +689,11 @@ async function init() {
   renderCollection();
   updateAuthUI();
   updateMemberStats();
+  if (getCurrentUser() && localStorage.getItem(AUTH_TOKEN_KEY)) {
+    syncUserStateFromCloud()
+      .then(() => refreshPersonalRecommend({ publish: true }))
+      .catch((e) => console.warn("init sync failed", e));
+  }
   window.addEventListener("resize", debounceBubbleLayout);
 }
 
@@ -657,20 +787,39 @@ function bindUI() {
     $("groupModeBtn").textContent = groupMode ? "多人模式已開啟" : "開啟多人模式";
     renderRecommendations();
   });
+  $("roomMemberRecommendBtn")?.addEventListener("click", () => {
+    refreshRoomMemberRecommends({ publish: true }).catch((e) => {
+      console.warn("room member recommend failed", e);
+      alert(e.message || "產生成員推薦失敗");
+    });
+  });
 
-  $("newRoomBtn")?.addEventListener("click", () => {
-    const newCode = generateRoomCode();
-    setCurrentRoomCode(newCode);
+  $("newRoomBtn")?.addEventListener("click", async () => {
+    try {
+      stopRoomPoll();
+      const room = await apiRoomCreate("Moodluma");
+      groupMembers = [];
+      groupVotes = {};
+      activeMemberId = null;
+      localStorage.setItem(ROOM_KEY, room.code);
+      updateRoomUI();
+      saveGroupMembers();
+      saveGroupVotes();
+      startRoomPoll();
+      renderMembers();
+      renderGroupTags();
+      alert(`已建立新房間：${formatRoomCodeDisplay(room.code)}`);
+    } catch (e) {
+      alert(e.message || "建立房間失敗");
+    }
   });
 
   $("joinRoomBtn")?.addEventListener("click", () => {
     const code = $("joinRoomInput")?.value || "";
-
     if (!code.trim()) {
       alert("請輸入房間代碼。");
       return;
     }
-
     setCurrentRoomCode(code);
   });
 
@@ -1083,6 +1232,7 @@ function uniqueTags(values) {
   }).map(cleanTag);
 }
 
+
 function getTagIdentity(tag) {
   let key = cleanTag(tag)
     .toLowerCase()
@@ -1213,6 +1363,7 @@ function switchBubbleMode(nextMode) {
 
   bubbleMode = normalizedMode;
   localStorage.setItem(BUBBLE_MODE_KEY, bubbleMode);
+  scheduleUserStatePush();
   clearBubbleSelectionForModeSwitch();
 
   if (bubbleMode === "exhibition") {
@@ -1745,10 +1896,96 @@ function renderSelectedTags() {
   });
 }
 
+function cardToMovie(card) {
+  if (!card) return null;
+  const id = String(card.id || card.movieId || "").trim();
+  if (id) {
+    const found = allMovies.find(m => String(m.id) === id || String(m.tmdbId || "") === id);
+    if (found) return found;
+  }
+  return {
+    id: id || `push-${card.title || "movie"}`,
+    title: card.title || "未命名",
+    poster: card.poster || card.thumb || "",
+    desc: card.desc || card.overview || (Array.isArray(card.matchReasons) ? card.matchReasons.join(" · ") : ""),
+    actors: typeof card.actors === "string" ? card.actors : (Array.isArray(card.actors) ? card.actors.join("、") : ""),
+    genres: card.genres || [],
+    emotions: card.emotions || [],
+    atmospheres: card.atmospheres || [],
+    moods: card.moods || [],
+    year: card.year || "",
+    ytId: card.ytId || "",
+    url: card.url || "",
+  };
+}
+
+function renderRecommendMovieItem(list, movie, score = 0, extraMeta = "") {
+  const compatibility = getCompatibilityText(score);
+  const item = document.createElement("article");
+  item.className = "movie-item";
+  item.innerHTML = `
+    <div class="poster" style="background-image:url('${safeAttr(movie.poster)}')"></div>
+    <div class="movie-main-info">
+      <h4>${escapeHtml(movie.title)}</h4>
+      <div class="movie-meta">
+        ${topTags(movie).slice(0, 3).map(t => `<span>${escapeHtml(t)}</span>`).join("")}
+        ${extraMeta}
+        ${renderFeedbackBadge(movie)}
+        ${renderGroupMovieBadge(movie)}
+      </div>
+      <p class="movie-desc">${escapeHtml(movie.desc || "").slice(0, 72)}${(movie.desc || "").length > 72 ? "..." : ""}</p>
+      <p class="movie-actors">演員：${escapeHtml(movie.actors || "暫無演員資料")}</p>
+    </div>
+    <div class="movie-score">
+      <button class="movie-fav-btn ${isFavorite(movie) ? "active" : ""}" type="button" aria-label="收藏電影">
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+      </button>
+      <div class="match-info">
+        <strong>${compatibility.value}</strong>
+        <small>${compatibility.label}</small>
+      </div>
+      <small class="view-count">
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+        <span>${getViewCount(movie)} 次</span>
+      </small>
+      <button class="play-circle" type="button" aria-label="查看電影">
+        <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5V7Z"/></svg>
+      </button>
+    </div>
+  `;
+
+  item.querySelector(".movie-fav-btn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleFavorite(movie);
+    updateMemberStats();
+    renderRecommendations();
+  });
+
+  item.addEventListener("click", () => openModal(movie, score));
+  list.appendChild(item);
+}
+
 function renderRecommendations(showAll = false) {
   const list = $("recommendList");
+  if (!list) return;
   const criteriaActive = hasRecommendationCriteria();
   const needsPopularity = appSettings.prefPop || appSettings.prefNiche;
+
+  // 登入帳號：沒有本機感覺條件時，優先顯示後端個人推薦片單
+  if (!criteriaActive && !groupMode && serverRecommendCards.length) {
+    const display = showAll ? serverRecommendCards : serverRecommendCards.slice(0, 4);
+    list.innerHTML = "";
+    display.forEach((card) => {
+      const movie = cardToMovie(card);
+      if (!movie) return;
+      const score = typeof card.score === "number" ? card.score : 0.75;
+      const reason = Array.isArray(card.matchReasons) && card.matchReasons.length
+        ? `<span class="chip">個人推薦</span>`
+        : `<span class="chip">個人推薦</span>`;
+      renderRecommendMovieItem(list, movie, score, reason);
+    });
+    return;
+  }
 
   // maxViews 只在需要熱門/冷門偏好時算一次。
   const maxViews = needsPopularity
@@ -1785,55 +2022,17 @@ function renderRecommendations(showAll = false) {
   const display = showAll ? filtered : filtered.slice(0, 4);
 
   if (!display.length) {
-    list.innerHTML = `<div class="empty-state">目前沒有符合條件的電影。可以減少排除條件、重新選擇感覺，或換個排列。</div>`;
+    const hint = getCurrentUser()
+      ? "目前沒有符合條件的電影。可先為幾部片評分，登入後會自動產生個人推薦。"
+      : "目前沒有符合條件的電影。可以減少排除條件、重新選擇感覺，或換個排列。";
+    list.innerHTML = `<div class="empty-state">${hint}</div>`;
     return;
   }
 
   list.innerHTML = "";
 
   display.forEach(({ movie, score }) => {
-    const compatibility = getCompatibilityText(score);
-    const item = document.createElement("article");
-    item.className = "movie-item";
-    item.innerHTML = `
-      <div class="poster" style="background-image:url('${safeAttr(movie.poster)}')"></div>
-      <div class="movie-main-info">
-        <h4>${escapeHtml(movie.title)}</h4>
-        <div class="movie-meta">
-          ${topTags(movie).slice(0, 3).map(t => `<span>${escapeHtml(t)}</span>`).join("")}
-          ${renderFeedbackBadge(movie)}
-          ${renderGroupMovieBadge(movie)}
-        </div>
-        <p class="movie-desc">${escapeHtml(movie.desc).slice(0, 72)}${movie.desc.length > 72 ? "..." : ""}</p>
-        <p class="movie-actors">演員：${escapeHtml(movie.actors || "暫無演員資料")}</p>
-      </div>
-      <div class="movie-score">
-        <button class="movie-fav-btn ${isFavorite(movie) ? "active" : ""}" type="button" aria-label="收藏電影">
-          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-        </button>
-        <div class="match-info">
-          <strong>${compatibility.value}</strong>
-          <small>${compatibility.label}</small>
-        </div>
-        <small class="view-count">
-          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
-          <span>${getViewCount(movie)} 次</span>
-        </small>
-        <button class="play-circle" type="button" aria-label="查看電影">
-          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5V7Z"/></svg>
-        </button>
-      </div>
-    `;
-
-    item.querySelector(".movie-fav-btn")?.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleFavorite(movie);
-      updateMemberStats();
-      renderRecommendations();
-    });
-
-    item.addEventListener("click", () => openModal(movie, score));
-    list.appendChild(item);
+    renderRecommendMovieItem(list, movie, score);
   });
 }
 
@@ -1846,13 +2045,11 @@ function hasRecommendationCriteria() {
 function moviePassesPreferenceFilters(movie) {
   const genreText = (movie.genre || []).join(" ").toLowerCase();
   const moodText = (movie.mood || []).join(" ").toLowerCase();
-  const atmosphereText = (movie.atmosphere || []).join(" ").toLowerCase();
   const allText = [
     movie.title,
     movie.desc,
     genreText,
     moodText,
-    atmosphereText,
     ...(movie.keywords || [])
   ].join(" ").toLowerCase();
 
@@ -2155,6 +2352,367 @@ function saveUsers(users) {
   saveJson(AUTH_USERS_KEY, users);
 }
 
+async function apiAuth(path, body) {
+  const headers = { "Content-Type": "application/json" };
+  const token = localStorage.getItem(AUTH_TOKEN_KEY) || "";
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 45000);
+  try {
+    const res = await fetch(`${FILMDB_BASE}${path}`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body || {}),
+      signal: controller.signal,
+    });
+    let data = {};
+    try {
+      data = await res.json();
+    } catch (_) {
+      data = {};
+    }
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || `請求失敗（${res.status}）`);
+    }
+    return data;
+  } catch (e) {
+    if (e?.name === "AbortError") {
+      throw new Error("伺服器喚醒逾時，請再試一次（首次連線可能較慢）");
+    }
+    if (e instanceof TypeError) {
+      throw new Error("無法連線伺服器，請檢查網路後再試");
+    }
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function authHeaders() {
+  const headers = { "Content-Type": "application/json" };
+  const token = localStorage.getItem(AUTH_TOKEN_KEY) || "";
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
+async function apiRecommendMe({ publish = true, force = false, limit = 20 } = {}) {
+  const user = getCurrentUser();
+  const token = localStorage.getItem(AUTH_TOKEN_KEY) || "";
+  if (!user?.username || !token) return null;
+  let feedbacksPayload = {};
+  try {
+    feedbacksPayload = JSON.parse(localStorage.getItem("feelmovie-feedbacks") || "{}");
+  } catch (_) {
+    feedbacksPayload = {};
+  }
+  const res = await fetchWithTimeout(`${FILMDB_BASE}/api/recommend/me`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({
+      userName: user.username,
+      publish: !!publish,
+      forcePublish: !!force,
+      limit,
+      feedbacks: feedbacksPayload,
+    }),
+  }, 25000);
+  let data = {};
+  try {
+    data = await res.json();
+  } catch (_) {
+    data = {};
+  }
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || `個人推薦失敗（${res.status}）`);
+  }
+  return data;
+}
+
+let personalRecommendRefreshTimer = null;
+function schedulePersonalRecommendRefresh() {
+  clearTimeout(personalRecommendRefreshTimer);
+  personalRecommendRefreshTimer = setTimeout(() => {
+    refreshPersonalRecommend({ publish: true, force: true });
+  }, 700);
+}
+
+async function refreshPersonalRecommend({ publish = true, force = false } = {}) {
+  try {
+    const data = await apiRecommendMe({ publish, force, limit: 20 });
+    if (!data) return false;
+    const cards = Array.isArray(data.cards) && data.cards.length
+      ? data.cards
+      : (data.pushFeed?.cards || []);
+    serverRecommendCards = Array.isArray(cards) ? cards : [];
+    renderRecommendations();
+    return true;
+  } catch (e) {
+    console.warn("personal recommend failed", e);
+    return false;
+  }
+}
+
+async function apiRoomRecommend({ publish = false, limit = 12 } = {}) {
+  const roomCode = backendRoomCode(getCurrentRoomCode());
+  if (!roomCode) throw new Error("尚未設定房間代碼");
+  const members = (groupMembers || []).map((m) => ({
+    name: m.name,
+    tags: m.tags || {},
+  }));
+  const res = await fetchWithTimeout(`${FILMDB_BASE}/api/room/recommend`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      roomCode,
+      limit,
+      publish: !!publish,
+      message: "房間成員個人推薦",
+      members,
+    }),
+  }, 30000);
+  let data = {};
+  try {
+    data = await res.json();
+  } catch (_) {
+    data = {};
+  }
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || `房間推薦失敗（${res.status}）`);
+  }
+  return data;
+}
+
+async function refreshRoomMemberRecommends({ publish = true } = {}) {
+  const btn = $("roomMemberRecommendBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "產生中…";
+  }
+  try {
+    const data = await apiRoomRecommend({ publish, limit: 8 });
+    const map = {};
+    for (const row of data.results || []) {
+      if (!row?.userName) continue;
+      map[row.userName] = row;
+    }
+    memberRecommendByName = map;
+    memberRecommendMeta = {
+      published: data.published,
+      total: data.total,
+      roomCode: data.roomCode,
+      lastPushAt: data.lastPushAt,
+    };
+    renderMemberRecommendPanel();
+    return data;
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "為每位成員產生個人片單";
+    }
+  }
+}
+
+function renderMemberRecommendPanel() {
+  const box = $("memberRecommendPanel");
+  if (!box) return;
+  const names = Object.keys(memberRecommendByName || {});
+  if (!names.length) {
+    box.classList.remove("has-results");
+    box.innerHTML = `<div class="empty-state">每位成員選好感覺後，點上方按鈕即可產生各自的推薦片單。</div>`;
+    return;
+  }
+  box.classList.add("has-results");
+  const meta = memberRecommendMeta || {};
+  const head = meta.published != null
+    ? `<p class="member-rec-meta">已為 ${meta.published || 0}/${meta.total || names.length} 位成員產生片單${meta.lastPushAt ? ` · ${escapeHtml(String(meta.lastPushAt))}` : ""}</p>`
+    : "";
+  box.innerHTML = head + names.map((name) => {
+    const row = memberRecommendByName[name] || {};
+    const cards = Array.isArray(row.cards) ? row.cards.slice(0, 4) : [];
+    const sourceLabel = row.source === "tags" ? "依標籤" : row.source === "prefs" ? "依喜好" : "";
+    const status = row.ok
+      ? `${cards.length} 部${sourceLabel ? ` · ${sourceLabel}` : ""}`
+      : (row.error || "略過");
+    const cardsHtml = cards.length
+      ? `<div class="recommend-list member-rec-list">${cards.map((card) => {
+          const movie = cardToMovie(card) || {};
+          return `<article class="movie-item member-rec-item" data-id="${safeAttr(movie.id || "")}">
+            <div class="poster" style="background-image:url('${safeAttr(movie.poster || "")}')"></div>
+            <div class="movie-main-info">
+              <h4>${escapeHtml(movie.title || "")}</h4>
+            </div>
+          </article>`;
+        }).join("")}</div>`
+      : `<div class="empty-state">${escapeHtml(status)}</div>`;
+    return `<section class="member-rec-block">
+      <div class="recommend-head">
+        <div>
+          <h3>${escapeHtml(name)}</h3>
+          <p>${escapeHtml(status)}</p>
+        </div>
+      </div>
+      ${cardsHtml}
+    </section>`;
+  }).join("");
+
+  box.querySelectorAll(".member-rec-item").forEach((el) => {
+    el.addEventListener("click", () => {
+      const id = el.getAttribute("data-id");
+      const movie = allMovies.find(m => String(m.id) === String(id));
+      if (movie) openModal(movie, 0.7);
+    });
+  });
+}
+
+function mergeListById(primary = [], secondary = [], limit = 0) {
+  const map = new Map();
+  for (const item of [...(Array.isArray(primary) ? primary : []), ...(Array.isArray(secondary) ? secondary : [])]) {
+    if (!item || item.id == null) continue;
+    const key = String(item.id);
+    if (!map.has(key)) map.set(key, item);
+  }
+  const out = [...map.values()];
+  return limit > 0 ? out.slice(0, limit) : out;
+}
+
+function buildLocalUserState() {
+  return {
+    favorites: loadCollection("favorites"),
+    history: loadCollection("history"),
+    settings: loadJson("moodluma_settings", {}),
+    feedbacks: (() => {
+      try {
+        return JSON.parse(localStorage.getItem("feelmovie-feedbacks") || "{}");
+      } catch {
+        return {};
+      }
+    })(),
+    viewCounts: (() => {
+      try {
+        return JSON.parse(localStorage.getItem("feelmovie-view-counts") || "{}");
+      } catch {
+        return {};
+      }
+    })(),
+    bubbleMode: localStorage.getItem(BUBBLE_MODE_KEY) === "exhibition" ? "exhibition" : "normal",
+  };
+}
+
+function applyUserStateLocally(data) {
+  if (!data || typeof data !== "object") return;
+  if (Array.isArray(data.favorites)) saveJson(storageKey("favorites"), data.favorites);
+  if (Array.isArray(data.history)) saveJson(storageKey("history"), data.history);
+  if (data.settings && typeof data.settings === "object") {
+    appSettings = { ...appSettings, ...data.settings };
+    saveJson("moodluma_settings", appSettings);
+  }
+  if (data.feedbacks && typeof data.feedbacks === "object") {
+    localStorage.setItem("feelmovie-feedbacks", JSON.stringify(data.feedbacks));
+  }
+  if (data.viewCounts && typeof data.viewCounts === "object") {
+    localStorage.setItem("feelmovie-view-counts", JSON.stringify(data.viewCounts));
+  }
+  if (data.bubbleMode === "exhibition" || data.bubbleMode === "normal") {
+    bubbleMode = data.bubbleMode;
+    localStorage.setItem(BUBBLE_MODE_KEY, bubbleMode);
+  }
+}
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function apiSyncPull() {
+  const user = getCurrentUser();
+  const token = localStorage.getItem(AUTH_TOKEN_KEY) || "";
+  if (!user?.username || !token) return null;
+  const qs = new URLSearchParams({ scope: "user", owner: user.username });
+  const res = await fetchWithTimeout(`${FILMDB_BASE}/api/sync?${qs}`, {
+    method: "GET",
+    headers: authHeaders(),
+  }, 20000);
+  let data = {};
+  try {
+    data = await res.json();
+  } catch (_) {
+    data = {};
+  }
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || `同步讀取失敗（${res.status}）`);
+  }
+  return data.data || {};
+}
+
+async function apiSyncPush(state) {
+  const user = getCurrentUser();
+  const token = localStorage.getItem(AUTH_TOKEN_KEY) || "";
+  if (!user?.username || !token) return null;
+  const res = await fetchWithTimeout(`${FILMDB_BASE}/api/sync`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({
+      scope: "user",
+      owner: user.username,
+      merge: true,
+      updatedAt: new Date().toISOString(),
+      data: state || buildLocalUserState(),
+    }),
+  }, 20000);
+  let data = {};
+  try {
+    data = await res.json();
+  } catch (_) {
+    data = {};
+  }
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || `同步寫入失敗（${res.status}）`);
+  }
+  return data;
+}
+
+async function syncUserStateFromCloud({ pushAfter = true } = {}) {
+  const user = getCurrentUser();
+  if (!user?.username || !localStorage.getItem(AUTH_TOKEN_KEY)) return false;
+  try {
+    const remote = (await apiSyncPull()) || {};
+    const local = buildLocalUserState();
+    const merged = {
+      favorites: mergeListById(local.favorites, remote.favorites || []),
+      history: mergeListById(local.history, remote.history || [], 30),
+      settings: { ...(remote.settings || {}), ...(local.settings || {}) },
+      feedbacks: { ...(remote.feedbacks || {}), ...(local.feedbacks || {}) },
+      viewCounts: { ...(remote.viewCounts || {}), ...(local.viewCounts || {}) },
+      bubbleMode: local.bubbleMode || remote.bubbleMode || "normal",
+    };
+    applyUserStateLocally(merged);
+    if (pushAfter) {
+      await apiSyncPush(merged);
+    }
+    renderCollection();
+    syncCollectionButtonsUI();
+    updateMemberStats();
+    return true;
+  } catch (e) {
+    console.warn("user sync failed", e);
+    return false;
+  }
+}
+
+let userSyncPushTimer = null;
+function scheduleUserStatePush() {
+  if (!getCurrentUser() || !localStorage.getItem(AUTH_TOKEN_KEY)) return;
+  clearTimeout(userSyncPushTimer);
+  userSyncPushTimer = setTimeout(() => {
+    apiSyncPush(buildLocalUserState()).catch((e) => console.warn("user sync push failed", e));
+  }, 600);
+}
+
 function getCurrentUser() {
   try {
     const user = JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || "null");
@@ -2164,12 +2722,13 @@ function getCurrentUser() {
   }
 }
 
-function setCurrentUser(user) {
+function setCurrentUser(user, token) {
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({
     username: user.username,
     email: user.email || "",
     createdAt: user.createdAt || new Date().toISOString()
   }));
+  if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
 }
 
 function openAuth(mode = "login") {
@@ -2196,11 +2755,12 @@ function setAuthMode(mode) {
   $("authMessage").textContent = "";
 }
 
-function handleAuthSubmit() {
+async function handleAuthSubmit() {
   const username = $("authUsername").value.trim();
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
   const msg = $("authMessage");
+  const submitBtn = $("authSubmit");
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (!username || !password) {
@@ -2209,45 +2769,57 @@ function handleAuthSubmit() {
     return;
   }
 
-  const users = loadUsers();
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = authMode === "register" ? "註冊中…" : "登入中…";
+  }
 
-  if (authMode === "register") {
-    if (!emailPattern.test(email)) {
-      msg.textContent = "請輸入正確的 Email 格式，例如：name@example.com";
-      msg.className = "auth-message error";
+  try {
+    if (authMode === "register") {
+      if (!emailPattern.test(email)) {
+        throw new Error("請輸入正確的 Email 格式，例如：name@example.com");
+      }
+      const data = await apiAuth("/api/auth/register", { username, email, password });
+      setCurrentUser(data.user, data.token);
+      msg.textContent = "註冊成功，正在同步雲端資料…";
+      msg.className = "auth-message success";
+      updateAuthUI();
+      const synced = await syncUserStateFromCloud();
+      await refreshPersonalRecommend({ publish: true });
+      updateMemberStats();
+      msg.textContent = synced
+        ? "註冊成功，已自動登入（已同步至雲端）。"
+        : "註冊成功，已登入（雲端同步稍後再試）。";
+      setTimeout(closeAuth, 450);
       return;
     }
-    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-      msg.textContent = "此帳號已被註冊，請改用其他帳號。";
-      msg.className = "auth-message error";
-      return;
-    }
 
-    const user = { username, email, password, createdAt: new Date().toISOString() };
-    users.push(user);
-    saveUsers(users);
-    setCurrentUser(user);
-    msg.textContent = "註冊成功，已自動登入。";
+    const data = await apiAuth("/api/auth/login", { username, password });
+    setCurrentUser(data.user, data.token);
+    msg.textContent = "登入成功，正在同步雲端資料…";
     msg.className = "auth-message success";
     updateAuthUI();
+    if (Array.isArray(data.recommend?.cards) && data.recommend.cards.length) {
+      serverRecommendCards = data.recommend.cards;
+      renderRecommendations();
+    }
+    const synced = await syncUserStateFromCloud();
+    await refreshPersonalRecommend({ publish: true });
     updateMemberStats();
-    setTimeout(closeAuth, 450);
-    return;
-  }
-
-  const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
-  if (!user) {
-    msg.textContent = "帳號或密碼錯誤。";
+    const recN = serverRecommendCards.length;
+    msg.textContent = synced
+      ? (recN ? `登入成功（已同步，並推送 ${recN} 部個人推薦）。` : "登入成功（已同步收藏／歷史）。")
+      : "登入成功（雲端同步稍後再試）。";
+    setTimeout(closeAuth, 350);
+  } catch (e) {
+    msg.textContent = e.message || "操作失敗，請稍後再試。";
     msg.className = "auth-message error";
-    return;
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = authMode === "register" ? "建立帳號" : "登入";
+    }
   }
-
-  setCurrentUser(user);
-  msg.textContent = "登入成功。";
-  msg.className = "auth-message success";
-  updateAuthUI();
-  updateMemberStats();
-  setTimeout(closeAuth, 350);
 }
 
 function openForgotPassword() {
@@ -2270,7 +2842,7 @@ function closeForgotPassword() {
   $("forgotPasswordModal")?.setAttribute("aria-hidden", "true");
 }
 
-function handlePasswordReset() {
+async function handlePasswordReset() {
   const username = $("resetUsername")?.value.trim() || "";
   const email = $("resetEmail")?.value.trim() || "";
   const newPassword = $("resetNewPassword")?.value || "";
@@ -2294,31 +2866,27 @@ function handlePasswordReset() {
     return;
   }
 
-  const users = loadUsers();
-  const userIndex = users.findIndex(user =>
-    user.username.toLowerCase() === username.toLowerCase() &&
-    String(user.email || "").toLowerCase() === email.toLowerCase()
-  );
-
-  if (userIndex < 0) {
-    fail("帳號與註冊 Email 不符合，請重新確認。");
-    return;
+  try {
+    await apiAuth("/api/auth/reset", {
+      username,
+      email,
+      newPassword,
+    });
+    msg.textContent = "密碼重設成功，請使用新密碼登入。";
+    msg.className = "auth-message success";
+    setTimeout(() => {
+      closeForgotPassword();
+      openAuth("login");
+      $("authUsername").value = username;
+    }, 700);
+  } catch (e) {
+    fail(e.message || "重設失敗，請稍後再試。");
   }
-
-  users[userIndex].password = newPassword;
-  users[userIndex].passwordUpdatedAt = new Date().toISOString();
-  saveUsers(users);
-  msg.textContent = "密碼重設成功，請使用新密碼登入。";
-  msg.className = "auth-message success";
-  setTimeout(() => {
-    closeForgotPassword();
-    openAuth("login");
-    $("authUsername").value = username;
-  }, 700);
 }
 
 function logoutUser() {
   localStorage.removeItem(CURRENT_USER_KEY);
+  localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(`${HISTORY_PREFIX}-${GUEST_ID}`);
   localStorage.removeItem(`${FAVORITE_PREFIX}-${GUEST_ID}`);
 
@@ -2394,7 +2962,6 @@ function movieSnapshot(movie, score = 0) {
     actors: movie.actors || "",
     genre: Array.isArray(movie.genre) ? movie.genre : toArray(movie.genre),
     mood: Array.isArray(movie.mood) ? movie.mood : toArray(movie.mood),
-    atmosphere: Array.isArray(movie.atmosphere) ? movie.atmosphere : toArray(movie.atmosphere),
     mainScene: Array.isArray(movie.mainScene) ? movie.mainScene : toArray(movie.mainScene),
     subScene: Array.isArray(movie.subScene) ? movie.subScene : toArray(movie.subScene),
     score,
@@ -2411,7 +2978,6 @@ function hydrateMovie(item) {
     ...item,
     genre: Array.isArray(item.genre) ? item.genre : toArray(item.genre),
     mood: Array.isArray(item.mood) ? item.mood : toArray(item.mood),
-    atmosphere: Array.isArray(item.atmosphere) ? item.atmosphere : toArray(item.atmosphere),
     mainScene: Array.isArray(item.mainScene) ? item.mainScene : toArray(item.mainScene),
     subScene: Array.isArray(item.subScene) ? item.subScene : toArray(item.subScene),
     views: item.views || 0,
@@ -2432,6 +2998,9 @@ function saveCollection(type, items) {
   if (!key) return;
 
   saveJson(key, items);
+  // 收藏／歷史一變就立刻推雲端（另保留 debounce 合併連點）
+  scheduleUserStatePush();
+  apiSyncPush(buildLocalUserState()).catch((e) => console.warn("user sync push failed", e));
 }
 
 function saveHistory(movie, score = 0) {
@@ -2579,7 +3148,7 @@ function bindExploreUI() {
   document.querySelectorAll(".cat-btn, .tag-pills button").forEach(btn => {
     btn.addEventListener("click", () => {
       const rawText = btn.textContent || "";
-      const cleanedText = btn.dataset.category || rawText.replace(/[^a-zA-Z\u4e00-\u9fa5]/g, "").trim();
+      const cleanedText = rawText.replace(/[^a-zA-Z\u4e00-\u9fa5]/g, "").trim();
       const intentMap = {
         "想放鬆一下": "放鬆",
         "想哭一場": "感人",
@@ -2628,35 +3197,6 @@ function computeExploreMatchScore(movie, aliases = []) {
   });
 
   return best || 60;
-}
-
-function movieMatchesExploreAliases(movie, aliases = []) {
-  const movieText = [
-    movie.title,
-    movie.desc,
-    movie.actors,
-    ...(movie.genre || []),
-    ...(movie.mood || []),
-    ...(movie.atmosphere || []),
-    ...(movie.mainScene || []),
-    ...(movie.subScene || []),
-    ...(movie.keywords || [])
-  ].join(" ").toLowerCase();
-
-  return aliases.some(alias => movieText.includes(String(alias || "").toLowerCase()));
-}
-
-function dedupeMoviesForDisplay(movies) {
-  const seen = new Set();
-
-  return (movies || []).filter(movie => {
-    const titleKey = normalizeMatchText(movie.title);
-    const yearKey = normalizeMatchText(movie.year);
-    const key = titleKey ? `${titleKey}|${yearKey}` : String(movie.id || "");
-    if (!key || seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
 }
 
 function renderExploreResults(keyword = "") {
@@ -2957,55 +3497,40 @@ function bindSettingsUI() {
   });
 }
 
-function generateRoomCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "";
-
-  for (let i = 0; i < 4; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-
-  return `${ROOM_PREFIX}${code}`;
-}
-
 function getCurrentRoomCode() {
-  let code = localStorage.getItem(ROOM_KEY);
-
-  if (!code) {
-    code = generateRoomCode();
-    localStorage.setItem(ROOM_KEY, code);
-  }
-
-  return code;
+  return backendRoomCode(localStorage.getItem(ROOM_KEY) || "");
 }
 
-function setCurrentRoomCode(code) {
-  const cleanCode = String(code || "")
-    .trim()
-    .toUpperCase()
-    .replace(/\s+/g, "");
-
+async function setCurrentRoomCode(code) {
+  const cleanCode = backendRoomCode(code);
   if (!cleanCode) return;
 
-  const finalCode = cleanCode.startsWith(ROOM_PREFIX)
-    ? cleanCode
-    : `${ROOM_PREFIX}${cleanCode}`;
+  try {
+    await apiRoomGet(cleanCode);
+  } catch (_) {
+    alert("房間不存在，請確認代碼，或請房主先按「產生新房間」。");
+    return;
+  }
 
-  localStorage.setItem(ROOM_KEY, finalCode);
+  stopRoomPoll();
+  localStorage.setItem(ROOM_KEY, cleanCode);
   updateRoomUI();
+  groupMembers = [];
+  groupVotes = {};
+  activeMemberId = null;
+  saveGroupMembers();
+  saveGroupVotes();
 
-  groupMembers = loadGroupMembers();
-  groupVotes = loadGroupVotes();
-  activeMemberId = groupMembers[0]?.id || null;
-
-  ensureDefaultMembers();
-
-  renderMembers();
+  try {
+    await refreshRoomFromServer();
+  } catch (_) {
+    renderMembers();
+  }
+  startRoomPoll();
   renderGroupTags();
   renderRoleOptions();
   renderRecommendations();
-
-  alert(`已切換到房間：${finalCode}`);
+  alert(`已切換到房間：${formatRoomCodeDisplay(cleanCode)}`);
 }
 
 function getRoomMembersKey() {
@@ -3017,14 +3542,12 @@ function getRoomVotesKey() {
 }
 
 function updateRoomUI() {
-  const code = getCurrentRoomCode();
-
+  const display = formatRoomCodeDisplay(getCurrentRoomCode());
   if ($("roomCode")) {
-    $("roomCode").textContent = code;
+    $("roomCode").textContent = display;
   }
-
   if ($("joinRoomInput")) {
-    $("joinRoomInput").value = code;
+    $("joinRoomInput").value = display;
   }
 }
 
@@ -3077,22 +3600,29 @@ function saveGroupVotes() {
   localStorage.setItem(getRoomVotesKey(), JSON.stringify(groupVotes));
 }
 
-function addMemberFromInput() {
+async function addMemberFromInput() {
   const input = $("memberNameInput");
   const name = input.value.trim();
   if (!name) return;
 
-  const id = `member-${Date.now()}`;
-  groupMembers.push({ id, name, tags: {}, role: `role-${Math.min(groupMembers.length + 1, 5)}` });
-  activeMemberId = id;
-  input.value = "";
-  saveGroupMembers();
-  renderMembers();
-  renderGroupTags();
-  renderRecommendations();
+  try {
+    await apiRoomJoin(getCurrentRoomCode(), name);
+    localStorage.setItem(MY_MEMBER_NAME_KEY, name);
+    await refreshRoomFromServer();
+    const me = groupMembers.find(m => m.name === name);
+    if (me) activeMemberId = me.id;
+    input.value = "";
+    renderMembers();
+    renderGroupTags();
+    renderRecommendations();
+    $("memberList")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  } catch (e) {
+    alert(e.message || "加入成員失敗，請確認網路與房間代碼。");
+  }
 }
 
-function removeMember(id) {
+async function removeMember(id) {
+  const member = groupMembers.find(m => m.id === id);
   groupMembers = groupMembers.filter(m => m.id !== id);
   if (activeMemberId === id) {
     activeMemberId = groupMembers[0]?.id || null;
@@ -3104,6 +3634,18 @@ function removeMember(id) {
 
   saveGroupMembers();
   saveGroupVotes();
+
+  if (member?.name) {
+    try {
+      await fetch(`${FILMDB_BASE}/api/room/leave`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomCode: getCurrentRoomCode(), userName: member.name }),
+      });
+      await refreshRoomFromServer();
+    } catch (_) { /* local state already updated */ }
+  }
+
   renderMembers();
   renderGroupTags();
   renderRecommendations();
@@ -3248,11 +3790,10 @@ function computeGroupScore(movie) {
   const movieText = [
     movie.title,
     movie.desc,
-    ...(movie.genre || []),
-    ...(movie.mood || []),
-    ...(movie.atmosphere || []),
-    ...(movie.mainScene || []),
-    ...(movie.subScene || [])
+    ...movie.genre,
+    ...movie.mood,
+    ...movie.mainScene,
+    ...movie.subScene
   ].join(" ").toLowerCase();
 
   let score = 0;
@@ -3349,6 +3890,7 @@ function loadFeedbacks() {
 
 function saveFeedbacks() {
   localStorage.setItem("feelmovie-feedbacks", JSON.stringify(feedbacks));
+  scheduleUserStatePush();
 }
 
 function getFeedback(movie) {
@@ -3450,6 +3992,7 @@ function setTemperatureFeedback(value) {
   };
 
   saveFeedbacks();
+  schedulePersonalRecommendRefresh();
   updateFeedbackUI(currentModalMovie);
   renderRecommendations();
 
@@ -3479,6 +4022,7 @@ function setFeedback(type) {
     ratedAt: new Date().toISOString()
   };
   saveFeedbacks();
+  schedulePersonalRecommendRefresh();
   updateFeedbackUI(currentModalMovie);
 
   if (type === "dislike") {
@@ -3571,6 +4115,7 @@ function loadViews() {
 
 function saveViews() {
   localStorage.setItem("feelmovie-view-counts", JSON.stringify(viewCounts));
+  scheduleUserStatePush();
 }
 
 function getViewCount(movie) {

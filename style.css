@@ -7236,3 +7236,29 @@ body.light-mode .normal-movie-count-badge {
     padding-inline: 14px;
   }
 }
+
+/* Personal recommendation lists */
+.member-recommend-summary {
+  display: grid;
+  gap: 14px;
+  align-items: start;
+}
+
+.member-recommend-panel {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+}
+
+.member-rec-block .recommend-head h3 {
+  font-size: 1rem;
+}
+
+.member-rec-list {
+  display: grid;
+  gap: 8px;
+}
+
+.member-rec-item {
+  cursor: pointer;
+}
