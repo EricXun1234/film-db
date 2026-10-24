@@ -7475,17 +7475,14 @@ body.light-mode .modal-content .modal-text-box p {
   white-space: nowrap !important;
   overflow-wrap: normal !important;
   word-break: keep-all !important;
-  display: block !important;
-  margin-inline: auto !important;
-  text-align: center !important;
   font-size: var(--bubble-tag-font, 12px) !important;
   line-height: 1.1 !important;
   transform: scaleX(var(--bubble-tag-scale-x, 1));
-  transform-origin: center center;
+  transform-origin: center;
 }
 
 .mood-bubble.has-long-tag .kind {
-  display: block !important;
+  display: none !important;
 }
 
 @media (max-width: 760px) {
@@ -7503,134 +7500,4 @@ body.light-mode .modal-content .modal-text-box p {
     align-self: center !important;
     justify-self: center !important;
   }
-}
-
-
-/* 探索搜尋框：移除輸入欄內框，統一成單一膠囊並使用線條搜尋圖示 */
-#page-explore .explore-search-box {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  width: min(420px, 100%) !important;
-  min-width: 0 !important;
-  padding: 6px 7px 6px 20px !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.15) !important;
-  border: 1px solid rgba(255, 255, 255, 0.27) !important;
-  box-shadow: 0 12px 30px rgba(30, 42, 132, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
-  backdrop-filter: blur(16px);
-}
-
-#page-explore .explore-search-box input,
-#page-explore .explore-search-box input[type="text"] {
-  flex: 1 1 auto !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  height: 40px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  outline: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: #fff !important;
-  font-size: 14px !important;
-  text-overflow: ellipsis;
-  appearance: none;
-}
-
-#page-explore .explore-search-box input:focus {
-  border: 0 !important;
-  outline: 0 !important;
-  box-shadow: none !important;
-}
-
-#page-explore .explore-search-box button {
-  flex: 0 0 40px !important;
-  width: 40px !important;
-  min-width: 40px !important;
-  height: 40px !important;
-  padding: 0 !important;
-  display: grid !important;
-  place-items: center !important;
-  border: 1px solid rgba(255, 255, 255, 0.24) !important;
-  border-radius: 50% !important;
-  background: linear-gradient(145deg, #8c9bff, #6485ec) !important;
-  color: #fff !important;
-  box-shadow: 0 5px 14px rgba(57, 77, 178, 0.28) !important;
-  font-size: 0 !important;
-  transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-#page-explore .explore-search-box button:hover {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
-}
-
-#page-explore .explore-search-box button .ui-icon {
-  width: 19px;
-  height: 19px;
-  stroke: currentColor;
-  stroke-width: 2;
-}
-
-@media (max-width: 760px) {
-  #page-explore .explore-search-box {
-    display: flex !important;
-    grid-template-columns: none !important;
-    flex-direction: row !important;
-    width: min(100%, 440px) !important;
-    padding: 5px 6px 5px 16px !important;
-    gap: 6px !important;
-    border-radius: 999px !important;
-  }
-
-  #page-explore .explore-search-box input,
-  #page-explore .explore-search-box input[type="text"] {
-    height: 40px !important;
-    padding: 0 !important;
-  }
-
-  #page-explore .explore-search-box button {
-    flex: 0 0 38px !important;
-    width: 38px !important;
-    min-width: 38px !important;
-    height: 38px !important;
-    border-radius: 50% !important;
-  }
-}
-
-
-/* 評價溫度計的低溫／高溫文字只保留文字，不顯示額外方框 */
-#movieModal .temp-meter-head span {
-  display: block !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  outline: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* 長圓圈標籤仍顯示分類（例如「場景」），並依圈徑調整字體比例 */
-.mood-bubble .tag {
-  text-align: center !important;
-  white-space: nowrap !important;
-}
-
-.mood-bubble.has-long-tag .kind {
-  display: block !important;
-  margin-top: 1px !important;
-  font-size: clamp(8px, 0.72em, 9px) !important;
-  line-height: 1.05 !important;
-  white-space: nowrap !important;
-}
-
-/* 移除低溫／高溫與刻度區域背後的內層透明方框 */
-#movieModal .feedback-temperature .temp-meter {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
 }
