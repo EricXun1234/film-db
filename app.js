@@ -603,7 +603,6 @@ let allTagCandidates = [];
 let cachedNormalBubbleCandidates = null;
 let cachedPopularityMaxViews = null;
 let selectedTags = new Map();
-let searchKeyword = "";
 let viewCounts = loadViews();
 let feedbacks = loadFeedbacks();
 let currentModalMovie = null;
@@ -706,15 +705,8 @@ function debounceBubbleLayout() {
 }
 
 function bindUI() {
-  $("searchBtn").addEventListener("click", handleSearch);
-  $("searchInput").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") handleSearch();
-  });
-
   $("resetBtn").addEventListener("click", () => {
     selectedTags.clear();
-    searchKeyword = "";
-    $("searchInput").value = "";
     bubbles.forEach((b) => {
       b.weight = 0;
       b.el.classList.remove("selected");
@@ -955,7 +947,7 @@ async function loadMoviesFromFilmDB() {
       }
 
       if (list.length) {
-        $("dbStatus").textContent = `已連接 FilmDB：成功讀取 ${list.length} 部電影，圓圈與搜尋皆由資料庫生成。`;
+        $("dbStatus").textContent = `已連接 FilmDB：成功讀取 ${list.length} 部電影，圓圈與探索皆由資料庫生成。`;
         return list;
       }
     } catch (err) {
@@ -1317,10 +1309,6 @@ function renderBubbleModeUI() {
 
 function clearBubbleSelectionForModeSwitch() {
   selectedTags.clear();
-  searchKeyword = "";
-
-  const searchInput = $("searchInput");
-  if (searchInput) searchInput.value = "";
 
   bubbles.forEach(bubble => {
     bubble.weight = 0;
@@ -1676,7 +1664,8 @@ function createBubbles(items) {
   bubbles = displayItems.map(item => {
     const meta = KIND_META[item.kind] || KIND_META.mood;
     const el = document.createElement("button");
-    el.className = "mood-bubble";
+    const tagLength = Array.from(String(item.tag || "").trim()).length;
+    el.className = `mood-bubble${tagLength >= 7 ? " has-long-tag" : ""}`;
     el.style.setProperty("--bubble-a", meta.colors[0]);
     el.style.setProperty("--bubble-b", meta.colors[1]);
     el.style.setProperty("--glow", meta.glow);
@@ -1724,6 +1713,8 @@ function layoutBubbles() {
   const cy = rect.height / 2;
   const total = bubbles.length;
   const size = getResponsiveBubbleSize(rect.width);
+  const tagMeasureContext = document.createElement("canvas").getContext("2d");
+  if (tagMeasureContext) tagMeasureContext.font = "900 13px Arial, 'Noto Sans TC', sans-serif";
   const maxRadiusX = rect.width / 2 - size / 2 - 10;
   const maxRadiusY = rect.height / 2 - size / 2 - 12;
   const radius = Math.max(
@@ -1743,6 +1734,21 @@ function layoutBubbles() {
     bubble.el.style.setProperty("min-height", `${size}px`, "important");
     bubble.el.style.setProperty("max-width", `${size}px`, "important");
     bubble.el.style.setProperty("max-height", `${size}px`, "important");
+    const tagText = String(bubble.tag || "").trim();
+    const maxTagWidth = size - 8;
+    const measuredTagWidth = tagMeasureContext
+      ? Math.max(1, tagMeasureContext.measureText(tagText).width)
+      : Math.max(1, Array.from(tagText).length * 13);
+    const tagLength = Array.from(tagText).length;
+    // Keep two-character labels at the familiar size, then scale longer labels down smoothly.
+    const lengthAdjustedFont = tagLength <= 2 ? 13 : 13 / (1 + 0.08 * (tagLength - 2));
+    const tagFontSize = Math.max(
+      8.5,
+      Math.min(lengthAdjustedFont, 13, (maxTagWidth * 13) / measuredTagWidth)
+    );
+    const tagScaleX = Math.min(1, maxTagWidth / (measuredTagWidth * (tagFontSize / 13)));
+    bubble.el.style.setProperty("--bubble-tag-font", `${tagFontSize}px`);
+    bubble.el.style.setProperty("--bubble-tag-scale-x", tagScaleX.toFixed(3));
     bubble.el.style.setProperty("transform", "none", "important");
 
     setBubblePosition(bubble);
@@ -1830,14 +1836,6 @@ function updateBubbleWeight(bubble) {
   if (selectedTags.has(bubble.tag)) {
     selectedTags.get(bubble.tag).weight = Math.max(selectedTags.get(bubble.tag).weight, bubble.weight);
   }
-}
-
-function handleSearch() {
-  const kw = $("searchInput").value.trim();
-
-  if (!kw) return;
-
-  location.href = `results.html?keyword=${encodeURIComponent(kw)}`;
 }
 
 function addSelectedTag(tag, weight = 0.7, kind = "mood") {
@@ -2032,7 +2030,58 @@ function renderRecommendations(showAll = false) {
   list.innerHTML = "";
 
   display.forEach(({ movie, score }) => {
+<<<<<<< HEAD
     renderRecommendMovieItem(list, movie, score);
+=======
+    const compatibility = getCompatibilityText(score);
+    const item = document.createElement("article");
+    item.className = "movie-item";
+    item.innerHTML = `
+      <div class="poster" style="background-image:url('${safeAttr(movie.poster)}')"></div>
+      <div class="movie-main-info">
+        <h4>${escapeHtml(movie.title)}</h4>
+        <div class="movie-meta">
+          ${topTags(movie).slice(0, 3).map(t => `<span>${escapeHtml(t)}</span>`).join("")}
+          ${renderFeedbackBadge(movie)}
+          ${renderGroupMovieBadge(movie)}
+        </div>
+        <div class="movie-extra-box movie-desc-box">
+          <span class="movie-extra-label">電影簡介</span>
+          <p class="movie-desc">${escapeHtml(movie.desc).slice(0, 72)}${movie.desc.length > 72 ? "..." : ""}</p>
+        </div>
+        <div class="movie-extra-box movie-actors-box">
+          <span class="movie-extra-label">演員名單</span>
+          <p class="movie-actors">${escapeHtml(movie.actors || "暫無演員資料")}</p>
+        </div>
+      </div>
+      <div class="movie-score">
+        <button class="movie-fav-btn ${isFavorite(movie) ? "active" : ""}" type="button" aria-label="收藏電影">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+        </button>
+        <div class="match-info">
+          <strong>${compatibility.value}</strong>
+          <small>${compatibility.label}</small>
+        </div>
+        <small class="view-count">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+          <span>${getViewCount(movie)} 次</span>
+        </small>
+        <button class="play-circle" type="button" aria-label="查看電影">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5V7Z"/></svg>
+        </button>
+      </div>
+    `;
+
+    item.querySelector(".movie-fav-btn")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleFavorite(movie);
+      updateMemberStats();
+      renderRecommendations();
+    });
+
+    item.addEventListener("click", () => openModal(movie, score));
+    list.appendChild(item);
+>>>>>>> 94e77d9 (修正評價框與圓圈標籤)
   });
 }
 
@@ -2263,16 +2312,7 @@ function openModal(movie, score = 0) {
   updateMemberStats();
   $("modalTitle").textContent = movie.title;
   $("modalDesc").textContent = movie.desc;
-
-const oldActors = document.getElementById("modalActors");
-if (oldActors) oldActors.remove();
-
-const actorsBox = document.createElement("p");
-actorsBox.id = "modalActors";
-actorsBox.className = "modal-actors";
-actorsBox.textContent = `演員：${movie.actors || "暫無演員資料"}`;
-
-$("modalDesc").insertAdjacentElement("afterend", actorsBox);
+  $("modalActors").textContent = movie.actors || "暫無演員資料";
   $("modalCover").style.backgroundImage = `url('${movie.poster}')`;
 
   const meta = [
