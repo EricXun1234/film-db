@@ -199,7 +199,7 @@
           </div>
           
           <div class="explore-search-box">
-            <input id="exploreSearchInput" type="text" placeholder="搜尋電影、情緒、演員或導演..." />
+            <input id="exploreSearchInput" type="text" placeholder="例如：想看好笑的、愛情但不要悲劇" aria-describedby="exploreSearchSummary" maxlength="240" />
             <button id="exploreSearchBtn" type="button" aria-label="搜尋探索電影">
               <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.6"/><path d="m15.7 15.7 4.1 4.1"/></svg>
             </button>
@@ -207,6 +207,7 @@
         </header>
 
         <div class="explore-content">
+          <p id="exploreSearchSummary" class="search-intent-summary" role="status" aria-live="polite" hidden></p>
           <section class="explore-section">
             <h3>熱門分類</h3>
             <div class="category-grid">
@@ -633,7 +634,9 @@
     </div>
   </div>
 
-  <script src="app.js?v=personalized"></script>
+  <script src="search-rules.js?v=search-20261025"></script>
+  <script src="search-engine.js?v=search-20261025"></script>
+  <script src="app.js?v=search-20261025"></script>
   <script src="opening.js"></script>
   <script src="password-toggle.js"></script>
 </body>

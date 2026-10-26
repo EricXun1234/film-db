@@ -335,40 +335,7 @@ function resolveBubbleTagKind(tag, sourceKind) {
   FilmDB 中常會出現「愛情片／浪漫喜劇」、「警匪／劫盜」等複合寫法，
   所以分類不能只靠按鈕上的兩個字做完全比對。
 */
-const CATEGORY_RULES = {
-  "喜劇": ["喜劇", "喜劇片", "搞笑", "幽默", "歡樂", "爆笑", "荒謬", "荒誕", "荒唐", "惡搞", "無厘頭", "鬧劇", "詼諧", "黑色幽默", "黑色喜劇", "諷刺喜劇", "浪漫喜劇", "動作喜劇", "家庭喜劇", "校園喜劇", "犯罪喜劇", "冒險喜劇", "輕喜劇", "喜劇劇情", "喜劇動畫", "脫口秀", "輕鬆", "comedy"],
-  "愛情": ["愛情", "愛情片", "浪漫", "浪漫愛情", "戀愛", "愛戀", "戀情", "情侶", "婚姻", "婚戀", "心動", "甜蜜", "初戀", "純愛", "三角戀", "青春愛情", "浪漫喜劇", "虐戀", "禁忌之戀", "跨國戀情", "愛情故事", "愛情悲劇", "情感糾葛", "關係探索", "伴侶關係", "romance"],
-  "驚悚": ["驚悚", "驚悚片", "心理驚悚", "犯罪驚悚", "政治驚悚", "動作驚悚", "科幻驚悚", "生存驚悚", "驚險", "緊張", "追殺", "逃亡", "逃生", "追捕", "高壓", "危險", "生存戰", "生存遊戲", "密室逃脫", "連環殺手", "人性考驗", "倒數計時", "綁架", "陰謀論", "心理戰", "thriller"],
-  "科幻": ["科幻", "科幻片", "科幻驚悚", "科幻冒險", "未來", "未來世界", "近未來", "太空", "太空歌劇", "宇宙", "外星", "外星生物", "機器人", "機甲", "人工智慧", "賽博龐克", "反烏托邦", "虛擬實境", "高科技", "時空", "時間旅行", "時間循環", "時空旅行", "多元宇宙", "多重宇宙", "末日", "末日生存", "基因工程", "克隆", "火星", "月球", "sci-fi", "scifi"],
-  "動作": ["動作", "動作片", "動作喜劇", "動作驚悚", "動作冒險", "戰鬥", "武打", "武術", "武俠", "功夫", "格鬥", "刀劍", "槍戰", "爆破", "軍事動作", "特務", "間諜", "諜報", "諜戰", "警匪", "臥底", "英雄", "英雄主義", "超級英雄", "追逐", "追逐戰", "大逃殺", "救援", "復仇", "競技", "賽車", "action"],
-  "動畫": ["動畫", "動畫片", "動畫電影", "喜劇動畫", "親子動畫", "兒童動畫", "成人動畫", "定格動畫", "2d動畫", "3d動畫", "cg動畫", "卡通", "動漫", "擬人化", "動物主角", "童趣", "迪士尼", "皮克斯", "animation", "anime", "pixar"],
-  "劇情": ["劇情", "劇情片", "心理劇", "家庭劇", "人生", "家庭倫理", "家庭關係", "成長", "成長故事", "青春成長", "女性成長", "勵志", "人性", "人性探討", "道德困境", "身份認同", "親情", "友情", "職場", "女性視角", "社會寫實", "社會議題", "底層", "獨立製片", "藝術電影", "文藝", "傳記", "文學", "政治", "救贖", "真實事件改編", "drama"],
-  "懸疑": ["懸疑", "懸疑片", "犯罪懸疑", "推理", "推理劇", "謎團", "謀殺謎案", "偵探", "偵查", "調查", "查案", "追查", "解謎", "神秘", "命案", "失蹤案", "懸案", "陰謀", "陰謀論", "政治陰謀", "目擊者", "法醫", "連環殺手", "密室", "心理戰", "燒腦", "真相", "mystery"],
-  "恐怖": ["恐怖", "恐怖片", "心理恐怖", "超自然恐怖", "鬼片", "鬼屋", "鬼怪", "鬼魂", "靈異", "詛咒", "附身", "降頭", "惡魔", "惡靈", "驅魔", "喪屍", "殭屍", "活屍", "生化危機", "血腥", "怪獸", "怪物", "怪物電影", "變異", "食人", "陰森", "哥德式", "克蘇魯", "邪典", "驚嚇", "horror"],
-  "犯罪": ["犯罪", "犯罪片", "犯罪喜劇", "犯罪驚悚", "黑色電影", "黑幫", "幫派", "警匪", "警察", "警方", "臥底", "毒梟", "毒販", "盜竊", "劫盜", "劫案", "竊賊", "詐騙", "洗錢", "謀殺", "謀殺謎案", "連環殺手", "命案", "綁架", "監獄", "司法", "法庭犯罪", "crime"],
-  "冒險": ["冒險", "冒險片", "奇幻冒險", "動作冒險", "科幻冒險", "探險", "探索", "旅程", "旅行", "公路片", "公路電影", "生存", "求生", "漂流", "尋寶", "考古", "奇遇", "遺跡", "遠征", "航海", "海洋冒險", "叢林冒險", "英雄旅程", "冒險喜劇", "adventure"],
-  "奇幻": ["奇幻", "奇幻片", "奇幻冒險", "史詩奇幻", "黑暗奇幻", "魔法", "魔法世界", "魔幻", "精靈", "神話", "神話改編", "童話", "童話改編", "神燈", "異世界", "異空間", "妖怪", "靈魂出竅", "超自然奇幻", "東方奇幻", "fantasy"],
-  "家庭": ["家庭", "家庭向", "家庭電影", "家庭劇", "家庭喜劇", "家庭倫理", "家庭關係", "家庭危機", "親子", "親子動畫", "親情", "家人", "父子", "父女", "母子", "母女", "母愛", "姐妹", "兄弟姐妹", "祖孫", "溫馨", "童趣", "闔家", "兒童", "兒童電影", "青少年", "社區生活", "成長故事", "family"],
-  "戰爭": ["戰爭", "戰爭片", "戰爭史詩", "反戰", "戰場", "戰役", "戰地", "戰火", "軍事", "軍旅", "軍隊", "軍營", "士兵", "戰俘", "軍官", "空戰", "海戰", "陸戰", "內戰", "一戰", "二戰", "越戰", "太平洋戰爭", "核武", "軍事衝突", "war"],
-  "歷史": ["歷史", "歷史片", "歷史劇", "歷史傳記", "歷史事件", "時代劇", "年代劇", "時代", "傳記", "古裝", "古代", "古典", "古羅馬", "三國", "戰國", "王朝", "帝國", "宮廷", "日治時期", "民國", "戰後", "戒嚴", "真實事件改編", "真人真事", "history"],
-  "音樂": ["音樂", "音樂片", "音樂劇", "音樂紀錄", "音樂傳記", "歌舞", "歌舞片", "歌舞劇", "合唱團", "歌手", "樂團", "樂隊", "樂器", "歌曲", "舞蹈", "舞蹈電影", "演唱", "演唱會", "舞台", "表演", "偶像", "音樂人", "搖滾", "饒舌", "嘻哈", "古典音樂", "歌劇", "music"],
-  "紀錄": ["紀錄", "紀錄片", "人物紀錄", "音樂紀錄", "自然紀錄", "社會紀錄", "歷史紀錄", "調查報導", "真實紀錄", "documentary"],
-  "青春": ["青春", "青少年", "青春片", "校園青春", "青春成長", "青春愛情", "青春喜劇", "少年", "少女", "teen", "coming-of-age"],
-  "成長": ["成長", "成長故事", "青春成長", "女性成長", "自我成長", "自我探索", "成熟", "追夢", "人生轉折", "coming-of-age"],
-  "友情": ["友情", "友誼", "朋友", "夥伴", "團隊合作", "兄弟情", "姐妹情", "同伴", "摯友", "friendship"],
-  "親情": ["親情", "家人", "父子", "父女", "母子", "母女", "兄弟姐妹", "祖孫", "家庭關係", "family bond"],
-  "勵志": ["勵志", "鼓舞", "追夢", "奮鬥", "逆襲", "希望", "勇氣", "堅持", "自我實現", "inspirational"],
-  "傳記": ["傳記", "人物傳記", "音樂傳記", "歷史傳記", "真人傳記", "名人故事", "biography", "biographical"],
-  "社會寫實": ["社會寫實", "寫實", "社會議題", "社會問題", "底層", "階級", "貧富差距", "人權", "現實主義", "social realism"],
-  "職場": ["職場", "辦公室", "公司", "企業", "創業", "商戰", "娛樂圈", "職場鬥爭", "工作", "workplace"],
-  "女性視角": ["女性視角", "女性主角", "女性議題", "女性成長", "女力", "女性友誼", "母職", "性別議題", "女權", "feminist"],
-  "校園": ["校園", "學校", "教室", "學生", "大學", "高中", "校園青春", "校園生活", "校園愛情", "school"],
-  "運動": ["運動", "運動片", "競技", "球隊", "足球", "籃球", "棒球", "拳擊", "賽車", "體育", "sports"],
-  "災難": ["災難", "災難片", "天災", "地震", "海嘯", "洪水", "風暴", "空難", "火災", "末日災難", "disaster"],
-  "復仇": ["復仇", "報仇", "復仇者", "復仇計畫", "復仇之路", "以暴制暴", "血債", "revenge"],
-  "生存": ["生存", "求生", "生存戰", "生存遊戲", "末日生存", "荒野求生", "逃生", "漂流", "人性考驗", "survival"],
-  "超自然": ["超自然", "靈異", "鬼魂", "惡靈", "通靈", "附身", "神秘力量", "靈魂", "paranormal", "supernatural"]
-};
+const CATEGORY_RULES = Object.fromEntries(MoodlumaSearchRules.map(rule => [rule.id, rule.terms]));
 
 const KIND_META = {
   mood: { label: "情緒", icon: "♡", colors: ["#9b5cff", "#f06ba7"], glow: "rgba(240,107,167,0.45)" },
@@ -1583,15 +1550,16 @@ function layoutBubbles() {
     bubble.el.style.setProperty("min-height", `${size}px`, "important");
     bubble.el.style.setProperty("max-width", `${size}px`, "important");
     bubble.el.style.setProperty("max-height", `${size}px`, "important");
+    bubble.el.style.setProperty("--bubble-size", `${size}px`);
     const tagText = String(bubble.tag || "").trim();
     const maxTagWidth = size - 8;
     const measuredTagWidth = tagMeasureContext
       ? Math.max(1, tagMeasureContext.measureText(tagText).width)
       : Math.max(1, Array.from(tagText).length * 13);
-    const tagFontSize = Math.max(7.5, Math.min(13, (maxTagWidth * 13) / measuredTagWidth));
-    const tagScaleX = Math.min(1, maxTagWidth / (measuredTagWidth * (tagFontSize / 13)));
+    // 標籤最多以兩行呈現，保留可讀字級並讓長文字在圓圈內自然換行。
+    const tagFontSize = Math.max(8, Math.min(13, (maxTagWidth * 2 * 13) / measuredTagWidth));
     bubble.el.style.setProperty("--bubble-tag-font", `${tagFontSize}px`);
-    bubble.el.style.setProperty("--bubble-tag-scale-x", tagScaleX.toFixed(3));
+    bubble.el.style.setProperty("--bubble-tag-scale-x", "1");
     bubble.el.style.setProperty("transform", "none", "important");
 
     setBubblePosition(bubble);
@@ -1902,28 +1870,7 @@ function getMovieFeatureGroups(movie) {
 }
 
 function getTagMatchStrength(movie, tag) {
-  const needle = normalizeMatchText(tag);
-  if (!needle) return 0;
-
-  let best = 0;
-
-  getMovieFeatureGroups(movie).forEach(group => {
-    group.values.forEach(value => {
-      const haystack = normalizeMatchText(value);
-      if (!haystack) return;
-
-      if (haystack === needle) {
-        best = Math.max(best, group.strength);
-        return;
-      }
-
-      if (haystack.includes(needle) || needle.includes(haystack)) {
-        best = Math.max(best, group.strength * 0.82);
-      }
-    });
-  });
-
-  return Math.max(0, Math.min(1, best));
+  return MoodlumaSearch.tagStrength(movie, tag);
 }
 
 function computeTagMatchScore(movie, tagItems) {
@@ -2034,8 +1981,7 @@ function getCompatibilityText(score) {
 }
 
 function fuzzyTagHit(movie, tag) {
-  const all = topTags(movie);
-  return all.some(t => t.includes(tag) || tag.includes(t));
+  return MoodlumaSearch.tagStrength(movie, tag) > 0;
 }
 
 function topTags(movie) {
@@ -2569,70 +2515,16 @@ function bindExploreUI() {
     btn.addEventListener("click", () => {
       const rawText = btn.textContent || "";
       const cleanedText = btn.dataset.category || rawText.replace(/[^a-zA-Z\u4e00-\u9fa5]/g, "").trim();
-      const intentMap = {
-        "想放鬆一下": "放鬆",
-        "想哭一場": "感人",
-        "想看刺激的": "動作",
-        "適合下雨天": "雨夜",
-        "適合睡前看": "安靜",
-        "適合跟朋友一起看": "歡樂"
-      };
-      const finalKeyword = intentMap[cleanedText] || cleanedText;
+      const finalKeyword = cleanedText;
       if (exSearchInput) exSearchInput.value = finalKeyword;
       renderExploreResults(finalKeyword);
     });
   });
 }
 
-function computeExploreMatchScore(movie, aliases = []) {
-  const needles = aliases
-    .map(alias => String(alias || "").trim().toLowerCase())
-    .filter(Boolean);
-
-  if (!needles.length) return null;
-
-  const fields = [
-    { values: [movie.title], score: 100 },
-    { values: movie.genre || [], score: 96 },
-    { values: movie.mood || [], score: 92 },
-    { values: movie.atmosphere || [], score: 91 },
-    { values: movie.keywords || [], score: 90 },
-    { values: [...(movie.mainScene || []), ...(movie.subScene || [])], score: 86 },
-    { values: [movie.desc], score: 74 },
-    { values: [movie.actors], score: 68 }
-  ];
-
-  let best = 0;
-
-  fields.forEach(field => {
-    const haystack = field.values.join(" ").toLowerCase();
-    if (!haystack) return;
-
-    needles.forEach(needle => {
-      if (!needle) return;
-      if (haystack.includes(needle)) {
-        best = Math.max(best, field.score);
-      }
-    });
-  });
-
-  return best || 60;
-}
-
-function movieMatchesExploreAliases(movie, aliases = []) {
-  const movieText = [
-    movie.title,
-    movie.desc,
-    movie.actors,
-    ...(movie.genre || []),
-    ...(movie.mood || []),
-    ...(movie.atmosphere || []),
-    ...(movie.mainScene || []),
-    ...(movie.subScene || []),
-    ...(movie.keywords || [])
-  ].join(" ").toLowerCase();
-
-  return aliases.some(alias => movieText.includes(String(alias || "").toLowerCase()));
+function computeExploreMatchScore(movie, plan) {
+  if (!plan.active) return null;
+  return MoodlumaSearch.match(movie, plan).score;
 }
 
 function dedupeMoviesForDisplay(movies) {
@@ -2654,9 +2546,14 @@ function renderExploreResults(keyword = "") {
 
   let targetMovies = dedupeMoviesForDisplay(allMovies);
   const key = String(keyword || "").trim().toLowerCase();
-  const aliases = key ? (CATEGORY_RULES[key] || [key]) : [];
-  if (key) {
-    targetMovies = targetMovies.filter(movie => movieMatchesExploreAliases(movie, aliases));
+  const searchResult = MoodlumaSearch.search(targetMovies, keyword);
+  const searchPlan = searchResult.plan;
+  const searchScores = new Map(searchResult.hits.map(hit => [hit.movie, hit.score]));
+  if (key) targetMovies = searchResult.hits.map(hit => hit.movie);
+  const summary = document.getElementById("exploreSearchSummary");
+  if (summary) {
+    summary.textContent = MoodlumaSearch.describe(searchPlan);
+    summary.hidden = !key;
   }
 
   if (appSettings.noHorror) {
@@ -2665,10 +2562,17 @@ function renderExploreResults(keyword = "") {
   if (appSettings.noSad) {
     targetMovies = targetMovies.filter(m => !m.genre.includes("悲劇") && !m.mood.includes("悲傷") && !m.mood.includes("心碎"));
   }
-  if (appSettings.prefPop) {
-    targetMovies.sort((a, b) => getViewCount(b) - getViewCount(a));
+  if (key) {
+    targetMovies.sort((a, b) => {
+      const related = (searchScores.get(b) || 0) - (searchScores.get(a) || 0);
+      const popularity = appSettings.prefPop ? getViewCount(b) - getViewCount(a)
+        : appSettings.prefNiche ? getViewCount(a) - getViewCount(b) : 0;
+      return related || popularity || MoodlumaSearch.stableCompare(a, b);
+    });
+  } else if (appSettings.prefPop) {
+    targetMovies.sort((a,b) => getViewCount(b)-getViewCount(a) || MoodlumaSearch.stableCompare(a,b));
   } else if (appSettings.prefNiche) {
-    targetMovies.sort((a, b) => getViewCount(a) - getViewCount(b));
+    targetMovies.sort((a,b) => getViewCount(a)-getViewCount(b) || MoodlumaSearch.stableCompare(a,b));
   } else {
     targetMovies.sort(() => Math.random() - 0.5);
   }
@@ -2686,7 +2590,7 @@ function renderExploreResults(keyword = "") {
   }
 
   if (!displayMovies.length) {
-    list.innerHTML = `<div class="empty-state">找不到相關電影，試試其他分類吧！</div>`;
+    list.innerHTML = `<div class="empty-state">找不到符合全部條件的電影。試試減少條件，或換個說法；也可能是電影資料尚未有對應標籤。</div>`;
     return;
   }
 
@@ -2696,9 +2600,10 @@ function renderExploreResults(keyword = "") {
     const card = document.createElement("article");
     card.className = "explore-movie-card";
     const tags = topTags(movie).slice(0, 5).map(t => `<span>${escapeHtml(t)}</span>`).join("");
-    const exploreScore = computeExploreMatchScore(movie, aliases);
+    const exploreScore = computeExploreMatchScore(movie, searchPlan);
     const collected = isFavorite(movie);
-    const scoreBadge = exploreScore === null ? "探索" : `${exploreScore}% 匹配`;
+    const scoreBadge = exploreScore === null ? "探索" : searchPlan.include.length || searchPlan.literals.some(item => !item.negative)
+      ? (exploreScore >= 85 ? "高度相關" : "相關結果") : "符合排除條件";
     card.innerHTML = `
       <div class="explore-poster" style="background-image:url('${safeAttr(movie.poster)}')">
         <div class="explore-score-badge">${scoreBadge}</div>

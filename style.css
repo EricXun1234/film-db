@@ -7501,3 +7501,83 @@ body.light-mode .modal-content .modal-text-box p {
     justify-self: center !important;
   }
 }
+
+.search-intent-summary { padding: 12px 16px; border: 1px solid rgba(128,145,220,.25); border-radius: 12px; background: rgba(128,145,220,.08); font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.search-intent-summary[hidden], .search-intent-summary:empty { display: none; }
+
+/* 圓圈內圖案與標籤整組置中；長標籤換行以維持各尺寸下的可讀比例。 */
+.mood-bubble {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  overflow: hidden !important;
+}
+
+.mood-bubble > span {
+  display: grid !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  align-content: center !important;
+  justify-items: center !important;
+  text-align: center !important;
+  gap: 2px !important;
+}
+
+.mood-bubble .icon {
+  margin: 0 !important;
+  font-size: clamp(15px, calc(var(--bubble-size, 84px) * 0.25), 22px) !important;
+  line-height: 1 !important;
+}
+
+.mood-bubble .tag {
+  display: block !important;
+  width: auto !important;
+  max-width: calc(var(--bubble-size, 84px) - 16px) !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+  font-size: var(--bubble-tag-font, 12px) !important;
+  line-height: 1.12 !important;
+  transform: none !important;
+}
+
+.mood-bubble .kind {
+  margin: 0 !important;
+  font-size: clamp(8px, calc(var(--bubble-size, 84px) * 0.12), 10px) !important;
+  line-height: 1.05 !important;
+}
+
+/* 溫度計保留刻度與滑桿，移除包住控制區的透明外框。 */
+.movie-modal .feedback-temperature {
+  margin-top: 16px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+body.light-mode .movie-modal .feedback-temperature {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 移除探索搜尋列內層輸入框與低溫／高溫刻度區的透明矩形底框。 */
+#page-explore .explore-search-box input {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.movie-modal .temp-meter {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}

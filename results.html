@@ -14,16 +14,20 @@
       <h1>搜尋結果</h1>
 
       <div class="search-bar">
-        <input id="resultSearchInput" type="text" placeholder="輸入關鍵字，例如：奇幻、戀愛、恐怖">
+        <input id="resultSearchInput" type="text" placeholder="例如：想看好笑的、愛情但不要悲劇" aria-describedby="resultSearchSummary" maxlength="240">
         <button id="resultSearchBtn">搜尋</button>
       </div>
 
       <p id="keywordText"></p>
+      <p id="resultSearchSummary" class="search-intent-summary" role="status" aria-live="polite"></p>
+      <p id="resultCount" aria-live="polite"></p>
     </header>
 
     <section id="resultsList" class="results-grid"></section>
   </main>
 
-  <script src="results.js"></script>
+  <script src="search-rules.js?v=search-20261025"></script>
+  <script src="search-engine.js?v=search-20261025"></script>
+  <script src="results.js?v=search-20261025"></script>
 </body>
 </html>

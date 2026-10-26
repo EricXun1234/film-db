@@ -367,3 +367,6 @@ body {
     text-align: center !important;
   }
 }
+
+.search-intent-summary { padding: 12px 16px; border: 1px solid rgba(128,145,220,.25); border-radius: 12px; background: rgba(128,145,220,.08); font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.search-intent-summary[hidden], .search-intent-summary:empty { display: none; }

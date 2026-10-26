@@ -196,7 +196,10 @@ const poster = rawPoster
   keywords: String(keywords).trim(),
   poster: String(poster || "").trim() || "assets/default-poster.png",
   trailer: String(trailer).trim(),
-  actors: String(raw.actors || "").trim()
+  actors: String(raw.actors || "").trim(),
+   director: String(raw.director || raw.directors || raw["導演"] || "").trim(),
+   year: String(raw.year || raw.releaseYear || raw["年份"] || "").trim(),
+   raw
 };
 }
 
@@ -237,22 +240,15 @@ function absolutize(url, baseUrl) {
 
 function renderSearchResults(keyword) {
   const list = $("resultsList");
-  const kw = keyword.toLowerCase().trim();
-
-  const results = allMovies.filter(movie => {
-    const text = `
-      ${movie.title}
-      ${movie.desc}
-      ${movie.genre}
-      ${movie.mood}
-      ${movie.mainScene}
-      ${movie.subScene}
-      ${movie.keywords}
-    `.toLowerCase();
-
-    if (!kw) return true;
-    return text.includes(kw);
-  });
+  const searchResult = MoodlumaSearch.search(allMovies, keyword);
+  const searchPlan = searchResult.plan;
+  const hits = searchResult.hits;
+  const results = hits.map(hit => hit.movie);
+  const scores = new Map(hits.map(hit => [hit.movie, hit]));
+  const summary = document.getElementById("resultSearchSummary");
+  if (summary) summary.textContent = MoodlumaSearch.describe(searchPlan);
+  const count = document.getElementById("resultCount");
+  if (count) count.textContent = results.length + " 部符合結果";
 
   if (!results.length) {
     list.innerHTML = `<div class="empty">找不到符合「${escapeHtml(keyword)}」的電影</div>`;
@@ -260,8 +256,9 @@ function renderSearchResults(keyword) {
   }
 
   list.innerHTML = results.map(movie => {
-    const score = getMatchScore(movie, keyword);
-    const reason = `本系統根據關鍵字「${keyword}」分析，判定這部電影與搜尋需求相關。`;
+    const hit = scores.get(movie);
+    const score = hit.score;
+    const reason = hit.tags.length ? `符合的標籤或關鍵字：${hit.tags.join("、")}` : "符合目前的排除條件。";
 
     return `
       <article class="result-card">
@@ -287,11 +284,11 @@ function renderSearchResults(keyword) {
         </div>
 
         <div class="info-box">
-          <small>匹配度</small>
+          <small>搜尋相關程度</small>
           <div class="score-bar">
             <div style="width:${score}%"></div>
           </div>
-          <p>${score}%</p>
+          <p>${score >= 85 ? "高度相關" : score >= 58 ? "相關結果" : "符合排除條件"}</p>
         </div>
 
         <div class="info-box">
@@ -307,11 +304,11 @@ function renderSearchResults(keyword) {
 
         <div class="result-actions">
           <button class="play-btn" onclick="goPlayer(
-            '${encodeURIComponent(movie.title)}',
-            '${encodeURIComponent(movie.trailer)}',
-            '${encodeURIComponent(movie.genre)}',
-            '${encodeURIComponent(movie.poster)}',
-            '${encodeURIComponent(reason)}'
+            '${encodeURIComponent(movie.title).replace(/'/g, "%27")}',
+            '${encodeURIComponent(movie.trailer).replace(/'/g, "%27")}',
+            '${encodeURIComponent(movie.genre).replace(/'/g, "%27")}',
+            '${encodeURIComponent(movie.poster).replace(/'/g, "%27")}',
+            '${encodeURIComponent(reason).replace(/'/g, "%27")}'
           )">
             ▶ 播放
           </button>
@@ -356,20 +353,7 @@ function getKeywordText(movie) {
 }
 
 function getMatchScore(movie, keyword) {
-  const kw = keyword.toLowerCase().trim();
-
-  const title = movie.title.toLowerCase();
-  const genre = String(movie.genre).toLowerCase();
-  const mood = String(movie.mood).toLowerCase();
-  const desc = String(movie.desc).toLowerCase();
-
-  if (!kw) return 70;
-  if (title.includes(kw)) return 95;
-  if (genre.includes(kw)) return 90;
-  if (mood.includes(kw)) return 85;
-  if (desc.includes(kw)) return 80;
-
-  return 70;
+  return MoodlumaSearch.match(movie, MoodlumaSearch.parse(keyword)).score;
 }
 
 function goPlayer(title, trailer, genre, poster, reason) {

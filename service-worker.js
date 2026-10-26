@@ -1,10 +1,15 @@
-const CACHE_NAME = "moodluma-semantic-bubble-categories-v5";
+const CACHE_NAME = "moodluma-search-20261025-v1";
 
 const CORE_FILES = [
   "./",
   "./index.html",
   "./style.css",
-  "./app.js",
+  "./app.js?v=search-20261025",
+  "./search-rules.js?v=search-20261025",
+  "./search-engine.js?v=search-20261025",
+  "./results.html",
+  "./results.js?v=search-20261025",
+  "./results.css",
   "./manifest.json",
   "./moodluma-icon.png",
   "./apple-touch-icon.png",
