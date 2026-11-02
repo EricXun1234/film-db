@@ -7728,14 +7728,14 @@ body.light-mode .explore-search-box input {
   transform: translateY(-2px);
 }
 
- {
+ .game-option.selected {
   background: rgba(80, 175, 255, 0.35);
   border: 2px solid #a5dcff;
   box-shadow: 0 0 16px rgba(90, 180, 255, 0.25);
 }
 
-.game-option:disabled {.game-option.selected
-  cursor: default;
+.game-option:disabled {
+    cursor: default;
 }
 
 @media (max-width: 600px) {
