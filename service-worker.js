@@ -1,10 +1,12 @@
-const CACHE_NAME = "moodluma-search-20261025-v1";
+const CACHE_NAME = "moodluma-member-20261025-v1";
 
 const CORE_FILES = [
   "./",
   "./index.html",
   "./style.css",
-  "./app.js?v=search-20261025",
+  "./app.js?v=member-20261025",
+  "./member-config.js?v=member-20261025",
+  "./member-api.js?v=member-20261025",
   "./search-rules.js?v=search-20261025",
   "./search-engine.js?v=search-20261025",
   "./results.html",
@@ -38,6 +40,8 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.pathname.startsWith("/api/auth/") || requestUrl.pathname.endsWith("/reset-password.html") || requestUrl.searchParams.has("token")) return;
 
   event.respondWith(
     fetch(event.request)

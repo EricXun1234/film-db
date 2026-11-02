@@ -64,6 +64,7 @@
       <nav class="side-nav">
         <button id="navHome" class="nav-btn active" data-target="page-home" type="button"><span class="nav-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-5h5v5"/></svg></span><span>首頁</span></button>
         <button id="navExplore" class="nav-btn" data-target="page-explore" type="button"><span class="nav-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg></span><span>探索</span></button>
+        <button id="navGame" class="nav-btn" data-target="page-game" type="button"> <span class="nav-icon"> <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"> <rect x="2" y="6" width="20" height="12" rx="5"/><path d="M8 10v5M5.5 12.5h5"/><circle cx="16" cy="11" r="1"/><circle cx="18.5" cy="14" r="1"/></svg></span><span>互動遊戲</span></button>
         <button id="navFavorites" class="nav-btn" data-target="page-collection" type="button"><span class="nav-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg></span><span>收藏</span></button>
         <button id="navGroup" class="nav-btn" data-target="page-party" type="button"><span class="nav-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>聚會模式</span></button>
         <button id="navSettings" class="nav-btn" data-target="page-settings" type="button"><span class="nav-icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.16.37.4.7.72.96.3.25.69.39 1.08.4h.1v4h-.1a1.7 1.7 0 0 0-1.8.64Z"/></svg></span><span>設定</span></button>
@@ -380,6 +381,51 @@
         </section>
       </div>
 
+      
+        <!-- AI 猜電影互動遊戲 -->
+<div id="page-game" class="page-view">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">AI MOVIE CHALLENGE</p>
+      <h2>互動遊戲</h2>
+      <p>透過電影線索，挑戰你的電影知識！</p>
+    </div>
+  </header>
+
+  <section class="game-section">
+    <div class="game-card">
+      <h2>🎮 AI 猜電影挑戰</h2>
+
+      <div class="game-info">
+        <p>目前得分：
+          <strong id="gameScore">1000</strong>
+        </p>
+        <p>題目進度：
+          <strong id="gameProgress">1 / 10</strong>
+        </p>
+      </div>
+
+      <div id="gameClues"></div>
+
+      <button id="gameNextHint" type="button">
+        解鎖下一個提示（扣 150 分）
+      </button>
+
+      <h3>猜猜這是哪部電影？</h3>
+
+      <div id="gameOptions" class="game-options"></div>
+
+      <button id="gameSubmit" type="button">
+        提交答案
+      </button>
+
+      <p id="gameResult" role="status"></p>
+    </div>
+     </section>
+  </div>
+ 
+ 
+
       <div id="page-settings" class="page-view">
         <header class="topbar">
           <div>
@@ -498,26 +544,14 @@
     <div class="auth-panel forgot-password-panel">
       <button class="modal-close" id="forgotPasswordClose" type="button" aria-label="關閉重設密碼視窗">×</button>
       <p class="modal-label">Password Reset</p>
-      <h2>重設密碼</h2>
-      <p class="auth-desc">請輸入註冊時使用的帳號與 Email，核對成功後即可設定新密碼。</p>
+      <h2>忘記密碼</h2>
+      <p class="auth-desc">輸入註冊時使用的 Email，我們會寄送重設密碼連結。請到信箱開啟連結後設定新密碼。</p>
       <div class="auth-form">
-        <label>
-          <span><b class="required-mark">*</b> 帳號</span>
-          <input id="resetUsername" type="text" autocomplete="username" placeholder="請輸入註冊帳號">
-        </label>
         <label>
           <span><b class="required-mark">*</b> 註冊 Email</span>
           <input id="resetEmail" type="email" autocomplete="email" placeholder="請輸入註冊 Email">
         </label>
-        <label>
-          <span><b class="required-mark">*</b> 新密碼</span>
-          <input id="resetNewPassword" type="password" autocomplete="new-password" placeholder="至少 6 個字元">
-        </label>
-        <label>
-          <span><b class="required-mark">*</b> 確認新密碼</span>
-          <input id="resetConfirmPassword" type="password" autocomplete="new-password" placeholder="再次輸入新密碼">
-        </label>
-        <button id="resetPasswordSubmit" class="wide-btn" type="button">確認重設密碼</button>
+        <button id="resetPasswordSubmit" class="wide-btn" type="button">寄送重設密碼連結</button>
         <button id="backToLoginBtn" class="forgot-password-btn" type="button">返回登入</button>
         <p id="resetPasswordMessage" class="auth-message" aria-live="polite"></p>
       </div>
@@ -636,7 +670,10 @@
 
   <script src="search-rules.js?v=search-20261025"></script>
   <script src="search-engine.js?v=search-20261025"></script>
-  <script src="app.js?v=search-20261025"></script>
+  <script src="member-config.js?v=member-20261025"></script>
+  <script src="member-api.js?v=member-20261025"></script>
+  <script src="app.js?v=member-20261025"></script>
+  <script src="game.js" defer></script>
   <script src="opening.js"></script>
   <script src="password-toggle.js"></script>
 </body>

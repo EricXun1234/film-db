@@ -24,6 +24,7 @@ const API_CANDIDATES = [
 
 const AUTH_USERS_KEY = "moodluma-users";
 const CURRENT_USER_KEY = "moodluma-current-user";
+const AUTH_TOKEN_KEY = "moodluma-auth-token";
 const HISTORY_PREFIX = "moodluma-history";
 const FAVORITE_PREFIX = "moodluma-favorites";
 const GUEST_ID = "guest";
@@ -513,7 +514,10 @@ document.addEventListener("DOMContentLoaded", init);
 async function init() {
   bindUI();
   allMovies = await loadMoviesFromFilmDB();
-
+  // 將已載入的電影資料提供給遊戲
+if (window.MoodlumaGame?.initializeGame) {
+  window.MoodlumaGame.initializeGame(allMovies);
+}
   updateRoomUI();
   groupMembers = loadGroupMembers();
   groupVotes = loadGroupVotes();
@@ -701,8 +705,8 @@ function bindUI() {
     openAuth("login");
   });
   $("resetPasswordSubmit")?.addEventListener("click", handlePasswordReset);
-  $("resetConfirmPassword")?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") handlePasswordReset();
+  $("resetEmail")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); handlePasswordReset(); }
   });
   $("authPassword")?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") handleAuthSubmit();
@@ -1550,16 +1554,15 @@ function layoutBubbles() {
     bubble.el.style.setProperty("min-height", `${size}px`, "important");
     bubble.el.style.setProperty("max-width", `${size}px`, "important");
     bubble.el.style.setProperty("max-height", `${size}px`, "important");
-    bubble.el.style.setProperty("--bubble-size", `${size}px`);
     const tagText = String(bubble.tag || "").trim();
     const maxTagWidth = size - 8;
     const measuredTagWidth = tagMeasureContext
       ? Math.max(1, tagMeasureContext.measureText(tagText).width)
       : Math.max(1, Array.from(tagText).length * 13);
-    // 標籤最多以兩行呈現，保留可讀字級並讓長文字在圓圈內自然換行。
-    const tagFontSize = Math.max(8, Math.min(13, (maxTagWidth * 2 * 13) / measuredTagWidth));
+    const tagFontSize = Math.max(7.5, Math.min(13, (maxTagWidth * 13) / measuredTagWidth));
+    const tagScaleX = Math.min(1, maxTagWidth / (measuredTagWidth * (tagFontSize / 13)));
     bubble.el.style.setProperty("--bubble-tag-font", `${tagFontSize}px`);
-    bubble.el.style.setProperty("--bubble-tag-scale-x", "1");
+    bubble.el.style.setProperty("--bubble-tag-scale-x", tagScaleX.toFixed(3));
     bubble.el.style.setProperty("transform", "none", "important");
 
     setBubblePosition(bubble);
@@ -2081,29 +2084,21 @@ function saveJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
-function loadUsers() {
-  const users = loadJson(AUTH_USERS_KEY, []);
-  return Array.isArray(users) ? users : [];
-}
-
-function saveUsers(users) {
-  saveJson(AUTH_USERS_KEY, users);
-}
-
 function getCurrentUser() {
   try {
-    const user = JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || "null");
-    return user && user.username ? user : null;
-  } catch {
-    return null;
-  }
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    const user = JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || 'null');
+    return token && user && typeof user.username === 'string' && user.username.trim() ? user : null;
+  } catch (_) { return null; }
 }
 
-function setCurrentUser(user) {
+function setCurrentUser(user, token) {
+  if (!user || typeof user.username !== 'string' || !user.username.trim() || typeof token !== 'string' || !token.trim()) {
+    throw new Error('未取得有效登入憑證，請重新登入。');
+  }
+  localStorage.setItem(AUTH_TOKEN_KEY, token);
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({
-    username: user.username,
-    email: user.email || "",
-    createdAt: user.createdAt || new Date().toISOString()
+    username: user.username, email: user.email || '', createdAt: user.createdAt || ''
   }));
 }
 
@@ -2131,128 +2126,82 @@ function setAuthMode(mode) {
   $("authMessage").textContent = "";
 }
 
-function handleAuthSubmit() {
-  const username = $("authUsername").value.trim();
-  const email = $("authEmail").value.trim();
-  const password = $("authPassword").value;
-  const msg = $("authMessage");
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+let memberAuthRequestId = 0;
+async function handleAuthSubmit() {
+  const username = $('authUsername').value.trim();
+  const email = $('authEmail').value.trim();
+  const password = $('authPassword').value;
+  const msg = $('authMessage');
+  const button = $('authSubmit');
+  if (button?.disabled) return;
   if (!username || !password) {
-    msg.textContent = "請輸入帳號與密碼。";
-    msg.className = "auth-message error";
-    return;
+    msg.textContent = '請輸入帳號與密碼。'; msg.className = 'auth-message error'; return;
   }
-
-  const users = loadUsers();
-
-  if (authMode === "register") {
-    if (!emailPattern.test(email)) {
-      msg.textContent = "請輸入正確的 Email 格式，例如：name@example.com";
-      msg.className = "auth-message error";
-      return;
-    }
-    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-      msg.textContent = "此帳號已被註冊，請改用其他帳號。";
-      msg.className = "auth-message error";
-      return;
-    }
-
-    const user = { username, email, password, createdAt: new Date().toISOString() };
-    users.push(user);
-    saveUsers(users);
-    setCurrentUser(user);
-    msg.textContent = "註冊成功，已自動登入。";
-    msg.className = "auth-message success";
-    updateAuthUI();
-    updateMemberStats();
-    setTimeout(closeAuth, 450);
-    return;
+  const registering = authMode === 'register';
+  if (registering && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.textContent = '請輸入正確的 Email 格式。'; msg.className = 'auth-message error'; return;
   }
-
-  const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
-  if (!user) {
-    msg.textContent = "帳號或密碼錯誤。";
-    msg.className = "auth-message error";
-    return;
+  const requestId = ++memberAuthRequestId;
+  if (button) { button.disabled = true; button.textContent = registering ? '註冊中…' : '登入中…'; }
+  try {
+    const data = registering
+      ? await MoodlumaMemberAPI.register({ username, email, password })
+      : await MoodlumaMemberAPI.login({ username, password });
+    if (requestId !== memberAuthRequestId) return;
+    setCurrentUser(data.user, data.token);
+    $('authPassword').value = '';
+    msg.textContent = registering ? '註冊成功，已自動登入。' : '登入成功。';
+    msg.className = 'auth-message success';
+    updateAuthUI(); updateMemberStats();
+    setTimeout(() => { if (requestId === memberAuthRequestId) closeAuth(); }, 450);
+  } catch (error) {
+    if (requestId !== memberAuthRequestId) return;
+    msg.textContent = error.message || '操作失敗，請稍後再試。';
+    msg.className = 'auth-message error';
+  } finally {
+    if (button) { button.disabled = false; button.textContent = authMode === 'register' ? '建立帳號' : '登入'; }
   }
-
-  setCurrentUser(user);
-  msg.textContent = "登入成功。";
-  msg.className = "auth-message success";
-  updateAuthUI();
-  updateMemberStats();
-  setTimeout(closeAuth, 350);
 }
 
 function openForgotPassword() {
   closeAuth();
-  ["resetUsername", "resetEmail", "resetNewPassword", "resetConfirmPassword"].forEach(id => {
-    if ($(id)) $(id).value = "";
-  });
-  const msg = $("resetPasswordMessage");
-  if (msg) {
-    msg.textContent = "";
-    msg.className = "auth-message";
-  }
-  $("forgotPasswordModal")?.classList.add("active");
-  $("forgotPasswordModal")?.setAttribute("aria-hidden", "false");
-  setTimeout(() => $("resetUsername")?.focus(), 50);
+  $('resetEmail').value = '';
+  $('resetPasswordMessage').textContent = '';
+  $('resetPasswordMessage').className = 'auth-message';
+  $('forgotPasswordModal')?.classList.add('active');
+  $('forgotPasswordModal')?.setAttribute('aria-hidden', 'false');
+  setTimeout(() => $('resetEmail')?.focus(), 50);
 }
 
 function closeForgotPassword() {
-  $("forgotPasswordModal")?.classList.remove("active");
-  $("forgotPasswordModal")?.setAttribute("aria-hidden", "true");
+  $('forgotPasswordModal')?.classList.remove('active');
+  $('forgotPasswordModal')?.setAttribute('aria-hidden', 'true');
 }
 
-function handlePasswordReset() {
-  const username = $("resetUsername")?.value.trim() || "";
-  const email = $("resetEmail")?.value.trim() || "";
-  const newPassword = $("resetNewPassword")?.value || "";
-  const confirmPassword = $("resetConfirmPassword")?.value || "";
-  const msg = $("resetPasswordMessage");
-  const fail = (text) => {
-    msg.textContent = text;
-    msg.className = "auth-message error";
-  };
-
-  if (!username || !email || !newPassword || !confirmPassword) {
-    fail("請完整填寫所有必填欄位。");
-    return;
+async function handlePasswordReset() {
+  const email = $('resetEmail').value.trim();
+  const button = $('resetPasswordSubmit');
+  const msg = $('resetPasswordMessage');
+  if (button?.disabled) return;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.textContent = '請輸入有效的註冊 Email。'; msg.className = 'auth-message error'; return;
   }
-  if (newPassword.length < 6) {
-    fail("新密碼至少需要 6 個字元。");
-    return;
+  if (button) { button.disabled = true; button.textContent = '寄送中…'; }
+  try {
+    await MoodlumaMemberAPI.requestReset(email);
+    msg.textContent = '如果此 Email 已註冊，我們會寄送重設密碼連結。請檢查收件匣與垃圾郵件資料夾。';
+    msg.className = 'auth-message success';
+  } catch (error) {
+    msg.textContent = error.message || '目前無法寄送，請稍後再試。';
+    msg.className = 'auth-message error';
+  } finally {
+    if (button) { button.disabled = false; button.textContent = '寄送重設密碼連結'; }
   }
-  if (newPassword !== confirmPassword) {
-    fail("兩次輸入的新密碼不一致。");
-    return;
-  }
-
-  const users = loadUsers();
-  const userIndex = users.findIndex(user =>
-    user.username.toLowerCase() === username.toLowerCase() &&
-    String(user.email || "").toLowerCase() === email.toLowerCase()
-  );
-
-  if (userIndex < 0) {
-    fail("帳號與註冊 Email 不符合，請重新確認。");
-    return;
-  }
-
-  users[userIndex].password = newPassword;
-  users[userIndex].passwordUpdatedAt = new Date().toISOString();
-  saveUsers(users);
-  msg.textContent = "密碼重設成功，請使用新密碼登入。";
-  msg.className = "auth-message success";
-  setTimeout(() => {
-    closeForgotPassword();
-    openAuth("login");
-    $("authUsername").value = username;
-  }, 700);
 }
 
 function logoutUser() {
+  ++memberAuthRequestId;
+  localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem(CURRENT_USER_KEY);
   localStorage.removeItem(`${HISTORY_PREFIX}-${GUEST_ID}`);
   localStorage.removeItem(`${FAVORITE_PREFIX}-${GUEST_ID}`);

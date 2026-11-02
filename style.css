@@ -7505,79 +7505,432 @@ body.light-mode .modal-content .modal-text-box p {
 .search-intent-summary { padding: 12px 16px; border: 1px solid rgba(128,145,220,.25); border-radius: 12px; background: rgba(128,145,220,.08); font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
 .search-intent-summary[hidden], .search-intent-summary:empty { display: none; }
 
-/* 圓圈內圖案與標籤整組置中；長標籤換行以維持各尺寸下的可讀比例。 */
-.mood-bubble {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  text-align: center !important;
-  overflow: hidden !important;
-}
 
-.mood-bubble > span {
-  display: grid !important;
-  width: 100% !important;
-  height: 100% !important;
-  min-width: 0 !important;
-  align-content: center !important;
-  justify-items: center !important;
-  text-align: center !important;
-  gap: 2px !important;
-}
-
-.mood-bubble .icon {
-  margin: 0 !important;
-  font-size: clamp(15px, calc(var(--bubble-size, 84px) * 0.25), 22px) !important;
-  line-height: 1 !important;
-}
-
-.mood-bubble .tag {
-  display: block !important;
-  width: auto !important;
-  max-width: calc(var(--bubble-size, 84px) - 16px) !important;
-  min-width: 0 !important;
-  padding: 0 !important;
-  white-space: normal !important;
-  overflow-wrap: anywhere !important;
-  word-break: break-word !important;
-  font-size: var(--bubble-tag-font, 12px) !important;
-  line-height: 1.12 !important;
-  transform: none !important;
-}
-
-.mood-bubble .kind {
-  margin: 0 !important;
-  font-size: clamp(8px, calc(var(--bubble-size, 84px) * 0.12), 10px) !important;
-  line-height: 1.05 !important;
-}
-
-/* 溫度計保留刻度與滑桿，移除包住控制區的透明外框。 */
-.movie-modal .feedback-temperature {
-  margin-top: 16px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
+/* 移除搜尋框內部透明長方形 */
+.explore-search-box input,
+body.light-mode .explore-search-box input {
   background: transparent !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-}
-
-body.light-mode .movie-modal .feedback-temperature {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-
-/* 移除探索搜尋列內層輸入框與低溫／高溫刻度區的透明矩形底框。 */
-#page-explore .explore-search-box input {
-  background: transparent !important;
-  border: 0 !important;
+  border: none !important;
   box-shadow: none !important;
   outline: none !important;
 }
 
-.movie-modal .temp-meter {
+
+/* 移除溫度計內部透明長方形 */
+.feedback-temperature .temp-meter {
   background: transparent !important;
-  border: 0 !important;
+  border: none !important;
   box-shadow: none !important;
+  backdrop-filter: none !important;
+  padding: 0 !important;
+}
+
+
+/* AI 猜電影遊戲 */
+.game-section {
+  margin-top: 24px;
+  max-width: 850px;
+}
+
+.game-card {
+  padding: 28px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  margin: 24px 0;
+}
+
+#gameClues > div {
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#gameNextHint,
+#gameSubmit {
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: linear-gradient(120deg, #8c8afa, #56c5f4);
+  color: white;
+  cursor: pointer;
+}
+
+#gameAnswer {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.12);
+  color: white;
+}
+
+#gameAnswer::placeholder {
+  color: rgba(255,255,255,0.7);
+}
+
+/* 聚會模式：共同感覺與成員各自推薦的間距 */
+#page-party .party-results-grid {
+    display: grid;
+    gap: 36px;
+}
+
+/* 聚會模式：產生個人片單按鈕往下移 */
+#page-party #roomMemberRecommendBtn {
+    margin-top: 20px;
+}
+
+
+/* =====================================
+   Moodluma 互動遊戲 RWD 自適應版面
+   ===================================== */
+
+/* 遊戲頁面使用完整主內容寬度 */
+#page-game {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 遊戲區域填滿頁面 */
+#page-game .game-section {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 遊戲主卡片 */
+#page-game .game-card {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 28px;
+    border-radius: 22px;
+}
+
+/* 分數及題目進度 */
+#page-game .game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 24px 0;
+}
+
+/* 提示區域 */
+#page-game #gameClues {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 輸入框 */
+#page-game #gameAnswer {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* 遊戲按鈕 */
+#page-game #gameNextHint,
+#page-game #gameSubmit {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* 平板 */
+@media (max-width: 1024px) {
+    #page-game .game-card {
+        padding: 24px;
+    }
+}
+
+/* 手機 */
+@media (max-width: 600px) {
+    #page-game {
+        width: 100%;
+        min-width: 0;
+    }
+
+    #page-game .game-section {
+        width: 100%;
+    }
+
+    #page-game .game-card {
+        padding: 18px;
+        border-radius: 18px;
+    }
+
+    #page-game .game-info {
+        gap: 12px;
+        margin: 18px 0;
+    }
+
+    #page-game #gameAnswer {
+        font-size: 16px;
+    }
+
+    #page-game #gameNextHint,
+    #page-game #gameSubmit {
+        min-height: 44px;
+    }
+}
+
+
+/* ===== AI 猜電影挑戰：四選一美化 ===== */
+
+.game-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.game-option {
+  width: 100%;
+  min-height: 70px;
+  padding: 16px 20px;
+
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: left;
+
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s,
+              transform 0.2s, box-shadow 0.2s;
+}
+
+.game-option:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.55);
+  transform: translateY(-2px);
+}
+
+ {
+  background: rgba(80, 175, 255, 0.35);
+  border: 2px solid #a5dcff;
+  box-shadow: 0 0 16px rgba(90, 180, 255, 0.25);
+}
+
+.game-option:disabled {.game-option.selected
+  cursor: default;
+}
+
+@media (max-width: 600px) {
+  .game-options {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .game-option {
+    min-height: 58px;
+    padding: 13px 16px;
+    font-size: 14px;
+  }
+}
+
+
+/* ===== AI 猜電影：霓虹雙層選取外框 ===== */
+
+
+/* ===== AI 猜電影：質感選取特效 ===== */
+
+.game-option {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* 滑鼠移上去 */
+.game-option:hover:not(:disabled):not(.selected) {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(170, 215, 255, 0.65);
+  transform: translateY(-1px);
+}
+
+
+/* 點擊回饋 */
+.game-option:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-option {
+    transition: none;
+  }
+}
+
+
+/* ===== AI 猜電影：選項互動效果 ===== */
+
+.game-option {
+  position: relative;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* 滑鼠移入 */
+.game-option:hover:not(:disabled):not(.selected) {
+  background: rgba(30, 75, 130, 0.45);
+  border-color: rgba(80, 170, 255, 0.7);
+}
+
+/* 選取後：整個背景變深藍 */
+.game-option.selected {
+  background: #102b4c !important;
+  border: 2px solid #299cff !important;
+  color: #ffffff !important;
+
+  box-shadow:
+    0 0 0 2px rgba(41, 156, 255, 0.2),
+    0 0 16px rgba(41, 156, 255, 0.3) !important;
+
+  transform: none;
+  padding-right: 45px;
+}
+
+/* 選取後的勾選圖示 */
+.game-option.selected::after {
+  content: "✓";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid #299cff;
+  border-radius: 50%;
+
+  color: #299cff;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* 答對：綠色 */
+.game-option.correct,
+.game-option.correct.selected {
+  background: #123e35 !important;
+  border: 2px solid #32d69a !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(50, 214, 154, 0.25) !important;
+}
+
+/* 答錯：紅色 */
+.game-option.wrong,
+.game-option.wrong.selected {
+  background: #4b202e !important;
+  border: 2px solid #ff617a !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 16px rgba(255, 97, 122, 0.25) !important;
+}
+
+/* 答題後的圖示 */
+.game-option.correct.selected::after {
+  content: "✓";
+  color: #32d69a;
+  border-color: #32d69a;
+}
+
+.game-option.wrong.selected::after {
+  content: "×";
+  color: #ff617a;
+  border-color: #ff617a;
+}
+
+
+/* ===== Moodluma 選項顏色優化 ===== */
+
+/* 選取時：明亮藍色背景 */
+.game-option.selected:not(.correct):not(.wrong) {
+  background: rgba(55, 155, 255, 0.38) !important;
+  border: 2px solid #39a9ff !important;
+  outline: none !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.15),
+    0 0 12px rgba(57,169,255,0.25) !important;
+
+  transform: none !important;
+}
+
+/* 答對：柔和綠色 */
+.game-option.correct,
+.game-option.correct.selected {
+  background: rgba(30, 185, 120, 0.35) !important;
+  border: 2px solid #32d69a !important;
+  color: white !important;
+}
+
+/* 答錯：柔和紅色 */
+.game-option.wrong,
+.game-option.wrong.selected {
+  background: rgba(235, 75, 95, 0.35) !important;
+  border: 2px solid #ff617a !important;
+  color: white !important;
+}
+
+/* AI 猜電影：解鎖提示 */
+
+.game-unlocked-hint {
+    margin-top: 12px;
+    padding: 14px 18px;
+    border-radius: 12px;
+
+    background: rgba(40, 110, 210, 0.22);
+    border: 1px solid rgba(130, 200, 255, 0.5);
+
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.7;
+
+    animation: hintAppear 0.3s ease;
+}
+
+@keyframes hintAppear {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
